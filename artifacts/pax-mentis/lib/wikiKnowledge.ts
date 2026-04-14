@@ -1083,6 +1083,150 @@ export const WIKI_CHUNKS: WikiChunk[] = [
     interventionEn: "Quick TIPP: You can wet your hands with cold water right now. Or jump in place for 30 seconds. Don't make decisions before the brain calms.",
     source: "Linehan, M.M. (1993). DBT Skills Training. Guilford. TherapistAid DBT Worksheets (2020).",
   },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 26: Rogers — Fenomenolojik Yaklaşım (simplypsychology.org / ek PDF)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "rogers_01",
+    theory: "Person-Centered",
+    topic: "Koşulsuz Olumlu Kabul ve Kendini Gerçekleştirme",
+    topicEn: "Unconditional Positive Regard & Actualizing Tendency",
+    keywords: ["onaylanmamak", "beğenilmek için", "değerimi kanıtlamak", "başkalarını memnun", "onaylarlarsa"],
+    keywordsEn: ["not approved", "to be liked", "prove my worth", "please others", "if they approve"],
+    content: "Rogers — Danışan Merkezli Terapi: İnsanın özünde bir kendini gerçekleştirme eğilimi vardır. Ancak koşullu kabul (sevgi ve saygının 'belli şeyler yapılırsa' verilmesi) bu eğilimi engeller. Kişi otantik duygularını gizler, 'başkaları ne düşünür' filtresiyle hareket eder. Koşulsuz kabul aldığında özgür büyüme mümkündür.",
+    contentEn: "Rogers — Person-Centred Therapy: At the core of every person is an actualizing tendency. But conditional acceptance (love/respect given only 'if you do certain things') blocks this tendency. The person conceals authentic feelings, acts through a 'what will others think' filter. Unconditional acceptance enables free growth.",
+    socraaticPrompt: "Bu görevi 'başkalarının beklentisi için' mi yapıyorsun, yoksa gerçekten kendi için mi — aralarındaki fark ne hissettiriyor?",
+    socraaticPromptEn: "Are you doing this task 'for others' expectations' or truly for yourself — what does the difference feel like?",
+    intervention: "Kendine koşulsuz kabul uygula: 'Bunu başarsam da başaramasam da, değerliyim.' Bu cümleyi bir kez kendi sesini duyarak söyle.",
+    interventionEn: "Apply unconditional self-regard: 'Whether I succeed or fail at this, I have worth.' Say this sentence once hearing your own voice.",
+    source: "Rogers, C.R. (1959). A theory of therapy. In Psychology: A Study of Science, Vol. 3. McGraw-Hill. Cervone & Pervin (2016).",
+  },
+  {
+    id: "rogers_02",
+    theory: "Person-Centered",
+    topic: "Gerçek Benlik — İdeal Benlik Uçurumu",
+    topicEn: "Real Self vs Ideal Self Gap",
+    keywords: ["olmak istediğim kişi değilim", "kendimden beklentim çok yüksek", "hayal kırıklığım kendimden", "olmalıydım"],
+    keywordsEn: ["not the person I want to be", "my expectations of myself too high", "disappointed in myself", "I should have been"],
+    content: "Rogers ve Higgins (1987) — Benlik Uyuşmazlığı: Gerçek benlik ('şu an kim olduğum') ile ideal benlik ('olmak istediğim') arasındaki mesafe, depresyon ve üzüntü kaynağıdır. 'Olmalı' benlikleri ise ('olmam gereken') kaygı ve ajitasyon üretir. Procrastination bu iki uyuşmazlıktan beslenebilir.",
+    contentEn: "Rogers & Higgins (1987) — Self-Discrepancy: The distance between real self ('who I am now') and ideal self ('who I want to be') is a source of depression and sadness. 'Ought' selves ('who I should be') generate anxiety and agitation. Procrastination can feed from both these discrepancies.",
+    socraaticPrompt: "Olmak istediğin kişi ile şu an olduğun kişi arasındaki fark — bu fark seni felç mi ediyor, yoksa motive mi?",
+    socraaticPromptEn: "The gap between who you want to be and who you are now — does this gap paralyze you, or motivate you?",
+    intervention: "Uçurumu köprüye dönüştür: 'İdeal benliğime bir adım daha yaklaşmak için bugün yapabileceğim en küçük şey ne?' Tek cümle yaz.",
+    interventionEn: "Turn the gap into a bridge: 'What is the smallest thing I can do today to get one step closer to my ideal self?' Write one sentence.",
+    source: "Rogers (1959); Higgins, E.T. (1987). Self-discrepancy. Psychological Review. Cervone & Pervin (2016).",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 27: Duygu Düzenleme Başarısızlığı (Sirois & Pychyl)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "emotion_reg_01",
+    theory: "Emotion Regulation",
+    topic: "Kısa Vadeli Ruh Hali Tamiri",
+    topicEn: "Short-Term Mood Repair",
+    keywords: ["önce rahatlamak istiyorum", "şu an iyi hissetmek", "sonra daha iyi çalışırım", "rahatsızlıktan kaçmak"],
+    keywordsEn: ["want to relax first", "feel good now", "I'll work better later", "escape discomfort"],
+    content: "Sirois & Pychyl (2013) — Duygu Düzenleme Modeli: Erteleme bir zaman yönetimi sorunu değil, duygu düzenleme başarısızlığıdır. Beyin kısa vadeli ruh hali iyileştirmesini uzun vadeli hedef başarısına tercih eder — 'şimdi iyi hissetmek' öncelik alır. Bu 'hedonik kayma' ertelemenin özüdür.",
+    contentEn: "Sirois & Pychyl (2013) — Emotion Regulation Model: Procrastination is not a time management problem — it's an emotion regulation failure. The brain prefers short-term mood improvement over long-term goal achievement — 'feeling good now' takes priority. This 'hedonic shift' is the essence of procrastination.",
+    socraaticPrompt: "Bu görevi ertelediğinde — tam olarak hangi duygudan kaçıyorsun? Ve bu kaçış sana gerçekten yardımcı oluyor mu?",
+    socraaticPromptEn: "When you procrastinate on this task — exactly what feeling are you escaping? And is this escape actually helping you?",
+    intervention: "Duygu kabulü dene: Rahatsızlığı bastırmak yerine 'Evet, bu biraz sıkıcı/zor/rahatsız edici — ve yapabilirim.' Kabul, direnç değil.",
+    interventionEn: "Try emotion acceptance: Instead of suppressing discomfort — 'Yes, this is a bit boring/hard/uncomfortable — and I can do it.' Acceptance, not resistance.",
+    source: "Sirois, F.M. & Pychyl, T.A. (2013). Procrastination and priority of short-term mood regulation. SPPC, 7(2), 115-127.",
+  },
+  {
+    id: "emotion_reg_02",
+    theory: "Emotion Regulation",
+    topic: "Gelecekteki Benlik Bağlantısı",
+    topicEn: "Future Self Connection",
+    keywords: ["sonrası beni ilgilendirmiyor", "gelecek çok uzak", "ilerisi için neden çalışayım", "umursamıyorum"],
+    keywordsEn: ["future doesn't concern me", "future is too far", "why work for later", "don't care"],
+    content: "Pychyl & Sirois — Gelecekteki Benlik: Erteleme yalnızca şimdiki beni değil, gelecekteki beni de etkiler — ancak beyin gelecekteki benliği 'yabancı biri' gibi işler. Gelecekteki benliğe bağlantı güçlendikçe erteleme azalır. Öz-şefkat bu bağlantıyı güçlendirmenin anahtarıdır.",
+    contentEn: "Pychyl & Sirois — Future Self: Procrastination affects not just my present self but my future self — but the brain processes future self as 'a stranger.' As connection to future self strengthens, procrastination decreases. Self-compassion is the key to strengthening this connection.",
+    socraaticPrompt: "Bir hafta sonraki sen bu kararı nasıl değerlendirecek — ve o 'gelecekteki sen' için ne yapmak istersin?",
+    socraaticPromptEn: "How will your self one week from now evaluate this decision — and what would you want to do for that 'future you'?",
+    intervention: "Gelecek benliğine mektup: 'Gelecekteki benliğime — bu hafta [şu adımı] atacağım çünkü sen [şu sonucu] hak ediyorsun.' Yaz ve sakla.",
+    interventionEn: "Letter to future self: 'To my future self — this week I will take [this step] because you deserve [this outcome].' Write and keep it.",
+    source: "Pychyl, T.A. (2013). Solving the Procrastination Puzzle. Tarcher/Perigee. Sirois & Pychyl (2013).",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 28: Sokratik Sorgulama Türleri (Carepatron / Paul, R.W.)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "socratic_01",
+    theory: "Socratic Method",
+    topic: "Altı Tür Sokratik Soru",
+    topicEn: "Six Types of Socratic Questions",
+    keywords: ["gerçekten mi", "emin misin", "nereden biliyorsun", "başka bakış açısı", "kanıtın ne"],
+    keywordsEn: ["really", "are you sure", "how do you know", "another perspective", "what's your evidence"],
+    content: "Paul (1993) — Altı Sokratik Soru Türü: 1. Netleştirme ('Ne demek istiyorsun?'), 2. Varsayım sorgulama ('Bu fikrin altında ne var?'), 3. Kanıt sorgulama ('Bunu neye dayandırıyorsun?'), 4. Bakış açısı ('Başka nasıl görebiliriz?'), 5. Sonuç ('Bu doğruysa ne olur?'), 6. Soruyu sorgulama ('Bu soru neden önemli?'). Her tür, düşünceyi derinleştirir.",
+    contentEn: "Paul (1993) — Six Types: 1. Clarification ('What do you mean?'), 2. Probing assumptions ('What underlies this idea?'), 3. Probing evidence ('What do you base this on?'), 4. Perspectives ('How else could we see this?'), 5. Implications ('If true, what follows?'), 6. Questioning the question ('Why is this question important?'). Each type deepens thought.",
+    socraaticPrompt: "Bu göreve dair en güçlü inancın ne — ve onu hangi kanıta dayandırıyorsun?",
+    socraaticPromptEn: "What is your strongest belief about this task — and what evidence do you base it on?",
+    intervention: "Kendi düşünceni sorgula: 'Bu inanç doğruysa ne olur? Yanlışsa? Başka bir açıklama var mı?' Üç soruyu yaz ve yanıtla.",
+    interventionEn: "Question your own thought: 'If this belief is true, what follows? If wrong? Is there another explanation?' Write and answer three questions.",
+    source: "Paul, R.W. (1993). Critical Thinking. Foundation for Critical Thinking. Carepatron Socratic Questioning Guide (2024).",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 29: OARS — Motivasyonel Görüşme Becerileri (Miller & Rollnick)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "oars_01",
+    theory: "Motivational Interviewing",
+    topic: "OARS: Dört Temel Beceri",
+    topicEn: "OARS: Four Core Skills",
+    keywords: ["sizi duymak istiyorum", "anlatın", "bu konuda ne düşünüyorsunuz", "kendi ağzınızdan", "değişmek ister misiniz"],
+    keywordsEn: ["I want to hear you", "tell me", "what do you think about this", "in your own words", "do you want to change"],
+    content: "Miller & Rollnick — OARS: Motivasyonel Görüşme'nin dört temel etkileşim becerisi. O: Açık sorular (evet/hayır cevabı verilemeyen), A: Onaylama (güçlü yönleri görünür kılmak), R: Yansıtıcı dinleme (söylenenin anlamını geri yansıtmak), S: Özet (söylenenin bütününü bir araya getirmek). Bu beceriler 'değişim konuşması'nı tetikler.",
+    contentEn: "Miller & Rollnick — OARS: Four core interaction skills of Motivational Interviewing. O: Open questions (can't be answered yes/no), A: Affirmations (making strengths visible), R: Reflective listening (reflecting back the meaning of what's said), S: Summaries (bringing together the whole of what was said). These skills trigger 'change talk.'",
+    socraaticPrompt: "Bu değişimi yapmak istediğinde — geçmişte benzer bir şeyi başardığın bir an var mıydı?",
+    socraaticPromptEn: "When you want to make this change — was there a time in the past when you succeeded at something similar?",
+    intervention: "Onaylama cümlesi yaz: Bu konuda gösterdiğin bir güçlü yönü adlandır — 'Ben ___ konusunda [güçlü yön] gösteren biriyim.' Bunu kendin söyle.",
+    interventionEn: "Write an affirmation: Name one strength you've shown in this area — 'I am someone who shows [strength] when it comes to ___.' Say this to yourself.",
+    source: "Miller, W.R. & Rollnick, S. (2013). Motivational Interviewing (3rd ed.). Guilford. Carepatron OARS Guide (2024).",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 30: Çözüm Odaklı Kısa Terapi — SFBT (de Shazer / Erickson)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "sfbt_01",
+    theory: "SFBT",
+    topic: "Mucize Sorusu ve İstisnalar",
+    topicEn: "Miracle Question & Exceptions",
+    keywords: ["nasıl olabileceğini hayal edemiyorum", "çözüm yok gibi", "her zaman böyle", "hiçbir zaman değişmez"],
+    keywordsEn: ["can't imagine how it could be", "seems like no solution", "always like this", "never changes"],
+    content: "de Shazer / Erickson — ÇOKT: Sorunun kökenine odaklanmak yerine çözümün zaten var olduğu anlara odaklan. 'İstisna sorusu': Bu sorunun olmadığı ya da daha az hissedildiği bir an ne zaman? 'Mucize sorusu': Sabah uyandığında her şey iyi olsaydı, ilk ne fark ederdin? Bu teknikler beynin olumsuz kalıptan çözüm yöne dönmesini sağlar.",
+    contentEn: "de Shazer / Erickson — SFBT: Instead of focusing on the origin of the problem, focus on moments when the solution already exists. 'Exception question': When is there a time when this problem doesn't exist or feels less? 'Miracle question': If you woke up tomorrow and everything was fine, what would you notice first? These techniques shift the brain from problem patterns to solution directions.",
+    socraaticPrompt: "Bu sorunun olmadığı ya da daha az hissedildiği bir gün ya da an hatırlıyor musun — o zaman ne farklıydı?",
+    socraaticPromptEn: "Can you remember a day or moment when this problem didn't exist or felt less — what was different then?",
+    intervention: "İstisna bul: 'Bu görevi yapmayı başardığım bir zamanı hatırlıyorum — o günü düşününce ne görüyorum?' Üç şey yaz.",
+    interventionEn: "Find an exception: 'I remember a time when I managed to do this kind of task — thinking of that day, what do I see?' Write three things.",
+    source: "de Shazer, S. (1985). Keys to Solution in Brief Therapy. Norton. Erickson Foundation SFBT Resources.",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 31: Gestalt — İki Sandalye Tekniği (Perls / EFT)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "gestalt_01",
+    theory: "Gestalt",
+    topic: "İç Çatışma Diyaloğu",
+    topicEn: "Inner Conflict Dialogue",
+    keywords: ["iki parçam var", "bir yanım istiyor bir yanım istemiyor", "çatışıyorum", "içimdeki ses", "ikilem"],
+    keywordsEn: ["two parts of me", "one side wants one side doesn't", "conflicted", "voice inside", "dilemma"],
+    content: "Perls — Gestalt Terapi: Her erteleme aslında iki 'iç ses' arasındaki çözümsüz bir çatışmadır. 'Yapıcı ses' (hedef, değer, sorumluluk) ile 'direnç sesi' (korku, tükenmişlik, öfke). İki sandalye tekniği: Her sesi ayrı bir sandalyeye oturt, birbiriyle diyalog kur. Dışavurulmuş iç çatışma, hafızada donmuş kalmaktan daha az güçtür.",
+    contentEn: "Perls — Gestalt Therapy: Every procrastination is actually an unresolved conflict between two 'inner voices.' The 'productive voice' (goal, value, responsibility) vs. the 'resistance voice' (fear, exhaustion, anger). Two-chair technique: Seat each voice in a separate chair, create a dialogue between them. An externalized inner conflict has less power than one frozen in memory.",
+    socraaticPrompt: "İçindeki iki sesi dinlersen — 'yapmak isteyen ses' ne söylüyor, 'yapmak istemeyen ses' ne söylüyor?",
+    socraaticPromptEn: "If you listen to the two voices inside — what does the 'voice that wants to do it' say, and what does the 'voice that doesn't want to' say?",
+    intervention: "İki sesi yaz: 'Yapmalıyım çünkü...' ve 'Yapmak istemiyorum çünkü...' — her ikisini de yazdıktan sonra, ortadan bir köprü kur.",
+    interventionEn: "Write both voices: 'I should do this because...' and 'I don't want to do this because...' — after writing both, build a bridge from the middle.",
+    source: "Perls, F. (1969). Gestalt Therapy Verbatim. Real People Press. Greenberg, L. (2010). Emotion-Focused Therapy. APA.",
+  },
 ];
 
 // ─── Sinyal Tespiti ───────────────────────────────────────────────────────────
@@ -1197,15 +1341,15 @@ export function retrieveRelevantChunks(
   const inputWords = lower.split(/\s+/);
 
   const signalTheoryMap: Record<ResistanceSignal, string[]> = {
-    avoidance:    ["ACT", "Pychyl", "Motivational Interviewing", "SDT", "Social Accountability", "Mindfulness", "Behavioral Activation", "TTM"],
-    overwhelm:    ["TMT", "PSI", "Atomic Habits", "Flow", "Mindfulness", "CBT", "DBT", "Problem Solving"],
-    perfectionism:["Perfectionism", "ACT", "Kahneman", "CBT", "Bandura", "Growth Mindset", "Self-Compassion"],
-    fear:         ["ACT", "Kahneman", "Pychyl", "CBT", "Bandura", "Growth Mindset", "Problem Solving"],
-    ambiguity:    ["TMT", "Implementation Intentions", "PSI", "WOOP", "Chronobiology", "Problem Solving"],
-    low_energy:   ["PSI", "Pychyl", "Mindfulness", "Chronobiology", "SDT", "Rumination", "Behavioral Activation", "DBT"],
-    shame:        ["Shame", "Active Listening", "Pychyl", "CBT", "Bandura", "Rumination", "Self-Compassion"],
-    boredom:      ["Boredom", "ACT", "Atomic Habits", "Flow", "Behavioral Economics", "Behavioral Activation"],
-    neutral:      ["TMT", "Atomic Habits", "Socratic Method", "WOOP", "Implementation Intentions", "TTM"],
+    avoidance:    ["ACT", "Pychyl", "Motivational Interviewing", "SDT", "Social Accountability", "Mindfulness", "Behavioral Activation", "TTM", "Emotion Regulation", "SFBT"],
+    overwhelm:    ["TMT", "PSI", "Atomic Habits", "Flow", "Mindfulness", "CBT", "DBT", "Problem Solving", "Gestalt"],
+    perfectionism:["Perfectionism", "ACT", "Kahneman", "CBT", "Bandura", "Growth Mindset", "Self-Compassion", "Person-Centered"],
+    fear:         ["ACT", "Kahneman", "Pychyl", "CBT", "Bandura", "Growth Mindset", "Problem Solving", "Gestalt"],
+    ambiguity:    ["TMT", "Implementation Intentions", "PSI", "WOOP", "Chronobiology", "Problem Solving", "SFBT", "Socratic Method"],
+    low_energy:   ["PSI", "Pychyl", "Mindfulness", "Chronobiology", "SDT", "Rumination", "Behavioral Activation", "DBT", "Emotion Regulation"],
+    shame:        ["Shame", "Active Listening", "Pychyl", "CBT", "Bandura", "Rumination", "Self-Compassion", "Person-Centered", "Gestalt"],
+    boredom:      ["Boredom", "ACT", "Atomic Habits", "Flow", "Behavioral Economics", "Behavioral Activation", "SFBT"],
+    neutral:      ["TMT", "Atomic Habits", "Socratic Method", "WOOP", "Implementation Intentions", "TTM", "Motivational Interviewing"],
   };
 
   const scored = WIKI_CHUNKS.map(chunk => {

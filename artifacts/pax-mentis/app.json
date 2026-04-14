@@ -56,12 +56,6 @@
           "microphonePermission": "Pax Mentis sesinle sorularına yanıt vermek için mikrofona ihtiyaç duyar.",
           "speechRecognitionPermission": "Pax Mentis konuşmanı dinleyerek seni daha iyi anlayabilir."
         }
-      ],
-      [
-        "llama.rn",
-        {
-          "enableOpenCLAndHexagon": false
-        }
       ]
     ],
     "experiments": {

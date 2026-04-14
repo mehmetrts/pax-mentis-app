@@ -35,7 +35,8 @@
         "android.permission.POST_NOTIFICATIONS",
         "android.permission.READ_CALENDAR"
       ],
-      "minSdkVersion": 26
+      "minSdkVersion": 26,
+      "package": "com.mehmetrts.paxmentis"
     },
     "web": {
       "favicon": "./assets/images/icon.png"
@@ -60,6 +61,11 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "0e9a6488-eb86-48c0-b01e-d53ac687dac0"
+      }
     }
   }
 }

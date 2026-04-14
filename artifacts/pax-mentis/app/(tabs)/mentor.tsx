@@ -421,6 +421,7 @@ export default function MentorScreen() {
         keyExtractor={item => item.id}
         renderItem={renderMessage}
         ListFooterComponent={ListFooter}
+        style={styles.messageListContainer}
         contentContainerStyle={styles.messageList}
         showsVerticalScrollIndicator={false}
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
@@ -566,14 +567,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  messageListContainer: { flex: 1 },
   messageList: {
     paddingHorizontal: 16,
     paddingVertical: 16,
     gap: 12,
+    flexGrow: 1,
   },
-  messageWrapper: { marginBottom: 12 },
-  mentorWrapper: { alignSelf: "flex-start", maxWidth: "88%" },
-  userWrapper: { alignSelf: "flex-end", maxWidth: "80%" },
+  messageWrapper: { marginBottom: 4 },
+  mentorWrapper: { width: "88%", alignSelf: "flex-start" },
+  userWrapper:   { width: "80%", alignSelf: "flex-end" },
   inputContainer: {
     flexDirection: "row",
     alignItems: "flex-end",

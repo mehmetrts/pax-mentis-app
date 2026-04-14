@@ -34,6 +34,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useNotifications } from "@/context/NotificationContext";
 import { useCalendar } from "@/context/CalendarContext";
+import { useTheme, ThemeMode } from "@/context/ThemeContext";
 import { M3Spring } from "@/constants/colors";
 import {
   modelManager,
@@ -134,6 +135,7 @@ function InfoRow({ icon, label, value, onPress }: {
 export default function SettingsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { themeMode, setThemeMode } = useTheme();
   const { settings, updateSettings, notify, permissionGranted, requestPermission } = useNotifications();
   const {
     calSettings, updateCalSettings,
@@ -633,6 +635,54 @@ export default function SettingsScreen() {
         );
       })}
 
+      {/* ── TEMA ────────────────────────────────────────────────────────────── */}
+      <SectionTitle text="GÖRÜNÜM" />
+      <View style={[styles.segmentCard, { backgroundColor: colors.surfaceContainer, borderColor: colors.outlineVariant }]}>
+        {(["system", "light", "dark"] as ThemeMode[]).map((mode, idx, arr) => {
+          const labels: Record<ThemeMode, string> = { system: "Sistem", light: "Açık", dark: "Koyu" };
+          const icons:  Record<ThemeMode, string> = { system: "monitor", light: "sun", dark: "moon" };
+          const active = themeMode === mode;
+          return (
+            <Pressable
+              key={mode}
+              onPress={() => setThemeMode(mode)}
+              style={[
+                styles.segmentItem,
+                {
+                  backgroundColor: active ? colors.primary : "transparent",
+                  borderRightWidth: idx < arr.length - 1 ? StyleSheet.hairlineWidth : 0,
+                  borderRightColor: colors.outlineVariant,
+                },
+              ]}
+            >
+              <Feather
+                name={icons[mode] as any}
+                size={15}
+                color={active ? colors.onPrimary : colors.onSurfaceVariant}
+              />
+              <Text style={[styles.segmentText, { color: active ? colors.onPrimary : colors.onSurfaceVariant }]}>
+                {labels[mode]}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      {/* ── DİL ──────────────────────────────────────────────────────────────── */}
+      <SectionTitle text="DİL" />
+      <View style={[styles.langCard, { backgroundColor: colors.surfaceContainer, borderColor: colors.outlineVariant }]}>
+        <View style={[styles.langIconWrap, { backgroundColor: colors.primary + "22" }]}>
+          <Feather name="globe" size={18} color={colors.primary} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.langLabel, { color: colors.onSurface }]}>Türkçe</Text>
+          <Text style={[styles.langSub, { color: colors.onSurfaceVariant }]}>Şu an desteklenen tek dil</Text>
+        </View>
+        <View style={[styles.langBadge, { backgroundColor: colors.primaryContainer }]}>
+          <Text style={[styles.langBadgeText, { color: colors.primary }]}>Aktif</Text>
+        </View>
+      </View>
+
       {/* Preview */}
       <SectionTitle text="TEST" />
       <Pressable
@@ -1009,6 +1059,62 @@ const styles = StyleSheet.create({
   },
   modalSaveBtnText: {
     fontSize: 15,
+    fontFamily: "Inter_600SemiBold",
+  },
+  // ── Theme segment ────────────────────────────────────────────────────────────
+  segmentCard: {
+    marginHorizontal: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+    flexDirection: "row",
+    overflow: "hidden",
+  },
+  segmentItem: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 14,
+  },
+  segmentText: {
+    fontSize: 13,
+    fontFamily: "Inter_600SemiBold",
+  },
+  // ── Language row ──────────────────────────────────────────────────────────────
+  langCard: {
+    marginHorizontal: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  langIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  langLabel: {
+    fontSize: 14,
+    fontFamily: "Inter_600SemiBold",
+  },
+  langSub: {
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+    marginTop: 2,
+  },
+  langBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  langBadgeText: {
+    fontSize: 11,
     fontFamily: "Inter_600SemiBold",
   },
   // ── Model card ──────────────────────────────────────────────────────────────

@@ -18,6 +18,7 @@ import { SupportiveToast } from "@/components/SupportiveToast";
 import { AppProvider } from "@/context/AppContext";
 import { CalendarProvider } from "@/context/CalendarContext";
 import { NotificationProvider, useNotifications } from "@/context/NotificationContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -57,18 +58,20 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
-          <AppProvider>
-            <NotificationProvider>
-              <CalendarProvider>
-                <GestureHandlerRootView style={{ flex: 1 }}>
-                  <KeyboardProvider>
-                    <RootLayoutNav />
-                    <ToastOverlay />
-                  </KeyboardProvider>
-                </GestureHandlerRootView>
-              </CalendarProvider>
-            </NotificationProvider>
-          </AppProvider>
+          <ThemeProvider>
+            <AppProvider>
+              <NotificationProvider>
+                <CalendarProvider>
+                  <GestureHandlerRootView style={{ flex: 1 }}>
+                    <KeyboardProvider>
+                      <RootLayoutNav />
+                      <ToastOverlay />
+                    </KeyboardProvider>
+                  </GestureHandlerRootView>
+                </CalendarProvider>
+              </NotificationProvider>
+            </AppProvider>
+          </ThemeProvider>
         </QueryClientProvider>
       </ErrorBoundary>
     </SafeAreaProvider>

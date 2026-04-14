@@ -25,6 +25,12 @@ import {
   determinePhase,
   ConversationPhase,
 } from "@/lib/wikiKnowledge";
+import {
+  UserProfile,
+  loadUserProfile,
+  updateUserProfile,
+  generateProfileSummary,
+} from "@/lib/userProfile";
 import { SessionMessage, MentorSession } from "@/context/AppContext";
 
 interface DisplayMessage {
@@ -66,6 +72,8 @@ export default function MentorScreen() {
   const [currentSignal, setCurrentSignal] = useState("neutral");
   const [currentPhase, setCurrentPhase] = useState<ConversationPhase>("discovery");
   const [hasActionPlan, setHasActionPlan] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const userProfileRef = useRef<UserProfile | null>(null);
 
   // ─── Stale closure düzeltmesi ─────────────────────────────────────────────
   // currentSession'ı hem state hem ref olarak tutuyoruz.
@@ -88,6 +96,14 @@ export default function MentorScreen() {
     () => (taskId ? tasks.find(t => t.id === taskId) : null),
     [taskId, tasks]
   );
+
+  // Kullanıcı profilini AsyncStorage'dan yükle (bir kez, uygulama açılışında)
+  useEffect(() => {
+    loadUserProfile().then(profile => {
+      setUserProfile(profile);
+      userProfileRef.current = profile;
+    });
+  }, []);
 
   // Ekrana gelince welcome mesajını göster
   useEffect(() => {
@@ -148,7 +164,8 @@ export default function MentorScreen() {
 
     try {
       const relevantChunks = retrieveRelevantChunks(userText, analysis.signal);
-      const systemPrompt = buildSystemPrompt(relevantChunks, analysis.signal, nextPhase);
+      const profileSummary = generateProfileSummary(userProfileRef.current ?? { sessionCount: 0, totalUserMessages: 0, signalFrequency: {}, avgResistanceScore: 0, lastSessionDate: null, usedInterventions: {} });
+      const systemPrompt = buildSystemPrompt(relevantChunks, analysis.signal, nextPhase, profileSummary ?? undefined);
 
       const llmMessages = [
         { role: "system" as const, content: systemPrompt },
@@ -184,6 +201,16 @@ export default function MentorScreen() {
       if (activeTask) {
         await updateTask(activeTask.id, { resistanceScore: analysis.score });
       }
+
+      // ─── Kullanıcı profilini güncelle ─────────────────────────────────────
+      const isNewSession = currentSessionRef.current === null;
+      const updatedProfile = await updateUserProfile(
+        analysis.signal,
+        analysis.score,
+        isNewSession
+      );
+      setUserProfile(updatedProfile);
+      userProfileRef.current = updatedProfile;
 
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
@@ -286,6 +313,14 @@ export default function MentorScreen() {
                 {PHASE_LABELS[currentPhase]}
               </Text>
             </View>
+            {/* Profil bellek göstergesi */}
+            {userProfile && userProfile.sessionCount > 0 && (
+              <View style={[styles.phaseBadge, { backgroundColor: colors.muted, borderRadius: 8 }]}>
+                <Text style={[styles.phaseBadgeText, { color: colors.mutedForeground }]}>
+                  {userProfile.sessionCount} sohbet
+                </Text>
+              </View>
+            )}
             {/* Direnç sinyali */}
             {currentResistance > 0 && (
               <View style={styles.signalRow}>

@@ -35,6 +35,8 @@ import { useColors } from "@/hooks/useColors";
 import { useNotifications } from "@/context/NotificationContext";
 import { useCalendar } from "@/context/CalendarContext";
 import { useTheme, ThemeMode } from "@/context/ThemeContext";
+import { useOwl, MASCOT_OPTIONS } from "@/context/OwlContext";
+import { MascotPreview } from "@/components/OwlNotification";
 import { M3Spring } from "@/constants/colors";
 import {
   modelManager,
@@ -138,6 +140,7 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { themeMode, setThemeMode } = useTheme();
   const { settings, updateSettings, notify, permissionGranted, requestPermission } = useNotifications();
+  const { mascotType, setMascot } = useOwl();
   const {
     calSettings, updateCalSettings,
     permissionStatus: calPermStatus, requestPermission: requestCalPerm,
@@ -699,8 +702,40 @@ export default function SettingsScreen() {
         </View>
       </View>
 
-      {/* Preview */}
-      <SectionTitle text="BAYKUŞ BİLDİRİMİ — TEST" />
+      {/* Mascot selector */}
+      <SectionTitle text="BİLDİRİM MASKOTu" />
+      <View style={styles.mascotGrid}>
+        {MASCOT_OPTIONS.map(({ type, label }) => {
+          const selected = mascotType === type;
+          return (
+            <Pressable
+              key={type}
+              onPress={() => setMascot(type)}
+              style={[
+                styles.mascotCard,
+                {
+                  backgroundColor: selected ? colors.primaryContainer : colors.surfaceContainer,
+                  borderColor: selected ? colors.primary : colors.outlineVariant,
+                  borderWidth: selected ? 2 : 1,
+                },
+              ]}
+            >
+              <MascotPreview type={type} size={52} accent={colors.tertiary} />
+              <Text style={[styles.mascotLabel, { color: selected ? colors.primary : colors.onSurface }]}>
+                {label}
+              </Text>
+              {selected && (
+                <View style={[styles.mascotCheck, { backgroundColor: colors.primary }]}>
+                  <Feather name="check" size={10} color="#FFF" />
+                </View>
+              )}
+            </Pressable>
+          );
+        })}
+      </View>
+
+      {/* Notification test */}
+      <SectionTitle text="BİLDİRİM TESTİ" />
       <View style={[styles.owlTestGrid, { gap: 10 }]}>
         {([
           { type: "self_compassion",  label: "← Sol",   icon: "🌿", dir: "Öz-şefkat"    },
@@ -1085,6 +1120,39 @@ const styles = StyleSheet.create({
   modalSaveBtnText: {
     fontSize: 15,
     fontFamily: "Inter_600SemiBold",
+  },
+  // ── Mascot selector ──────────────────────────────────────────────────────────
+  mascotGrid: {
+    marginHorizontal: 20,
+    flexDirection:    "row",
+    flexWrap:         "wrap",
+    gap:              10,
+    marginBottom:     4,
+  },
+  mascotCard: {
+    width:          "22%",
+    flexGrow:       1,
+    borderRadius:   16,
+    paddingVertical: 12,
+    paddingHorizontal: 6,
+    alignItems:     "center",
+    gap:            8,
+    position:       "relative",
+  },
+  mascotLabel: {
+    fontSize:   12,
+    fontFamily: "Inter_600SemiBold",
+    textAlign:  "center",
+  },
+  mascotCheck: {
+    position:     "absolute",
+    top:          6,
+    right:        6,
+    width:        18,
+    height:       18,
+    borderRadius: 9,
+    alignItems:   "center",
+    justifyContent: "center",
   },
   // ── Owl test grid ────────────────────────────────────────────────────────────
   owlTestGrid: {

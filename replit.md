@@ -60,14 +60,16 @@ Android/iOS Expo uygulaması. Erteleme davranışını psikolojik bilimle ele al
 - Tüm takvim/not verileri cihaz üzerinde kalır, sunucuya gönderilmez
 
 **Bildirim sistemi:**
-- `lib/notificationService.ts` — 3 Android kanal, 7 bildirim türü, Türkçe mesaj kataloğu (2-3 varyant), sakin saat desteği; `registerOwlCallback` ile baykuş entegrasyonu
+- `lib/notificationService.ts` — 3 Android kanal, 7 bildirim türü, Türkçe mesaj kataloğu (2-3 varyant), sakin saat desteği; `registerOwlCallback` ile maskot entegrasyonu
 - `context/NotificationContext.tsx` — bildirim ayarları (AsyncStorage), toast state, izin yönetimi
 - `components/SupportiveToast.tsx` — M3 Expressive spring animasyonlu uygulama içi banner (yukarıdan sürgün, ilerleme çubuğu, yukarı kaydır ile kapat)
-- `components/OwlNotification.tsx` — animasyonlu baykuş karakter bildirimi: ekranın 4 kenarından peek, spring slide-in, boş konuşma balonu, 4.5s sonra otomatik çıkış
+- `components/OwlNotification.tsx` — animasyonlu maskot bildirimi: 4 kenardan peek (PEEK_AMOUNT=78), queue tabanlı (üst üste binmez), konuşma balonu (maxW=252, 14/13px)
   - Sol: self_compassion / resistance_high | Sağ: gentle_nudge / streak_reminder | Üst: daily_morning | Alt: task_added / session_complete
-  - Baykuş View bileşenleriyle çizilmiş (mezuniyet şapkası, gözler, gaga, kanatlar), Amber accent
-- `context/OwlContext.tsx` — `showOwl(type)` imperatif hook, registerOwlCallback ile notificationService'e bağlı
-- `app/(tabs)/settings.tsx` — bildirim ayarları ekranı (ana toggle, kategori toggle'ları, sabah saati, sessiz saatler); BAYKUŞ BİLDİRİMİ TEST bölümü (4 yön butonu); GÖRÜNÜM (Sistem/Açık/Koyu) + DİL bölümleri
+  - 4 maskot: Baykuş (mezuniyet şapkası), Kedi (yeşil gözler), Köpek (sarı, dil), Tavşan (mor gözler)
+  - `MascotPreview` bileşeni: settings'teki seçici için küçük önizleme
+- `context/OwlContext.tsx` — queue tabanlı `showOwl(type)` (max 4 bekleyen), maskot tipi AsyncStorage'da (`@pax_mentis:mascot_type`), `setMascot()` API
+  - `MASCOT_OPTIONS` dışa aktarılan dizi (settings seçici için)
+- `app/(tabs)/settings.tsx` — BİLDİRİM MASKOTu bölümü (4 maskot seçici kartı); BİLDİRİM TESTİ bölümü (4 yön butonu); GÖRÜNÜM + DİL bölümleri
 - Tetikleyiciler: görev ekleme → `task_added`, direnç ≥70 → `resistance_high`, günlük sabah → `daily_morning`
 
 **Renk sistemi:** constants/colors.ts — light + dark mode

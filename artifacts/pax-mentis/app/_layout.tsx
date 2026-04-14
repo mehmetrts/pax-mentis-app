@@ -40,10 +40,10 @@ function ToastOverlay() {
   return <SupportiveToast payload={toast} onDismiss={dismissToast} />;
 }
 
-/** Animated owl — rendered as top-level overlay */
+/** Animated mascot — rendered as top-level overlay */
 function OwlOverlay() {
-  const { owlPayload, dismissOwl } = useOwl();
-  return <OwlNotification payload={owlPayload} onDismiss={dismissOwl} />;
+  const { owlPayload, dismissOwl, mascotType } = useOwl();
+  return <OwlNotification payload={owlPayload} onDismiss={dismissOwl} mascotType={mascotType} />;
 }
 
 export default function RootLayout() {

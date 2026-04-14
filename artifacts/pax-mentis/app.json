@@ -17,7 +17,8 @@
       "supportsTablet": false,
       "infoPlist": {
         "NSSpeechRecognitionUsageDescription": "Pax Mentis konuşmanı dinleyerek seni daha iyi anlayabilir.",
-        "NSMicrophoneUsageDescription": "Pax Mentis sesinle sorularına yanıt vermek için mikrofona ihtiyaç duyar."
+        "NSMicrophoneUsageDescription": "Pax Mentis sesinle sorularına yanıt vermek için mikrofona ihtiyaç duyar.",
+        "NSCalendarsUsageDescription": "Pax Mentis yaklaşan etkinliklerini okuyarak yoğunluğunu anlayabilir. Tüm veriler yalnızca cihazında işlenir."
       }
     },
     "android": {
@@ -31,7 +32,8 @@
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.SCHEDULE_EXACT_ALARM",
         "android.permission.USE_EXACT_ALARM",
-        "android.permission.POST_NOTIFICATIONS"
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.READ_CALENDAR"
       ],
       "minSdkVersion": 26
     },

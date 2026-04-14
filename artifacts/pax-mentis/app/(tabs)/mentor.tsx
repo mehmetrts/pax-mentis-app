@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 import { useNotifications } from "@/context/NotificationContext";
+import { useCalendar } from "@/context/CalendarContext";
 import { useVoice } from "@/hooks/useVoice";
 import { MentorBubble } from "@/components/MentorBubble";
 import { ResistanceMeter } from "@/components/ResistanceMeter";
@@ -68,6 +69,7 @@ export default function MentorScreen() {
   const { taskId } = useLocalSearchParams<{ taskId?: string }>();
   const { tasks, addSession, updateSession, updateTask, addPlan } = useApp();
   const { notify } = useNotifications();
+  const { calendarContext, notesContext } = useCalendar();
   const voice = useVoice();
 
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
@@ -201,7 +203,9 @@ export default function MentorScreen() {
         relevantChunks,
         analysis.signal,
         nextPhase,
-        [profileSummary, convSummary].filter(Boolean).join("\n") || undefined
+        [profileSummary, convSummary, calendarContext, notesContext]
+          .filter(Boolean)
+          .join("\n\n") || undefined
       );
 
       const llmMessages = [

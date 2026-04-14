@@ -16,10 +16,12 @@ import {
   StyleSheet,
   Switch,
   Text,
+  TextInput,
   View,
   Platform,
   Pressable,
   Alert,
+  Modal,
 } from "react-native";
 import Animated, {
   useSharedValue,
@@ -30,6 +32,7 @@ import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useNotifications } from "@/context/NotificationContext";
+import { useCalendar } from "@/context/CalendarContext";
 import { M3Spring } from "@/constants/colors";
 
 function SettingRow({
@@ -125,6 +128,16 @@ export default function SettingsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { settings, updateSettings, notify, permissionGranted, requestPermission } = useNotifications();
+  const {
+    calSettings, updateCalSettings,
+    permissionStatus: calPermStatus, requestPermission: requestCalPerm,
+    availableCalendars, insight, isLoading: calLoading, refresh: refreshCal,
+    sharedNotes, addNote, toggleNote, deleteNote, clearAllNotes,
+  } = useCalendar();
+
+  const [showAddNoteModal, setShowAddNoteModal] = useState(false);
+  const [noteContent, setNoteContent] = useState("");
+  const [noteLabel, setNoteLabel]     = useState("");
 
   const topPad    = Platform.OS === "web" ? 24 : insets.top + 16;
   const bottomPad = Platform.OS === "web" ? 84 + 20 : insets.bottom + 100;
@@ -141,6 +154,41 @@ export default function SettingsScreen() {
         [{ text: "Tamam" }],
       );
     }
+  };
+
+  const handleCalendarToggle = async (v: boolean) => {
+    if (v && calPermStatus !== "granted") {
+      const granted = await requestCalPerm();
+      if (!granted) {
+        Alert.alert(
+          "Takvim İzni Gerekli",
+          "Takvim erişimi için Ayarlar > Uygulamalar > Pax Mentis > İzinler yolunu izleyin.\n\nNot: Yalnızca etkinlik başlıkları ve saatleri okunur — açıklama veya katılımcı bilgisi alınmaz.",
+          [{ text: "Tamam" }],
+        );
+        return;
+      }
+    }
+    await updateCalSettings({ enabled: v });
+    if (v) refreshCal();
+  };
+
+  const handleAddNote = async () => {
+    if (!noteContent.trim()) return;
+    await addNote(noteContent.trim(), noteLabel.trim() || "Not");
+    setNoteContent("");
+    setNoteLabel("");
+    setShowAddNoteModal(false);
+  };
+
+  const handleClearNotes = () => {
+    Alert.alert(
+      "Tüm Notları Sil",
+      "Tüm paylaşılan notlar silinecek. Bu işlem geri alınamaz.",
+      [
+        { text: "İptal", style: "cancel" },
+        { text: "Sil", style: "destructive", onPress: () => clearAllNotes() },
+      ],
+    );
   };
 
   return (
@@ -286,6 +334,128 @@ export default function SettingsScreen() {
         />
       </View>
 
+
+      {/* ── TAKVİM ─────────────────────────────────────────────────────────── */}
+      <SectionTitle text="TAKVİM ENTEGRASYONU" />
+
+      {/* Privacy info card */}
+      <View style={[styles.privacyCard, { backgroundColor: colors.tertiaryContainer + "55", borderColor: colors.tertiary + "33" }]}>
+        <Feather name="lock" size={14} color={colors.tertiary} />
+        <Text style={[styles.privacyText, { color: colors.onSurface }]}>
+          Yalnızca etkinlik başlıkları ve saatleri okunur. Açıklamalar, katılımcılar ve konum bilgisi hiçbir zaman alınmaz. Tüm veriler yalnızca bu cihazda işlenir, sunucuya gönderilmez.
+        </Text>
+      </View>
+
+      <View style={styles.rowGroup}>
+        <SettingRow
+          icon="calendar"
+          iconColor={colors.primary}
+          label="Takvim Erişimi"
+          description="Yaklaşan etkinliklere göre yoğunluk analizi"
+          value={calSettings.enabled}
+          onToggle={handleCalendarToggle}
+        />
+        {calSettings.enabled && (
+          <SettingRow
+            icon="cpu"
+            iconColor={colors.tertiary}
+            label="Mentöre Bağlam Olarak Aktar"
+            description="Yoğun günlerde mentor sohbetini buna göre ayarlar"
+            value={calSettings.injectIntoMentor}
+            onToggle={(v) => updateCalSettings({ injectIntoMentor: v })}
+          />
+        )}
+      </View>
+
+      {/* Calendar insight summary */}
+      {calSettings.enabled && insight && (
+        <View style={[styles.insightCard, { backgroundColor: colors.surfaceContainer, borderColor: colors.outlineVariant }]}>
+          <View style={styles.insightHeader}>
+            <Text style={[styles.insightTitle, { color: colors.onSurface }]}>Son takvim özeti</Text>
+            <Pressable onPress={refreshCal}>
+              <Feather name="refresh-cw" size={14} color={colors.primary} />
+            </Pressable>
+          </View>
+          <Text style={[styles.insightBody, { color: colors.onSurfaceVariant }]}>
+            {insight.turkishSummary}
+          </Text>
+          <Text style={[styles.insightMeta, { color: colors.onSurfaceVariant + "66" }]}>
+            {insight.totalEvents} etkinlik · Son güncelleme: {new Date(insight.fetchedAt).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+          </Text>
+        </View>
+      )}
+
+      {/* ── PAYLAŞILAN NOTLAR (E-posta / Mesaj / Görev) ──────────────────── */}
+      <SectionTitle text="MENTOR BAĞLAM NOTLARI" />
+
+      <View style={[styles.privacyCard, { backgroundColor: colors.primaryContainer + "44", borderColor: colors.primary + "22" }]}>
+        <Feather name="info" size={14} color={colors.primary} />
+        <Text style={[styles.privacyText, { color: colors.onSurface }]}>
+          E-posta, mesaj veya görev listelerinden istediğin parçaları buraya yapıştır. Mentor sohbetinde bu bağlamı kullanır. Otomatik e-posta okuma yoktur — neyi paylaşacağını sen seçersin.
+        </Text>
+      </View>
+
+      {/* Existing notes */}
+      {sharedNotes.length > 0 && (
+        <View style={[styles.rowGroup, { marginBottom: 2 }]}>
+          {sharedNotes.map(note => (
+            <View
+              key={note.id}
+              style={[styles.noteRow, { backgroundColor: colors.surfaceContainer, borderColor: colors.outlineVariant }]}
+            >
+              <Pressable
+                onPress={() => toggleNote(note.id)}
+                style={[
+                  styles.noteActiveDot,
+                  { backgroundColor: note.active ? colors.primary : colors.outline },
+                ]}
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.noteLabel, { color: colors.onSurface }]} numberOfLines={1}>
+                  {note.label}
+                </Text>
+                <Text style={[styles.noteSnippet, { color: colors.onSurfaceVariant }]} numberOfLines={2}>
+                  {note.content}
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => deleteNote(note.id)}
+                hitSlop={10}
+                style={{ padding: 4 }}
+              >
+                <Feather name="trash-2" size={14} color={colors.error} />
+              </Pressable>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* Add note button */}
+      <View style={styles.noteActions}>
+        <Pressable
+          onPress={() => setShowAddNoteModal(true)}
+          style={({ pressed }) => [
+            styles.addNoteBtn,
+            { backgroundColor: pressed ? colors.primaryContainer : colors.surfaceContainer, borderColor: colors.outlineVariant },
+          ]}
+        >
+          <Feather name="plus" size={16} color={colors.primary} />
+          <Text style={[styles.addNoteBtnText, { color: colors.primary }]}>Not Ekle</Text>
+        </Pressable>
+        {sharedNotes.length > 0 && (
+          <Pressable
+            onPress={handleClearNotes}
+            style={({ pressed }) => [
+              styles.clearBtn,
+              { backgroundColor: pressed ? colors.errorContainer : "transparent", borderColor: colors.error + "44" },
+            ]}
+          >
+            <Feather name="trash" size={14} color={colors.error} />
+            <Text style={[styles.clearBtnText, { color: colors.error }]}>Tümünü Sil</Text>
+          </Pressable>
+        )}
+      </View>
+
       {/* Preview */}
       <SectionTitle text="TEST" />
       <Pressable
@@ -303,6 +473,67 @@ export default function SettingsScreen() {
           Bildirim önizlemesi göster
         </Text>
       </Pressable>
+
+      {/* Add Note Modal */}
+      <Modal
+        visible={showAddNoteModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowAddNoteModal(false)}
+      >
+        <View style={[styles.modalContainer, { backgroundColor: colors.surface }]}>
+          <View style={styles.modalHeader}>
+            <Text style={[styles.modalTitle, { color: colors.onSurface }]}>Not Ekle</Text>
+            <Pressable onPress={() => setShowAddNoteModal(false)}>
+              <Feather name="x" size={22} color={colors.onSurface} />
+            </Pressable>
+          </View>
+
+          <Text style={[styles.modalLabel, { color: colors.onSurfaceVariant }]}>Etiket (örn. "İş e-postası", "Proje notu")</Text>
+          <TextInput
+            style={[styles.modalInput, { backgroundColor: colors.surfaceContainer, color: colors.onSurface, borderColor: colors.outlineVariant }]}
+            placeholder="Kısa açıklama…"
+            placeholderTextColor={colors.onSurfaceVariant + "88"}
+            value={noteLabel}
+            onChangeText={setNoteLabel}
+            maxLength={60}
+          />
+
+          <Text style={[styles.modalLabel, { color: colors.onSurfaceVariant }]}>İçerik (e-posta metni, görev listesi, mesaj vb.)</Text>
+          <TextInput
+            style={[styles.modalTextArea, { backgroundColor: colors.surfaceContainer, color: colors.onSurface, borderColor: colors.outlineVariant }]}
+            placeholder="Buraya içeriği yapıştır…"
+            placeholderTextColor={colors.onSurfaceVariant + "88"}
+            value={noteContent}
+            onChangeText={setNoteContent}
+            multiline
+            numberOfLines={10}
+            maxLength={3000}
+            textAlignVertical="top"
+          />
+          <Text style={[styles.charCount, { color: colors.onSurfaceVariant + "66" }]}>
+            {noteContent.length}/3000
+          </Text>
+
+          {/* Privacy reminder */}
+          <View style={[styles.modalPrivacy, { backgroundColor: colors.primaryContainer + "44" }]}>
+            <Feather name="lock" size={12} color={colors.primary} />
+            <Text style={[styles.modalPrivacyText, { color: colors.onSurface }]}>
+              Bu içerik yalnızca bu cihazda saklanır ve sunucuya gönderilmez.
+            </Text>
+          </View>
+
+          <Pressable
+            onPress={handleAddNote}
+            style={({ pressed }) => [
+              styles.modalSaveBtn,
+              { backgroundColor: pressed ? colors.primary + "CC" : colors.primary },
+            ]}
+          >
+            <Text style={[styles.modalSaveBtnText, { color: colors.onPrimary }]}>Kaydet</Text>
+          </Pressable>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -443,5 +674,164 @@ const styles = StyleSheet.create({
   previewText: {
     fontSize: 14,
     fontFamily: "Inter_500Medium",
+  },
+  privacyCard: {
+    marginHorizontal: 20,
+    marginBottom: 8,
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 12,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+  },
+  privacyText: {
+    flex: 1,
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+    lineHeight: 18,
+  },
+  insightCard: {
+    marginHorizontal: 20,
+    marginTop: 4,
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 14,
+    gap: 6,
+  },
+  insightHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  insightTitle: {
+    fontSize: 13,
+    fontFamily: "Inter_600SemiBold",
+  },
+  insightBody: {
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+    lineHeight: 18,
+  },
+  insightMeta: {
+    fontSize: 10,
+    fontFamily: "Inter_400Regular",
+  },
+  noteRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    padding: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  noteActiveDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    flexShrink: 0,
+  },
+  noteLabel: {
+    fontSize: 13,
+    fontFamily: "Inter_500Medium",
+  },
+  noteSnippet: {
+    fontSize: 11,
+    fontFamily: "Inter_400Regular",
+    marginTop: 2,
+  },
+  noteActions: {
+    marginHorizontal: 20,
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 4,
+  },
+  addNoteBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  addNoteBtnText: {
+    fontSize: 14,
+    fontFamily: "Inter_500Medium",
+  },
+  clearBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  clearBtnText: {
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+  },
+  modalContainer: {
+    flex: 1,
+    padding: 20,
+    gap: 10,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontFamily: "Inter_700Bold",
+  },
+  modalLabel: {
+    fontSize: 12,
+    fontFamily: "Inter_500Medium",
+    letterSpacing: 0.5,
+  },
+  modalInput: {
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 12,
+    fontSize: 14,
+    fontFamily: "Inter_400Regular",
+  },
+  modalTextArea: {
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 12,
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+    minHeight: 160,
+  },
+  charCount: {
+    fontSize: 10,
+    fontFamily: "Inter_400Regular",
+    textAlign: "right",
+    marginTop: -6,
+  },
+  modalPrivacy: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    padding: 10,
+    borderRadius: 10,
+  },
+  modalPrivacyText: {
+    flex: 1,
+    fontSize: 11,
+    fontFamily: "Inter_400Regular",
+  },
+  modalSaveBtn: {
+    padding: 14,
+    borderRadius: 14,
+    alignItems: "center",
+    marginTop: 4,
+  },
+  modalSaveBtnText: {
+    fontSize: 15,
+    fontFamily: "Inter_600SemiBold",
   },
 });

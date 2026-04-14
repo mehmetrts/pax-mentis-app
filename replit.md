@@ -52,6 +52,13 @@ Android/iOS Expo uygulaması. Erteleme davranışını psikolojik bilimle ele al
 - AsyncStorage ile görev + oturum + plan kalıcılığı
 - Onboarding modal (5 slayt, ilk başlatmada)
 
+**Takvim & bağlam entegrasyonu:**
+- `lib/calendarService.ts` — mahremiyet öncelikli takvim okuma (yalnızca başlık + saat; açıklama/katılımcı/konum okunmaz), yoğunluk skoru, Türkçe özet üretimi
+- `context/CalendarContext.tsx` — izin yönetimi, AsyncStorage kalıcılığı, 30 dakikada bir oto-yenileme
+- `lib/sharedNotes.ts` — kullanıcı kontrolüyle e-posta/not/görev listesi yapıştırma (max 5 not, 3000 karakter); aktif notlar LLM bağlamına enjekte edilir
+- `components/CalendarInsightCard.tsx` — ana ekran Bento grid kartı (etkinlik listesi + yoğunluk çubuğu + mahremiyet notu)
+- Tüm takvim/not verileri cihaz üzerinde kalır, sunucuya gönderilmez
+
 **Bildirim sistemi:**
 - `lib/notificationService.ts` — 3 Android kanal, 7 bildirim türü, Türkçe mesaj kataloğu (2-3 varyant), sakin saat desteği
 - `context/NotificationContext.tsx` — bildirim ayarları (AsyncStorage), toast state, izin yönetimi

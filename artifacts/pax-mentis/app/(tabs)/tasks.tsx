@@ -6,6 +6,7 @@ import {
   FlatList,
   Modal,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -16,20 +17,22 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 import { TaskCard } from "@/components/TaskCard";
+import { PlanCard } from "@/components/PlanCard";
 import { Task, TaskPriority, TaskStatus } from "@/context/AppContext";
 
-type FilterTab = "active" | "completed" | "deferred";
+type FilterTab = "active" | "completed" | "deferred" | "plans";
 
 const FILTER_LABELS: Record<FilterTab, string> = {
   active: "Aktif",
   completed: "Tamamlanan",
   deferred: "Ertelenen",
+  plans: "Planlar",
 };
 
 export default function TasksScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { tasks, addTask, completeTask, deferTask, deleteTask } = useApp();
+  const { tasks, plans, addTask, completeTask, deferTask, toggleStep } = useApp();
 
   const [activeFilter, setActiveFilter] = useState<FilterTab>("active");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -38,15 +41,24 @@ export default function TasksScreen() {
   const [newPriority, setNewPriority] = useState<TaskPriority>("medium");
 
   const filteredTasks = useMemo(() => {
-    const statusMap: Record<FilterTab, TaskStatus[]> = {
+    const statusMap: Record<string, TaskStatus[]> = {
       active: ["pending", "in_progress"],
       completed: ["completed"],
       deferred: ["deferred"],
     };
+    if (!statusMap[activeFilter]) return [];
     return tasks
       .filter(t => statusMap[activeFilter].includes(t.status))
       .sort((a, b) => b.updatedAt - a.updatedAt);
   }, [tasks, activeFilter]);
+
+  const sortedPlans = useMemo(() => {
+    return [...plans].sort((a, b) => b.createdAt - a.createdAt);
+  }, [plans]);
+
+  const pendingPlansCount = useMemo(() => {
+    return plans.filter(p => !p.isCompleted).length;
+  }, [plans]);
 
   const handleAddTask = async () => {
     if (!newTitle.trim()) return;
@@ -65,6 +77,17 @@ export default function TasksScreen() {
     setShowAddModal(false);
   };
 
+  const getTaskCount = (tab: FilterTab) => {
+    if (tab === "plans") return pendingPlansCount;
+    const statusMap: Record<string, TaskStatus[]> = {
+      active: ["pending", "in_progress"],
+      completed: ["completed"],
+      deferred: ["deferred"],
+    };
+    if (!statusMap[tab]) return 0;
+    return tasks.filter(t => statusMap[tab].includes(t.status)).length;
+  };
+
   const topPad = Platform.OS === "web" ? 24 : insets.top + 16;
   const bottomPad = Platform.OS === "web" ? 84 + 20 : insets.bottom + 100;
 
@@ -76,6 +99,7 @@ export default function TasksScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Header */}
       <View style={[styles.header, { paddingTop: topPad, backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         <Text style={[styles.headerTitle, { color: colors.foreground }]}>Görevler</Text>
         <TouchableOpacity
@@ -87,8 +111,9 @@ export default function TasksScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Filtre sekmeleri */}
       <View style={[styles.filterRow, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        {(["active", "completed", "deferred"] as FilterTab[]).map(f => (
+        {(["active", "completed", "deferred", "plans"] as FilterTab[]).map(f => (
           <TouchableOpacity
             key={f}
             style={[
@@ -105,52 +130,97 @@ export default function TasksScreen() {
             >
               {FILTER_LABELS[f]}
             </Text>
-            <View style={[styles.filterCount, { backgroundColor: colors.muted, borderRadius: 10 }]}>
-              <Text style={[styles.filterCountText, { color: colors.mutedForeground }]}>
-                {tasks.filter(t => {
-                  const statusMap: Record<FilterTab, TaskStatus[]> = {
-                    active: ["pending", "in_progress"],
-                    completed: ["completed"],
-                    deferred: ["deferred"],
-                  };
-                  return statusMap[f].includes(t.status);
-                }).length}
+            <View style={[
+              styles.filterCount,
+              {
+                backgroundColor: f === "plans" && pendingPlansCount > 0
+                  ? colors.primary + "22"
+                  : colors.muted,
+                borderRadius: 10,
+              },
+            ]}>
+              <Text style={[
+                styles.filterCountText,
+                {
+                  color: f === "plans" && pendingPlansCount > 0
+                    ? colors.primary
+                    : colors.mutedForeground,
+                },
+              ]}>
+                {getTaskCount(f)}
               </Text>
             </View>
           </TouchableOpacity>
         ))}
       </View>
 
-      <FlatList
-        data={filteredTasks}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <TaskCard
-            task={item}
-            onPress={() => router.push({ pathname: "/(tabs)/mentor", params: { taskId: item.id } })}
-            onComplete={() => completeTask(item.id)}
-            onDefer={() => deferTask(item.id)}
-          />
-        )}
-        contentContainerStyle={[styles.listContent, { paddingBottom: bottomPad }]}
-        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={() => (
+      {/* İçerik */}
+      {activeFilter === "plans" ? (
+        sortedPlans.length === 0 ? (
           <View style={styles.emptyState}>
-            <Feather name="check-square" size={40} color={colors.mutedForeground} />
-            <Text style={[styles.emptyTitle, { color: colors.foreground }]}>
-              {activeFilter === "active" ? "Görev yok" :
-               activeFilter === "completed" ? "Henüz tamamlanmış görev yok" :
-               "Ertelenen görev yok"}
-            </Text>
+            <Feather name="map" size={40} color={colors.mutedForeground} />
+            <Text style={[styles.emptyTitle, { color: colors.foreground }]}>Henüz plan yok</Text>
             <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
-              {activeFilter === "active" ? "Yeni bir görev ekleyerek başla" :
-               "Görevleri tamamladıkça burada görünecek"}
+              Mentörle konuşmaya başla — birlikte bir plan oluşturacağız.
             </Text>
           </View>
-        )}
-      />
+        ) : (
+          <ScrollView
+            contentContainerStyle={[styles.listContent, { paddingBottom: bottomPad }]}
+            showsVerticalScrollIndicator={false}
+          >
+            {sortedPlans.map(plan => {
+              const relatedTask = plan.taskId ? tasks.find(t => t.id === plan.taskId) : null;
+              return (
+                <View key={plan.id} style={styles.planWrapper}>
+                  {relatedTask && (
+                    <Text style={[styles.planTaskLabel, { color: colors.mutedForeground }]}>
+                      <Feather name="link" size={11} /> {relatedTask.title}
+                    </Text>
+                  )}
+                  <PlanCard
+                    plan={plan}
+                    onStepToggle={(stepId) => toggleStep(plan.id, stepId)}
+                    compact={false}
+                  />
+                </View>
+              );
+            })}
+          </ScrollView>
+        )
+      ) : (
+        <FlatList
+          data={filteredTasks}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <TaskCard
+              task={item}
+              onPress={() => router.push({ pathname: "/(tabs)/mentor", params: { taskId: item.id } })}
+              onComplete={() => completeTask(item.id)}
+              onDefer={() => deferTask(item.id)}
+            />
+          )}
+          contentContainerStyle={[styles.listContent, { paddingBottom: bottomPad }]}
+          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={() => (
+            <View style={styles.emptyState}>
+              <Feather name="check-square" size={40} color={colors.mutedForeground} />
+              <Text style={[styles.emptyTitle, { color: colors.foreground }]}>
+                {activeFilter === "active" ? "Görev yok" :
+                 activeFilter === "completed" ? "Henüz tamamlanmış görev yok" :
+                 "Ertelenen görev yok"}
+              </Text>
+              <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
+                {activeFilter === "active" ? "Yeni bir görev ekleyerek başla" :
+                 "Görevleri tamamladıkça burada görünecek"}
+              </Text>
+            </View>
+          )}
+        />
+      )}
 
+      {/* Görev ekleme modal */}
       <Modal
         visible={showAddModal}
         animationType="slide"
@@ -227,9 +297,7 @@ export default function TasksScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -258,7 +326,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
+    gap: 5,
     paddingVertical: 12,
     borderBottomWidth: 2,
     borderBottomColor: "transparent",
@@ -267,22 +335,31 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
   },
   filterTabText: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: "Inter_500Medium",
   },
   filterCount: {
-    minWidth: 20,
-    height: 20,
+    minWidth: 18,
+    height: 18,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 6,
+    paddingHorizontal: 5,
   },
   filterCountText: {
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: "Inter_600SemiBold",
   },
   listContent: {
     padding: 20,
+    gap: 10,
+  },
+  planWrapper: {
+    gap: 4,
+  },
+  planTaskLabel: {
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+    marginLeft: 4,
   },
   emptyState: {
     alignItems: "center",
@@ -298,10 +375,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Inter_400Regular",
     textAlign: "center",
+    paddingHorizontal: 40,
   },
-  modal: {
-    flex: 1,
-  },
+  modal: { flex: 1 },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",

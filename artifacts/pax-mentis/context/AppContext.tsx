@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { ActionPlan, loadAllPlans, savePlan, togglePlanStep } from "@/lib/actionPlan";
 
 export type TaskStatus = "pending" | "in_progress" | "completed" | "deferred";
 export type TaskPriority = "low" | "medium" | "high";
@@ -48,6 +49,7 @@ export interface DailyStats {
 interface AppContextType {
   tasks: Task[];
   sessions: MentorSession[];
+  plans: ActionPlan[];
   dailyStats: DailyStats | null;
   streakDays: number;
   totalCompleted: number;
@@ -62,6 +64,10 @@ interface AppContextType {
   addSession: (session: Omit<MentorSession, "id" | "startedAt">) => Promise<MentorSession>;
   updateSession: (id: string, updates: Partial<MentorSession>) => Promise<void>;
   getRecentSessions: (limit?: number) => MentorSession[];
+
+  addPlan: (plan: ActionPlan) => Promise<void>;
+  toggleStep: (planId: string, stepId: string) => Promise<void>;
+  getPlansForTask: (taskId: string) => ActionPlan[];
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -73,6 +79,7 @@ const STATS_KEY = "@pax_mentis:stats";
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [sessions, setSessions] = useState<MentorSession[]>([]);
+  const [plans, setPlans] = useState<ActionPlan[]>([]);
   const [dailyStats, setDailyStats] = useState<DailyStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -82,14 +89,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const loadData = async () => {
     try {
-      const [tasksJson, sessionsJson, statsJson] = await Promise.all([
+      const [tasksJson, sessionsJson, statsJson, loadedPlans] = await Promise.all([
         AsyncStorage.getItem(TASKS_KEY),
         AsyncStorage.getItem(SESSIONS_KEY),
         AsyncStorage.getItem(STATS_KEY),
+        loadAllPlans(),
       ]);
       if (tasksJson) setTasks(JSON.parse(tasksJson));
       if (sessionsJson) setSessions(JSON.parse(sessionsJson));
       if (statsJson) setDailyStats(JSON.parse(statsJson));
+      setPlans(loadedPlans);
     } catch {
     } finally {
       setIsLoading(false);
@@ -108,7 +117,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const addTask = useCallback(async (taskData: Omit<Task, "id" | "createdAt" | "updatedAt" | "deferCount">) => {
     const task: Task = {
       ...taskData,
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      id: Date.now().toString() + Math.random().toString(36).slice(2, 9),
       createdAt: Date.now(),
       updatedAt: Date.now(),
       deferCount: 0,
@@ -146,7 +155,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const addSession = useCallback(async (sessionData: Omit<MentorSession, "id" | "startedAt">) => {
     const session: MentorSession = {
       ...sessionData,
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      id: Date.now().toString() + Math.random().toString(36).slice(2, 9),
       startedAt: Date.now(),
     };
     const updated = [...sessions, session];
@@ -165,12 +174,39 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return [...sessions].sort((a, b) => b.startedAt - a.startedAt).slice(0, limit);
   }, [sessions]);
 
+  // ─── Plan metotları ───────────────────────────────────────────────────────
+
+  const addPlan = useCallback(async (plan: ActionPlan) => {
+    await savePlan(plan);
+    setPlans(prev => {
+      const idx = prev.findIndex(p => p.id === plan.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = plan;
+        return copy;
+      }
+      return [...prev, plan];
+    });
+  }, []);
+
+  const toggleStep = useCallback(async (planId: string, stepId: string) => {
+    const updated = await togglePlanStep(planId, stepId);
+    if (updated) {
+      setPlans(prev => prev.map(p => p.id === planId ? updated : p));
+    }
+  }, []);
+
+  const getPlansForTask = useCallback((taskId: string) => {
+    return plans.filter(p => p.taskId === taskId).sort((a, b) => b.createdAt - a.createdAt);
+  }, [plans]);
+
+  // ─── Hesaplanan değerler ──────────────────────────────────────────────────
+
   const streakDays = (() => {
     const completedDates = tasks
       .filter(t => t.completedAt)
       .map(t => new Date(t.completedAt!).toDateString());
-    const uniqueDates = [...new Set(completedDates)];
-    return uniqueDates.length;
+    return [...new Set(completedDates)].length;
   })();
 
   const totalCompleted = tasks.filter(t => t.status === "completed").length;
@@ -179,6 +215,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     <AppContext.Provider value={{
       tasks,
       sessions,
+      plans,
       dailyStats,
       streakDays,
       totalCompleted,
@@ -191,6 +228,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       addSession,
       updateSession,
       getRecentSessions,
+      addPlan,
+      toggleStep,
+      getPlansForTask,
     }}>
       {children}
     </AppContext.Provider>

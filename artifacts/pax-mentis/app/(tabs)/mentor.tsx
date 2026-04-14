@@ -31,6 +31,7 @@ import {
   updateUserProfile,
   generateProfileSummary,
 } from "@/lib/userProfile";
+import { generateActionPlan } from "@/lib/actionPlan";
 import { SessionMessage, MentorSession } from "@/context/AppContext";
 
 interface DisplayMessage {
@@ -62,7 +63,7 @@ export default function MentorScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { taskId } = useLocalSearchParams<{ taskId?: string }>();
-  const { tasks, addSession, updateSession, updateTask } = useApp();
+  const { tasks, addSession, updateSession, updateTask, addPlan } = useApp();
 
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [inputText, setInputText] = useState("");
@@ -72,6 +73,7 @@ export default function MentorScreen() {
   const [currentSignal, setCurrentSignal] = useState("neutral");
   const [currentPhase, setCurrentPhase] = useState<ConversationPhase>("discovery");
   const [hasActionPlan, setHasActionPlan] = useState(false);
+  const planSavedRef = useRef(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const userProfileRef = useRef<UserProfile | null>(null);
 
@@ -110,6 +112,7 @@ export default function MentorScreen() {
     setMessages([makeWelcomeMessage(activeTask?.title)]);
     setCurrentPhase("discovery");
     setHasActionPlan(false);
+    planSavedRef.current = false;
     updateCurrentSession(null);
     firstKeystrokeTime.current = 0;
   }, [activeTask?.id]);
@@ -200,6 +203,27 @@ export default function MentorScreen() {
 
       if (activeTask) {
         await updateTask(activeTask.id, { resistanceScore: analysis.score });
+      }
+
+      // ─── Plan oluştur ve kaydet (yalnızca planning fazına ilk girildiğinde) ─
+      if (nextPhase === "planning" && !planSavedRef.current) {
+        planSavedRef.current = true;
+        const plan = generateActionPlan(
+          relevantChunks,
+          analysis.signal,
+          activeTask?.id,
+          currentSessionRef.current?.id
+        );
+        await addPlan(plan);
+
+        // Plana işaret eden bir sistem mesajı ekle
+        const planMsg: DisplayMessage = {
+          id: Date.now().toString() + "_plan",
+          role: "mentor",
+          content: `Seninle birlikte bir plan hazırladım — "${plan.title}". Görevler ekranında adımları takip edebilirsin.`,
+          timestamp: Date.now(),
+        };
+        setMessages(prev => [...prev, planMsg]);
       }
 
       // ─── Kullanıcı profilini güncelle ─────────────────────────────────────

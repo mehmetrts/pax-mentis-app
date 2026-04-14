@@ -107,6 +107,25 @@ export default function MentorScreen() {
     });
   }, []);
 
+  // STT: transkript geldiğinde input'a yaz (sadece kayıt aktifken)
+  useEffect(() => {
+    if (voice.sttTranscript && voice.sttStatus !== "unavailable") {
+      setInputText(voice.sttTranscript);
+    }
+  }, [voice.sttTranscript, voice.sttStatus]);
+
+  const handleMicPress = useCallback(async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (!voice.isSTTAvailable) return;
+
+    if (voice.sttStatus === "recording") {
+      const transcript = await voice.stopRecording();
+      if (transcript) setInputText(transcript);
+    } else {
+      await voice.startRecording();
+    }
+  }, [voice]);
+
   // Reset on task change
   useEffect(() => {
     setMessages([makeWelcomeMessage(activeTask?.title)]);
@@ -410,22 +429,36 @@ export default function MentorScreen() {
           },
         ]}
       >
-        {/* Mikrofon butonu (STT — dev build'de etkin) */}
+        {/* Mikrofon butonu */}
         <TouchableOpacity
           style={[
             styles.micBtn,
-            { backgroundColor: colors.muted, borderRadius: 20 },
+            {
+              backgroundColor:
+                voice.sttStatus === "recording"
+                  ? colors.primary + "33"
+                  : voice.sttStatus === "processing"
+                  ? colors.muted
+                  : colors.muted,
+              borderRadius: 20,
+              borderWidth: voice.sttStatus === "recording" ? 1.5 : 0,
+              borderColor: voice.sttStatus === "recording" ? colors.primary : "transparent",
+            },
           ]}
-          onPress={() => {
-            // TODO: Dev build'de voice.startRecording() ile değiştir
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          }}
+          onPress={handleMicPress}
           activeOpacity={0.7}
+          disabled={voice.sttStatus === "processing" || !voice.isSTTAvailable}
         >
           <Feather
-            name="mic"
+            name={voice.sttStatus === "recording" ? "mic" : "mic"}
             size={18}
-            color={colors.mutedForeground}
+            color={
+              voice.sttStatus === "recording"
+                ? colors.primary
+                : voice.isSTTAvailable
+                ? colors.mutedForeground
+                : colors.mutedForeground + "55"
+            }
           />
         </TouchableOpacity>
 

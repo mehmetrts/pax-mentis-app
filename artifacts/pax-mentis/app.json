@@ -14,13 +14,22 @@
       "backgroundColor": "#1a2e1a"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "Pax Mentis konuşmanı dinleyerek seni daha iyi anlayabilir.",
+        "NSMicrophoneUsageDescription": "Pax Mentis sesinle sorularına yanıt vermek için mikrofona ihtiyaç duyar."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#1a2e1a"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.INTERNET"
+      ],
+      "minSdkVersion": 26
     },
     "web": {
       "favicon": "./assets/images/icon.png"
@@ -33,7 +42,14 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Pax Mentis sesinle sorularına yanıt vermek için mikrofona ihtiyaç duyar.",
+          "speechRecognitionPermission": "Pax Mentis konuşmanı dinleyerek seni daha iyi anlayabilir."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

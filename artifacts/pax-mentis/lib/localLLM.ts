@@ -35,11 +35,11 @@ export interface LLMConfig {
 
 const DEFAULT_CONFIG: LLMConfig = {
   modelId: "llama-3.2-3b-q4",
-  maxTokens: 512,
+  maxTokens: 220,      // 3 cümle için yeterli; uzun yanıtları kesmek kaliteyi artırır
   temperature: 0.72,
   topP: 0.9,
   contextLength: 2048,
-  nGpuLayers: 1, // Snapdragon 8 Gen 2 NPU
+  nGpuLayers: 1,       // Snapdragon 8 Gen 2 NPU
 };
 
 const CONFIG_KEY = "@pax_mentis:llm_config";
@@ -165,7 +165,7 @@ export class LocalLLMBridge {
   /**
    * Ana yanıt üretici.
    * - Dev build + model yüklü: llama.rn ile gerçek inferans (streaming destekli)
-   * - Expo Go / model yok:  faz uyumlu mock yanıt
+   * - Expo Go / model yok:  bağlam-duyarlı mock yanıt
    */
   async generateResponse(
     messages: LLMMessage[],
@@ -176,7 +176,15 @@ export class LocalLLMBridge {
     if (this.llamaContext) {
       return this._runInference(messages, onToken, phase);
     }
-    return this._mockResponse(phase, onToken);
+    return this._mockResponse(phase, onToken, messages);
+  }
+
+  // Son kullanıcı mesajının içeriğini al
+  private _lastUserText(messages: LLMMessage[]): string {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].role === "user") return messages[i].content.trim().toLowerCase();
+    }
+    return "";
   }
 
   // Faz bazlı sıcaklık: Keşif fazı yaratıcı/açık → planning daha kararlı
@@ -202,7 +210,8 @@ export class LocalLLMBridge {
           n_predict: this.config.maxTokens,
           temperature: this._phaseTemperature(phase),
           top_p: this.config.topP,
-          stop: ["<|eot_id|>", "<|end_of_text|>", "User:", "Kullanıcı:"],
+          repeat_penalty: 1.18,   // Robotik tekrarları azalt
+          stop: ["<|eot_id|>", "<|end_of_text|>", "User:", "Kullanıcı:", "\n\n\n"],
         },
         (data: { token: string }) => {
           onToken?.(data.token);
@@ -217,18 +226,36 @@ export class LocalLLMBridge {
 
   private async _mockResponse(
     phase: ConversationPhase,
-    onToken?: (token: string) => void
+    onToken?: (token: string) => void,
+    messages: LLMMessage[] = []
   ): Promise<string> {
-    const delay = 400 + Math.random() * 700;
+    const delay = 400 + Math.random() * 600;
     await new Promise(r => setTimeout(r, delay));
 
-    const pool = PHASE_RESPONSES[phase];
-    const response = pool[Math.floor(Math.random() * pool.length)];
+    const lastMsg = this._lastUserText(messages);
+    let response: string;
+
+    // Selamlama tespiti
+    const greetingWords = ["merhaba", "selam", "hey", "iyi günler", "günaydın", "hello", "hi"];
+    const isGreeting = greetingWords.some(g => lastMsg.startsWith(g)) && lastMsg.length < 25;
+
+    // Anlamama / tekrar sorma tespiti
+    const confusionWords = ["anlamadım", "ne demek", "nasıl yani", "anlat", "açıkla", "ne diyorsun", "neyi"];
+    const isConfused = confusionWords.some(w => lastMsg.includes(w));
+
+    if (isGreeting) {
+      response = "Merhaba! Bugün seni buraya ne getirdi — üzerinde düşündüğün bir şey mi var?";
+    } else if (isConfused) {
+      response = "Haklısın, daha net anlatayım. Seni en çok ne durduruyor şu an — bunu biraz daha açabilir misin?";
+    } else {
+      const pool = PHASE_RESPONSES[phase];
+      response = pool[Math.floor(Math.random() * pool.length)];
+    }
 
     if (onToken) {
       const words = response.split(" ");
       for (const word of words) {
-        await new Promise(r => setTimeout(r, 30 + Math.random() * 50));
+        await new Promise(r => setTimeout(r, 25 + Math.random() * 45));
         onToken(word + " ");
       }
     }

@@ -42,6 +42,7 @@ import {
   ModelStatus,
   DownloadProgress,
 } from "@/lib/modelManager";
+import { llmBridge } from "@/lib/localLLM";
 
 function SettingRow({
   icon,
@@ -174,6 +175,8 @@ export default function SettingsScreen() {
       () => {
         refreshModelStatuses();
         setDownloadProgress(p => { const n = { ...p }; delete n[modelId]; return n; });
+        // İndirme tamamlandı — modeli otomatik belleğe yükle
+        llmBridge.loadModel(modelId);
       },
       (err) => {
         Alert.alert("İndirme Hatası", err);
@@ -604,7 +607,11 @@ export default function SettingsScreen() {
                 <>
                   {!isActive && (
                     <Pressable
-                      onPress={() => { modelManager.setActiveModelId(model.id); setActiveModelId(model.id); }}
+                      onPress={() => {
+                        modelManager.setActiveModelId(model.id);
+                        setActiveModelId(model.id);
+                        llmBridge.loadModel(model.id);
+                      }}
                       style={[styles.modelBtn, { backgroundColor: colors.primaryContainer, borderColor: colors.primary + "44" }]}
                     >
                       <Feather name="check-circle" size={14} color={colors.primary} />

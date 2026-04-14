@@ -75,13 +75,19 @@ export function useVoice(): VoiceHookReturn {
   const pendingResolveRef     = useRef<((text: string | null) => void) | null>(null);
   const currentTranscriptRef  = useRef("");
 
-  // Dynamic availability check at mount
+  // Dynamic availability check at mount (synchronous on Android)
   useEffect(() => {
     isMounted.current = true;
     if (!_nativeModule) return;
-    _nativeModule.isRecognitionAvailable?.().then((avail: boolean) => {
-      if (isMounted.current) setIsSTTAvailable(avail);
-    }).catch(() => {});
+    try {
+      const avail = _nativeModule.isRecognitionAvailable?.();
+      // Some versions return a boolean directly, others a Promise
+      if (avail instanceof Promise) {
+        avail.then((v: boolean) => { if (isMounted.current) setIsSTTAvailable(v); }).catch(() => {});
+      } else if (typeof avail === "boolean") {
+        if (isMounted.current) setIsSTTAvailable(avail);
+      }
+    } catch {}
     return () => { isMounted.current = false; };
   }, []);
 

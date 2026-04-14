@@ -139,6 +139,9 @@ export function SupportiveToast({ payload, onDismiss }: Props) {
     transform: [{ scale: iconScale.value }],
   }));
 
+  // Must be called unconditionally (Rules of Hooks) — use fallback variant when no payload
+  const tokens = useVariantTokens(payload?.variant ?? "info");
+
   if (!payload) {
     return (
       <Animated.View
@@ -147,8 +150,6 @@ export function SupportiveToast({ payload, onDismiss }: Props) {
       />
     );
   }
-
-  const tokens = useVariantTokens(payload.variant);
 
   return (
     <GestureDetector gesture={swipeGesture}>

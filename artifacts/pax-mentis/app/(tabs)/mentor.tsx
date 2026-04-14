@@ -15,6 +15,7 @@ import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
+import { useVoice } from "@/hooks/useVoice";
 import { MentorBubble } from "@/components/MentorBubble";
 import { ResistanceMeter } from "@/components/ResistanceMeter";
 import { llmBridge } from "@/lib/localLLM";
@@ -32,6 +33,7 @@ import {
   generateProfileSummary,
 } from "@/lib/userProfile";
 import { generateActionPlan } from "@/lib/actionPlan";
+import { summarizeConversation } from "@/lib/sessionSummary";
 import { SessionMessage, MentorSession } from "@/context/AppContext";
 
 interface DisplayMessage {
@@ -64,6 +66,7 @@ export default function MentorScreen() {
   const insets = useSafeAreaInsets();
   const { taskId } = useLocalSearchParams<{ taskId?: string }>();
   const { tasks, addSession, updateSession, updateTask, addPlan } = useApp();
+  const voice = useVoice();
 
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [inputText, setInputText] = useState("");
@@ -74,24 +77,20 @@ export default function MentorScreen() {
   const [currentPhase, setCurrentPhase] = useState<ConversationPhase>("discovery");
   const [hasActionPlan, setHasActionPlan] = useState(false);
   const planSavedRef = useRef(false);
+
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const userProfileRef = useRef<UserProfile | null>(null);
 
-  // ─── Stale closure düzeltmesi ─────────────────────────────────────────────
-  // currentSession'ı hem state hem ref olarak tutuyoruz.
-  // handleSend ref'i okuduğu için her zaman güncel değeri görür.
+  // Stale closure fix: session both in state and ref
   const [currentSession, setCurrentSession] = useState<MentorSession | null>(null);
   const currentSessionRef = useRef<MentorSession | null>(null);
-  const updateCurrentSession = (s: MentorSession | null) => {
-    currentSession; // lint: suppress unused warning
+  const updateCurrentSession = useCallback((s: MentorSession | null) => {
     setCurrentSession(s);
     currentSessionRef.current = s;
-  };
+  }, []);
 
-  // ─── Latency düzeltmesi ───────────────────────────────────────────────────
-  // Focus değil ilk tuş vuruşundan ölçüyoruz.
-  const firstKeystrokeTime = useRef<number>(0);
-
+  // Latency: from first keystroke, not focus
+  const firstKeystrokeTime = useRef(0);
   const flatListRef = useRef<FlatList>(null);
 
   const activeTask = useMemo(
@@ -99,15 +98,16 @@ export default function MentorScreen() {
     [taskId, tasks]
   );
 
-  // Kullanıcı profilini AsyncStorage'dan yükle (bir kez, uygulama açılışında)
+  // Initialize LLM bridge and user profile
   useEffect(() => {
-    loadUserProfile().then(profile => {
-      setUserProfile(profile);
-      userProfileRef.current = profile;
+    llmBridge.initialize();
+    loadUserProfile().then(p => {
+      setUserProfile(p);
+      userProfileRef.current = p;
     });
   }, []);
 
-  // Ekrana gelince welcome mesajını göster
+  // Reset on task change
   useEffect(() => {
     setMessages([makeWelcomeMessage(activeTask?.title)]);
     setCurrentPhase("discovery");
@@ -118,23 +118,18 @@ export default function MentorScreen() {
   }, [activeTask?.id]);
 
   const handleTextChange = useCallback((text: string) => {
-    // İlk karakter yazıldığında zamanı kaydet
     if (firstKeystrokeTime.current === 0 && text.length === 1) {
       firstKeystrokeTime.current = Date.now();
     }
-    // Metin silindiyse sıfırla
-    if (text.length === 0) {
-      firstKeystrokeTime.current = 0;
-    }
+    if (text.length === 0) firstKeystrokeTime.current = 0;
     setInputText(text);
   }, []);
 
   const handleSend = useCallback(async () => {
     if (!inputText.trim() || isGenerating) return;
 
-    // Latency: ilk tuş vuruşundan gönderme anına kadar
-    const latencyMs =
-      firstKeystrokeTime.current > 0 ? Date.now() - firstKeystrokeTime.current : 0;
+    const latencyMs = firstKeystrokeTime.current > 0
+      ? Date.now() - firstKeystrokeTime.current : 0;
     firstKeystrokeTime.current = 0;
 
     const userText = inputText.trim();
@@ -153,12 +148,9 @@ export default function MentorScreen() {
       timestamp: Date.now(),
     };
 
-    // Kaç kullanıcı mesajı gönderildi — faz belirleme için
     const userMessageCount = messages.filter(m => m.role === "user").length + 1;
     const nextPhase = determinePhase(userMessageCount, hasActionPlan);
     setCurrentPhase(nextPhase);
-
-    // Planning aşamasına geçildiyse sonraki mesajlarda followup olur
     if (nextPhase === "planning") setHasActionPlan(true);
 
     setMessages(prev => [...prev, userMsg]);
@@ -167,13 +159,33 @@ export default function MentorScreen() {
 
     try {
       const relevantChunks = retrieveRelevantChunks(userText, analysis.signal);
-      const profileSummary = generateProfileSummary(userProfileRef.current ?? { sessionCount: 0, totalUserMessages: 0, signalFrequency: {}, avgResistanceScore: 0, lastSessionDate: null, usedInterventions: {} });
-      const systemPrompt = buildSystemPrompt(relevantChunks, analysis.signal, nextPhase, profileSummary ?? undefined);
+
+      // ─── Oturum özeti: uzun konuşmalarda eski mesajları özetle ───────────
+      const allMsgs = messages.map(m => ({
+        role: m.role as "user" | "mentor",
+        content: m.content,
+      }));
+      const { summary: convSummary, recentMessages } = summarizeConversation(allMsgs);
+
+      // ─── Profil özeti ────────────────────────────────────────────────────
+      const profileSummary = generateProfileSummary(
+        userProfileRef.current ?? {
+          sessionCount: 0, totalUserMessages: 0,
+          signalFrequency: {}, avgResistanceScore: 0,
+          lastSessionDate: null, usedInterventions: {},
+        }
+      );
+
+      const systemPrompt = buildSystemPrompt(
+        relevantChunks,
+        analysis.signal,
+        nextPhase,
+        [profileSummary, convSummary].filter(Boolean).join("\n") || undefined
+      );
 
       const llmMessages = [
         { role: "system" as const, content: systemPrompt },
-        // Son 8 mesaj: konuşma bağlamı
-        ...messages.slice(-8).map(m => ({
+        ...recentMessages.slice(-8).map(m => ({
           role: m.role === "mentor" ? ("assistant" as const) : ("user" as const),
           content: m.content,
         })),
@@ -201,11 +213,14 @@ export default function MentorScreen() {
       setMessages(prev => [...prev, mentorMsg]);
       setStreamingContent("");
 
+      // ─── TTS: yanıtı sesli oku ─────────────────────────────────────────
+      voice.speakText(mentorMsg.content);
+
       if (activeTask) {
         await updateTask(activeTask.id, { resistanceScore: analysis.score });
       }
 
-      // ─── Plan oluştur ve kaydet (yalnızca planning fazına ilk girildiğinde) ─
+      // ─── Plan oluştur (planning fazına ilk girildiğinde) ─────────────────
       if (nextPhase === "planning" && !planSavedRef.current) {
         planSavedRef.current = true;
         const plan = generateActionPlan(
@@ -216,31 +231,27 @@ export default function MentorScreen() {
         );
         await addPlan(plan);
 
-        // Plana işaret eden bir sistem mesajı ekle
         const planMsg: DisplayMessage = {
           id: Date.now().toString() + "_plan",
           role: "mentor",
-          content: `Seninle birlikte bir plan hazırladım — "${plan.title}". Görevler ekranında adımları takip edebilirsin.`,
+          content: `Seninle birlikte bir plan hazırladım — "${plan.title}". Görevler → Planlar sekmesinde adımlarını takip edebilirsin.`,
           timestamp: Date.now(),
         };
         setMessages(prev => [...prev, planMsg]);
+        voice.speakText(planMsg.content);
       }
 
       // ─── Kullanıcı profilini güncelle ─────────────────────────────────────
       const isNewSession = currentSessionRef.current === null;
-      const updatedProfile = await updateUserProfile(
-        analysis.signal,
-        analysis.score,
-        isNewSession
-      );
+      const updatedProfile = await updateUserProfile(analysis.signal, analysis.score, isNewSession);
       setUserProfile(updatedProfile);
       userProfileRef.current = updatedProfile;
 
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-      // ─── Session yönetimi (ref kullanıyoruz, stale closure yok) ──────────
+      // ─── Session yönetimi ────────────────────────────────────────────────
       const session = currentSessionRef.current;
-      const newSessionMessages: SessionMessage[] = [
+      const newMsgs: SessionMessage[] = [
         { id: userMsg.id, role: "user", content: userMsg.content, timestamp: userMsg.timestamp, latencyMs },
         { id: mentorMsg.id, role: "mentor", content: mentorMsg.content, timestamp: mentorMsg.timestamp },
       ];
@@ -248,7 +259,7 @@ export default function MentorScreen() {
       if (!session) {
         const created = await addSession({
           taskId: activeTask?.id,
-          messages: newSessionMessages,
+          messages: newMsgs,
           resistanceSignal: analysis.signal,
           resistanceScore: analysis.score,
         });
@@ -256,7 +267,7 @@ export default function MentorScreen() {
       } else {
         const updated: MentorSession = {
           ...session,
-          messages: [...session.messages, ...newSessionMessages],
+          messages: [...session.messages, ...newMsgs],
           resistanceScore: analysis.score,
           resistanceSignal: analysis.signal,
         };
@@ -280,23 +291,24 @@ export default function MentorScreen() {
     } finally {
       setIsGenerating(false);
     }
-  }, [inputText, isGenerating, messages, activeTask, hasActionPlan]);
+  }, [inputText, isGenerating, messages, activeTask, hasActionPlan, voice]);
 
   const renderMessage = useCallback(
     ({ item }: { item: DisplayMessage }) => (
-      <View
+      <TouchableOpacity
+        onPress={() => item.role === "mentor" && voice.speakText(item.content)}
+        activeOpacity={0.85}
         style={[
           styles.messageWrapper,
           item.role === "user" ? styles.userWrapper : styles.mentorWrapper,
         ]}
       >
         <MentorBubble content={item.content} isUser={item.role === "user"} />
-      </View>
+      </TouchableOpacity>
     ),
-    []
+    [voice]
   );
 
-  // ─── ListFooter memoized — FlatList'i gereksiz re-render'dan korur ────────
   const ListFooter = useCallback(() => {
     if (!isGenerating) return null;
     return (
@@ -316,36 +328,24 @@ export default function MentorScreen() {
       keyboardVerticalOffset={0}
     >
       {/* Header */}
-      <View
-        style={[
-          styles.header,
-          {
-            paddingTop: topPad,
-            borderBottomColor: colors.border,
-            backgroundColor: colors.background,
-          },
-        ]}
-      >
+      <View style={[styles.header, { paddingTop: topPad, borderBottomColor: colors.border, backgroundColor: colors.background }]}>
         <View style={styles.headerLeft}>
           <Text style={[styles.headerTitle, { color: colors.foreground }]}>
             {activeTask ? activeTask.title : "Mentor"}
           </Text>
           <View style={styles.headerMeta}>
-            {/* Konuşma fazı */}
-            <View style={[styles.phaseBadge, { backgroundColor: colors.primary + "22", borderRadius: 8 }]}>
+            <View style={[styles.phaseBadge, { backgroundColor: colors.primary + "22" }]}>
               <Text style={[styles.phaseBadgeText, { color: colors.primary }]}>
                 {PHASE_LABELS[currentPhase]}
               </Text>
             </View>
-            {/* Profil bellek göstergesi */}
             {userProfile && userProfile.sessionCount > 0 && (
-              <View style={[styles.phaseBadge, { backgroundColor: colors.muted, borderRadius: 8 }]}>
+              <View style={[styles.phaseBadge, { backgroundColor: colors.muted }]}>
                 <Text style={[styles.phaseBadgeText, { color: colors.mutedForeground }]}>
                   {userProfile.sessionCount} sohbet
                 </Text>
               </View>
             )}
-            {/* Direnç sinyali */}
             {currentResistance > 0 && (
               <View style={styles.signalRow}>
                 <View style={[styles.signalDot, { backgroundColor: getSignalColor(currentSignal as any) }]} />
@@ -357,11 +357,31 @@ export default function MentorScreen() {
           </View>
         </View>
 
-        {currentResistance > 0 && (
-          <View style={styles.meterContainer}>
-            <ResistanceMeter score={currentResistance} compact />
-          </View>
-        )}
+        <View style={styles.headerActions}>
+          {currentResistance > 0 && (
+            <View style={{ width: 80 }}>
+              <ResistanceMeter score={currentResistance} compact />
+            </View>
+          )}
+          {/* TTS toggle */}
+          <TouchableOpacity
+            style={[
+              styles.iconBtn,
+              {
+                backgroundColor: voice.isTTSEnabled ? colors.primary + "22" : colors.muted,
+                borderRadius: 12,
+              },
+            ]}
+            onPress={voice.toggleTTS}
+            activeOpacity={0.7}
+          >
+            <Feather
+              name={voice.ttsStatus === "speaking" ? "volume-2" : "volume"}
+              size={16}
+              color={voice.isTTSEnabled ? colors.primary : colors.mutedForeground}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Mesaj listesi */}
@@ -390,6 +410,25 @@ export default function MentorScreen() {
           },
         ]}
       >
+        {/* Mikrofon butonu (STT — dev build'de etkin) */}
+        <TouchableOpacity
+          style={[
+            styles.micBtn,
+            { backgroundColor: colors.muted, borderRadius: 20 },
+          ]}
+          onPress={() => {
+            // TODO: Dev build'de voice.startRecording() ile değiştir
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          }}
+          activeOpacity={0.7}
+        >
+          <Feather
+            name="mic"
+            size={18}
+            color={colors.mutedForeground}
+          />
+        </TouchableOpacity>
+
         <TextInput
           style={[
             styles.textInput,
@@ -407,6 +446,7 @@ export default function MentorScreen() {
           multiline
           maxLength={500}
         />
+
         <TouchableOpacity
           style={[
             styles.sendButton,
@@ -452,9 +492,16 @@ const styles = StyleSheet.create({
     gap: 8,
     flexWrap: "wrap",
   },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingLeft: 8,
+  },
   phaseBadge: {
     paddingHorizontal: 8,
     paddingVertical: 3,
+    borderRadius: 8,
   },
   phaseBadgeText: {
     fontSize: 11,
@@ -467,16 +514,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 5,
   },
-  signalDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
+  signalDot: { width: 7, height: 7, borderRadius: 3.5 },
+  signalText: { fontSize: 12, fontFamily: "Inter_400Regular" },
+  iconBtn: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  signalText: {
-    fontSize: 12,
-    fontFamily: "Inter_400Regular",
-  },
-  meterContainer: { width: 90 },
   messageList: {
     paddingHorizontal: 16,
     paddingVertical: 16,
@@ -488,10 +533,16 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "flex-end",
-    gap: 10,
+    gap: 8,
     paddingHorizontal: 16,
     paddingTop: 12,
     borderTopWidth: 1,
+  },
+  micBtn: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
   },
   textInput: {
     flex: 1,

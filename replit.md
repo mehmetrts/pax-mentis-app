@@ -25,3 +25,22 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - `pnpm --filter @workspace/api-server run dev` — run API server locally
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+
+## Artifacts
+
+### Pax Mentis (artifacts/pax-mentis)
+
+Android/iOS Expo uygulaması. Erteleme davranışını psikolojik bilimle ele alan yerel AI destekli mentorluk uygulaması.
+
+**Özellikler:**
+- 4 tab: Ana Sayfa (Bento Grid), Mentor (sohbet), Görevler, Wiki
+- Yerel LLM köprüsü (lib/localLLM.ts) — Gemma / Llama on-device model için hazır
+- Wiki bilgi tabanı (lib/wikiKnowledge.ts) — TMT, PSI, ACT, Kahneman, Atomic Habits, Pychyl
+- RAG tabanlı bağlamsal içerik enjeksiyonu (retrieveRelevantChunks)
+- Direnç analizi (lib/resistanceAnalyzer.ts) — latency ölçümü + kelime analizi
+- Sokratik mentor sohbeti + streaming
+- AsyncStorage ile görev + oturum kalıcılığı
+- Zen renk paleti: Sage Green (#5a7a5a), Soft Sand, Pearl White
+
+**Renk sistemi:** constants/colors.ts — light + dark mode
+**Global state:** context/AppContext.tsx — görevler, oturumlar, istatistikler

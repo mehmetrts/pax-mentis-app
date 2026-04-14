@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "JqUk3V7JnTdOJfA_oGjv8"
+uri = "file://artifacts/pax-mentis/assets/images/icon.png"
+type = "image"
+title = "pax_mentis_app_icon"

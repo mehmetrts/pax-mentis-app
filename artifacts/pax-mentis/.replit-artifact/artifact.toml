@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/"
+title = "Pax Mentis"
+version = "1.0.0"
+id = "artifacts/pax-mentis"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/" ]
+localPort = 24710
+
+[services.development]
+run = "pnpm --filter @workspace/pax-mentis run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/pax-mentis", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/pax-mentis", "run", "serve" ]
+
+[services.env]
+PORT = "24710"
+BASE_PATH = "/"

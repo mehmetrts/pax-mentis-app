@@ -10,7 +10,7 @@
  * • Toast preview button (for testing)
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -22,6 +22,7 @@ import {
   Pressable,
   Alert,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import Animated, {
   useSharedValue,
@@ -34,6 +35,12 @@ import { useColors } from "@/hooks/useColors";
 import { useNotifications } from "@/context/NotificationContext";
 import { useCalendar } from "@/context/CalendarContext";
 import { M3Spring } from "@/constants/colors";
+import {
+  modelManager,
+  MODEL_CATALOG,
+  ModelStatus,
+  DownloadProgress,
+} from "@/lib/modelManager";
 
 function SettingRow({
   icon,
@@ -138,6 +145,65 @@ export default function SettingsScreen() {
   const [showAddNoteModal, setShowAddNoteModal] = useState(false);
   const [noteContent, setNoteContent] = useState("");
   const [noteLabel, setNoteLabel]     = useState("");
+
+  // ── Model state ─────────────────────────────────────────────────────────────
+  const [modelStatuses, setModelStatuses] = useState<Record<string, ModelStatus>>({});
+  const [downloadProgress, setDownloadProgress] = useState<Record<string, DownloadProgress>>({});
+  const [activeModelId, setActiveModelId] = useState<string | null>(null);
+
+  const refreshModelStatuses = useCallback(async () => {
+    const statuses: Record<string, ModelStatus> = {};
+    for (const m of MODEL_CATALOG) {
+      statuses[m.id] = await modelManager.getModelStatus(m.id);
+    }
+    setModelStatuses(statuses);
+    const active = await modelManager.getActiveModelId();
+    setActiveModelId(active);
+  }, []);
+
+  useEffect(() => { refreshModelStatuses(); }, [refreshModelStatuses]);
+
+  const handleDownload = (modelId: string) => {
+    setModelStatuses(s => ({ ...s, [modelId]: "downloading" }));
+    setDownloadProgress(p => ({ ...p, [modelId]: { totalBytes: 0, downloadedBytes: 0, percent: 0 } }));
+    modelManager.downloadModel(
+      modelId,
+      (progress) => setDownloadProgress(p => ({ ...p, [modelId]: progress })),
+      () => {
+        refreshModelStatuses();
+        setDownloadProgress(p => { const n = { ...p }; delete n[modelId]; return n; });
+      },
+      (err) => {
+        Alert.alert("İndirme Hatası", err);
+        setModelStatuses(s => ({ ...s, [modelId]: "error" }));
+        setDownloadProgress(p => { const n = { ...p }; delete n[modelId]; return n; });
+      },
+    );
+  };
+
+  const handleCancelDownload = async (modelId: string) => {
+    await modelManager.cancelDownload(modelId);
+    setModelStatuses(s => ({ ...s, [modelId]: "not_downloaded" }));
+    setDownloadProgress(p => { const n = { ...p }; delete n[modelId]; return n; });
+  };
+
+  const handleDeleteModel = (modelId: string) => {
+    Alert.alert(
+      "Modeli Sil",
+      "Model dosyası silinecek. Tekrar kullanmak için indirmen gerekecek.",
+      [
+        { text: "İptal", style: "cancel" },
+        {
+          text: "Sil", style: "destructive",
+          onPress: async () => {
+            await modelManager.deleteModel(modelId);
+            if (activeModelId === modelId) setActiveModelId(null);
+            refreshModelStatuses();
+          },
+        },
+      ],
+    );
+  };
 
   const topPad    = Platform.OS === "web" ? 24 : insets.top + 16;
   const bottomPad = Platform.OS === "web" ? 84 + 20 : insets.bottom + 100;
@@ -455,6 +521,117 @@ export default function SettingsScreen() {
           </Pressable>
         )}
       </View>
+
+      {/* ── AI MODELİ ──────────────────────────────────────────────────────── */}
+      <SectionTitle text="AI MODELİ" />
+      <View style={[styles.privacyCard, { backgroundColor: colors.primaryContainer + "44", borderColor: colors.primary + "33" }]}>
+        <Feather name="cpu" size={14} color={colors.primary} />
+        <Text style={[styles.privacyText, { color: colors.onSurface }]}>
+          Model dosyaları yalnızca cihazında saklanır. İndirme yaklaşık 1.8–2.5 GB veri kullanır; Wi-Fi bağlantısı önerilir.
+        </Text>
+      </View>
+
+      {MODEL_CATALOG.map((model) => {
+        const status   = modelStatuses[model.id] ?? "not_downloaded";
+        const progress = downloadProgress[model.id];
+        const isActive = activeModelId === model.id;
+        const isDownloading = status === "downloading";
+        const isReady = status === "ready" || status === "loaded" || status === "loading";
+
+        return (
+          <View
+            key={model.id}
+            style={[
+              styles.modelCard,
+              {
+                backgroundColor: isActive ? colors.primaryContainer + "55" : colors.surfaceContainer,
+                borderColor: isActive ? colors.primary + "55" : colors.outlineVariant,
+              },
+            ]}
+          >
+            {/* Header row */}
+            <View style={styles.modelHeader}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <Text style={[styles.modelName, { color: colors.onSurface }]}>{model.name}</Text>
+                  {model.recommended && (
+                    <View style={[styles.badge, { backgroundColor: colors.tertiary + "22" }]}>
+                      <Text style={[styles.badgeText, { color: colors.tertiary }]}>Önerilen</Text>
+                    </View>
+                  )}
+                  {isActive && (
+                    <View style={[styles.badge, { backgroundColor: colors.primary + "22" }]}>
+                      <Text style={[styles.badgeText, { color: colors.primary }]}>Aktif</Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={[styles.modelDesc, { color: colors.onSurfaceVariant }]}>
+                  {model.description} · {modelManager.formatSize(model.sizeMB)}
+                </Text>
+              </View>
+            </View>
+
+            {/* Progress bar when downloading */}
+            {isDownloading && progress && (
+              <View style={{ gap: 6, marginTop: 8 }}>
+                <View style={[styles.progressTrack, { backgroundColor: colors.outlineVariant }]}>
+                  <View
+                    style={[
+                      styles.progressFill,
+                      { backgroundColor: colors.primary, width: `${progress.percent}%` as any },
+                    ]}
+                  />
+                </View>
+                <Text style={[styles.progressText, { color: colors.onSurfaceVariant }]}>
+                  {progress.percent}% · {modelManager.formatSize(Math.round(progress.downloadedBytes / 1024 / 1024))} / {modelManager.formatSize(model.sizeMB)}
+                </Text>
+              </View>
+            )}
+
+            {/* Action buttons */}
+            <View style={[styles.modelActions, { borderTopColor: colors.outlineVariant }]}>
+              {isDownloading ? (
+                <Pressable
+                  onPress={() => handleCancelDownload(model.id)}
+                  style={[styles.modelBtn, { backgroundColor: colors.errorContainer, borderColor: colors.error + "44" }]}
+                >
+                  <Feather name="x" size={14} color={colors.error} />
+                  <Text style={[styles.modelBtnText, { color: colors.error }]}>İptal</Text>
+                </Pressable>
+              ) : isReady ? (
+                <>
+                  {!isActive && (
+                    <Pressable
+                      onPress={() => { modelManager.setActiveModelId(model.id); setActiveModelId(model.id); }}
+                      style={[styles.modelBtn, { backgroundColor: colors.primaryContainer, borderColor: colors.primary + "44" }]}
+                    >
+                      <Feather name="check-circle" size={14} color={colors.primary} />
+                      <Text style={[styles.modelBtnText, { color: colors.primary }]}>Seç</Text>
+                    </Pressable>
+                  )}
+                  <Pressable
+                    onPress={() => handleDeleteModel(model.id)}
+                    style={[styles.modelBtn, { backgroundColor: colors.errorContainer + "55", borderColor: colors.error + "33" }]}
+                  >
+                    <Feather name="trash-2" size={14} color={colors.error} />
+                    <Text style={[styles.modelBtnText, { color: colors.error }]}>Sil</Text>
+                  </Pressable>
+                </>
+              ) : (
+                <Pressable
+                  onPress={() => handleDownload(model.id)}
+                  style={[styles.modelBtn, { backgroundColor: colors.primary, borderColor: "transparent", flex: 1 }]}
+                >
+                  <Feather name="download" size={14} color={colors.onPrimary} />
+                  <Text style={[styles.modelBtnText, { color: colors.onPrimary }]}>
+                    {status === "error" ? "Tekrar Dene" : "İndir"}
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          </View>
+        );
+      })}
 
       {/* Preview */}
       <SectionTitle text="TEST" />
@@ -833,5 +1010,71 @@ const styles = StyleSheet.create({
   modalSaveBtnText: {
     fontSize: 15,
     fontFamily: "Inter_600SemiBold",
+  },
+  // ── Model card ──────────────────────────────────────────────────────────────
+  modelCard: {
+    marginHorizontal: 20,
+    marginBottom: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 14,
+  },
+  modelHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+  },
+  modelName: {
+    fontSize: 14,
+    fontFamily: "Inter_600SemiBold",
+  },
+  modelDesc: {
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+    marginTop: 2,
+    lineHeight: 17,
+  },
+  badge: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontFamily: "Inter_600SemiBold",
+    letterSpacing: 0.3,
+  },
+  progressTrack: {
+    height: 6,
+    borderRadius: 3,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: 6,
+    borderRadius: 3,
+  },
+  progressText: {
+    fontSize: 11,
+    fontFamily: "Inter_400Regular",
+  },
+  modelActions: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  modelBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  modelBtnText: {
+    fontSize: 13,
+    fontFamily: "Inter_500Medium",
   },
 });

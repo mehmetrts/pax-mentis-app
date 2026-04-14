@@ -21,7 +21,8 @@ import { useCalendar } from "@/context/CalendarContext";
 import { useVoice } from "@/hooks/useVoice";
 import { MentorBubble } from "@/components/MentorBubble";
 import { ResistanceMeter } from "@/components/ResistanceMeter";
-import { llmBridge, IS_LLM_NATIVE_AVAILABLE } from "@/lib/localLLM";
+import { llmBridge } from "@/lib/localLLM";
+import { useLLMStatus } from "@/hooks/useLLMStatus";
 import { analyzeInput, getSignalLabel, getSignalColor } from "@/lib/resistanceAnalyzer";
 import {
   retrieveRelevantChunks,
@@ -103,13 +104,12 @@ export default function MentorScreen() {
     [taskId, tasks]
   );
 
-  const [llmLoaded, setLlmLoaded] = useState(false);
+  const llmStatus = useLLMStatus();
+  const llmLoaded = llmStatus.status === "loaded";
 
   // Initialize LLM bridge and user profile
   useEffect(() => {
-    llmBridge.initialize().then(() => {
-      setLlmLoaded(llmBridge.isLoaded);
-    });
+    llmBridge.initialize();
     loadUserProfile().then(p => {
       setUserProfile(p);
       userProfileRef.current = p;
@@ -392,9 +392,18 @@ export default function MentorScreen() {
               </View>
             )}
             {!llmLoaded && (
-              <View style={[styles.phaseBadge, { backgroundColor: "#FF6B6B18", borderWidth: 1, borderColor: "#FF6B6B55" }]}>
-                <Text style={[styles.phaseBadgeText, { color: "#E05555" }]}>
-                  {IS_LLM_NATIVE_AVAILABLE ? "Yükleniyor" : "Demo"}
+              <View style={[
+                styles.phaseBadge,
+                {
+                  backgroundColor: llmStatus.status === "error" ? "#FF6B6B18" : "#F59E0B18",
+                  borderWidth: 1,
+                  borderColor: llmStatus.status === "error" ? "#FF6B6B55" : "#F59E0B55",
+                },
+              ]}>
+                <Text style={[styles.phaseBadgeText, {
+                  color: llmStatus.status === "error" ? "#E05555" : "#B45309",
+                }]}>
+                  {llmStatus.label}
                 </Text>
               </View>
             )}

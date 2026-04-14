@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ConversationPhase } from "./wikiKnowledge";
-import { modelManager, ModelStatus } from "./modelManager";
+import { modelManager, MODEL_CATALOG, ModelStatus } from "./modelManager";
 
 // ─── llama.rn dinamik import ───────────────────────────────────────────────────
 // Expo Go'da llama.rn native modülü mevcut değil — try/catch ile güvenli yükleme.
@@ -35,11 +35,11 @@ export interface LLMConfig {
 
 const DEFAULT_CONFIG: LLMConfig = {
   modelId: "llama-3.2-3b-q4",
-  maxTokens: 220,      // 3 cümle için yeterli; uzun yanıtları kesmek kaliteyi artırır
+  maxTokens: 220,
   temperature: 0.72,
   topP: 0.9,
   contextLength: 2048,
-  nGpuLayers: 1,       // Snapdragon 8 Gen 2 NPU
+  nGpuLayers: 0,  // CPU-only — Vulkan GPU offload cihaza göre değişir, 0 güvenli default
 };
 
 const CONFIG_KEY = "@pax_mentis:llm_config";
@@ -93,21 +93,34 @@ export class LocalLLMBridge {
       const saved = await AsyncStorage.getItem(CONFIG_KEY);
       if (saved) this.config = { ...DEFAULT_CONFIG, ...JSON.parse(saved) };
 
-      const activeId = await modelManager.getActiveModelId();
+      let activeId = await modelManager.getActiveModelId();
+
+      // Aktif model dosyası gerçekten var mı kontrol et
+      if (activeId) {
+        const activeStatus = await modelManager.getModelStatus(activeId);
+        if (activeStatus !== "ready") {
+          // Aktif model dosyası yok — tüm katalogda indirilmiş model ara
+          activeId = null;
+          for (const m of MODEL_CATALOG) {
+            const s = await modelManager.getModelStatus(m.id);
+            if (s === "ready") {
+              activeId = m.id;
+              await modelManager.setActiveModelId(m.id);
+              break;
+            }
+          }
+        }
+      }
+
       if (!activeId) {
         this._status = "not_downloaded";
         return;
       }
 
-      const modelStatus = await modelManager.getModelStatus(activeId);
-      if (modelStatus === "ready") {
-        if (_initLlama) {
-          await this.loadModel(activeId);
-        } else {
-          this._status = "ready"; // Expo Go: model var ama native modül yok
-        }
+      if (_initLlama) {
+        await this.loadModel(activeId);
       } else {
-        this._status = modelStatus;
+        this._status = "ready"; // Expo Go: model var ama native modül yok
       }
     } catch {
       this._status = "error";
@@ -123,18 +136,24 @@ export class LocalLLMBridge {
     const id = modelId ?? (await modelManager.getActiveModelId());
     if (!id) return false;
 
+    // Dosyanın gerçekten var olduğunu kontrol et
+    const fileStatus = await modelManager.getModelStatus(id);
+    if (fileStatus !== "ready") {
+      this._loadError = `Model dosyası bulunamadı: ${id}`;
+      this._status = "not_downloaded";
+      return false;
+    }
+
     const modelPath = modelManager.getModelPath(id);
     this._status = "loading";
     this._loadError = null;
 
     try {
+      // Android güvenli parametreler — use_mlock ve use_metal Android'de çökmeye yol açar
       this.llamaContext = await _initLlama({
         model: modelPath,
-        use_mlock: true,
         n_ctx: this.config.contextLength,
         n_gpu_layers: this.config.nGpuLayers,
-        // Snapdragon 8 Gen 2 için: Metal/Vulkan GPU offloading
-        use_metal: false,
       });
       this._status = "loaded";
       return true;

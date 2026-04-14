@@ -542,6 +542,10 @@ export default function SettingsScreen() {
         const isActive = activeModelId === model.id;
         const isDownloading = status === "downloading";
         const isReady = status === "ready" || status === "loaded" || status === "loading";
+        // "Aktif" rozeti: hem seçili HEM de dosya var olmalı
+        const isActiveAndReady = isActive && isReady;
+        // Bozuk durum: AsyncStorage'da aktif ama dosya yok
+        const isBrokenActive = isActive && !isReady && !isDownloading;
 
         return (
           <View
@@ -549,8 +553,8 @@ export default function SettingsScreen() {
             style={[
               styles.modelCard,
               {
-                backgroundColor: isActive ? colors.primaryContainer + "55" : colors.surfaceContainer,
-                borderColor: isActive ? colors.primary + "55" : colors.outlineVariant,
+                backgroundColor: isActiveAndReady ? colors.primaryContainer + "55" : colors.surfaceContainer,
+                borderColor: isActiveAndReady ? colors.primary + "55" : colors.outlineVariant,
               },
             ]}
           >
@@ -564,9 +568,14 @@ export default function SettingsScreen() {
                       <Text style={[styles.badgeText, { color: colors.tertiary }]}>Önerilen</Text>
                     </View>
                   )}
-                  {isActive && (
+                  {isActiveAndReady && (
                     <View style={[styles.badge, { backgroundColor: colors.primary + "22" }]}>
                       <Text style={[styles.badgeText, { color: colors.primary }]}>Aktif</Text>
+                    </View>
+                  )}
+                  {isBrokenActive && (
+                    <View style={[styles.badge, { backgroundColor: colors.error + "22" }]}>
+                      <Text style={[styles.badgeText, { color: colors.error }]}>Dosya Yok</Text>
                     </View>
                   )}
                 </View>

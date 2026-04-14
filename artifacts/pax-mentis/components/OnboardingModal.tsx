@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dimensions,
   Modal,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -12,14 +13,16 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withTiming,
+  withRepeat,
+  withSequence,
+  interpolate,
+  Extrapolation,
 } from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
 import { M3Spring } from "@/constants/colors";
 
 const { width } = Dimensions.get("window");
-
-// ─── Slide Types ──────────────────────────────────────────────────────────────
 
 interface PrivacyPoint {
   allowed: boolean;
@@ -90,14 +93,87 @@ const SLIDES: Slide[] = [
   },
 ];
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface Props {
   visible: boolean;
   onDone:  () => void;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+function NextButton({ onPress, isLast, color, textColor }: {
+  onPress: () => void;
+  isLast: boolean;
+  color: string;
+  textColor: string;
+}) {
+  const scale   = useSharedValue(1);
+  const glow    = useSharedValue(0);
+
+  useEffect(() => {
+    glow.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 900 }),
+        withTiming(0, { duration: 900 }),
+      ),
+      -1,
+      false
+    );
+  }, []);
+
+  const btnStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(glow.value, [0, 1], [0, 0.35], Extrapolation.CLAMP),
+    transform: [
+      { scale: interpolate(glow.value, [0, 1], [1, 1.18], Extrapolation.CLAMP) },
+    ],
+  }));
+
+  return (
+    <Pressable
+      onPressIn={() => { scale.value = withSpring(0.93, M3Spring.spatialFast); }}
+      onPressOut={() => { scale.value = withSpring(1, M3Spring.spatialDefault); }}
+      onPress={onPress}
+      style={isLast ? { flex: 1 } : undefined}
+    >
+      <Animated.View style={[btnStyle, { position: "relative" }]}>
+        {/* Nabız halkası */}
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFillObject,
+            {
+              borderRadius: 9999,
+              backgroundColor: color,
+            },
+            glowStyle,
+          ]}
+        />
+        {/* Ana buton */}
+        <View
+          style={[
+            styles.nextBtn,
+            {
+              backgroundColor: color,
+              alignSelf: isLast ? "stretch" : "flex-start",
+            },
+          ]}
+        >
+          <Text style={[styles.nextText, { color: textColor }]}>
+            {isLast ? "Başla" : "İleri"}
+          </Text>
+          {!isLast && (
+            <Feather
+              name="arrow-right"
+              size={16}
+              color={textColor}
+              style={{ marginLeft: 6 }}
+            />
+          )}
+        </View>
+      </Animated.View>
+    </Pressable>
+  );
+}
 
 export function OnboardingModal({ visible, onDone }: Props) {
   const colors = useColors();
@@ -106,8 +182,7 @@ export function OnboardingModal({ visible, onDone }: Props) {
   const isLast = page === SLIDES.length - 1;
   const slide  = SLIDES[page];
 
-  // Spring card transition
-  const cardOpacity = useSharedValue(1);
+  const cardOpacity    = useSharedValue(1);
   const cardTranslateX = useSharedValue(0);
 
   const cardStyle = useAnimatedStyle(() => ({
@@ -116,19 +191,17 @@ export function OnboardingModal({ visible, onDone }: Props) {
   }));
 
   function goNext() {
-    cardOpacity.value    = withTiming(0, { duration: 140 }, () => {
-      cardTranslateX.value = -20;
-    });
     cardOpacity.value    = withTiming(0, { duration: 140 });
+    cardTranslateX.value = withTiming(-16, { duration: 140 });
     setTimeout(() => {
       setPage(p => p + 1);
-      cardTranslateX.value = 20;
+      cardTranslateX.value = 16;
+      cardOpacity.value    = withTiming(0, { duration: 0 });
       cardOpacity.value    = withSpring(1, M3Spring.effectDefault);
       cardTranslateX.value = withSpring(0, M3Spring.spatialDefault);
     }, 150);
   }
 
-  // Icon container color by variant
   const iconBg = {
     primary: colors.primaryContainer,
     tertiary: colors.tertiaryContainer,
@@ -153,18 +226,13 @@ export function OnboardingModal({ visible, onDone }: Props) {
       <View style={styles.overlay}>
         <Animated.View style={[styles.card, { backgroundColor: colors.surface }, cardStyle]}>
 
-          {/* İkon */}
           <View style={[styles.iconWrap, { backgroundColor: iconBg }]}>
             <Feather name={slide.icon as any} size={36} color={iconColor} />
           </View>
 
-          {/* Başlık */}
           <Text style={[styles.title, { color: colors.onSurface }]}>{slide.title}</Text>
-
-          {/* Gövde */}
           <Text style={[styles.body, { color: colors.onSurfaceVariant }]}>{slide.body}</Text>
 
-          {/* Mahremiyet detayları */}
           {slide.privacyPoints && (
             <View style={[styles.privacyBox, { backgroundColor: colors.surfaceContainer, borderColor: colors.outlineVariant }]}>
               {slide.privacyPoints.map((pt, i) => (
@@ -172,11 +240,7 @@ export function OnboardingModal({ visible, onDone }: Props) {
                   <View
                     style={[
                       styles.privacyDot,
-                      {
-                        backgroundColor: pt.allowed
-                          ? colors.primary + "22"
-                          : colors.error + "18",
-                      },
+                      { backgroundColor: pt.allowed ? colors.primary + "22" : colors.error + "18" },
                     ]}
                   >
                     <Feather
@@ -198,7 +262,6 @@ export function OnboardingModal({ visible, onDone }: Props) {
             </View>
           )}
 
-          {/* Nokta göstergesi */}
           <View style={styles.dots}>
             {SLIDES.map((_, i) => (
               <View
@@ -214,27 +277,18 @@ export function OnboardingModal({ visible, onDone }: Props) {
             ))}
           </View>
 
-          {/* Butonlar */}
           <View style={styles.btnRow}>
             {!isLast && (
               <TouchableOpacity onPress={onDone} style={styles.skipBtn}>
                 <Text style={[styles.skipText, { color: colors.onSurfaceVariant }]}>Atla</Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity
-              style={[
-                styles.nextBtn,
-                { backgroundColor: colors.primary, flex: isLast ? 1 : undefined },
-              ]}
+            <NextButton
               onPress={isLast ? onDone : goNext}
-            >
-              <Text style={[styles.nextText, { color: colors.onPrimary }]}>
-                {isLast ? "Başla" : "İleri"}
-              </Text>
-              {!isLast && (
-                <Feather name="arrow-right" size={16} color={colors.onPrimary} style={{ marginLeft: 4 }} />
-              )}
-            </TouchableOpacity>
+              isLast={isLast}
+              color={colors.primary}
+              textColor={colors.onPrimary}
+            />
           </View>
         </Animated.View>
       </View>
@@ -322,7 +376,7 @@ const styles = StyleSheet.create({
   },
   btnRow: {
     flexDirection: "row",
-    gap: 10,
+    gap: 12,
     width: "100%",
     alignItems: "center",
   },
@@ -330,6 +384,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     alignItems: "center",
+    justifyContent: "center",
     borderRadius: 9999,
   },
   skipText: {
@@ -337,15 +392,18 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_500Medium",
   },
   nextBtn: {
-    flex: 2,
     flexDirection: "row",
     paddingVertical: 14,
+    paddingHorizontal: 28,
     borderRadius: 9999,
     justifyContent: "center",
     alignItems: "center",
+    minWidth: 110,
   },
   nextText: {
     fontSize: 15,
     fontFamily: "Inter_700Bold",
+    includeFontPadding: false,
+    textAlignVertical: "center",
   },
 });

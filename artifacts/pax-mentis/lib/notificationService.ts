@@ -326,9 +326,14 @@ export interface ToastPayload {
 }
 
 let _toastCallback: ((payload: ToastPayload) => void) | null = null;
+let _owlCallback:   ((type: NotificationType) => void)   | null = null;
 
 export function registerToastCallback(cb: (payload: ToastPayload) => void): void {
   _toastCallback = cb;
+}
+
+export function registerOwlCallback(cb: (type: NotificationType) => void): void {
+  _owlCallback = cb;
 }
 
 export function triggerInAppToast(
@@ -365,4 +370,7 @@ export function triggerInAppToast(
     title:   msg.title,
     body:    msg.body,
   });
+
+  // Also trigger animated owl notification
+  _owlCallback?.(type);
 }

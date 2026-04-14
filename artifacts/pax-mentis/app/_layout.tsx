@@ -15,9 +15,11 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SupportiveToast } from "@/components/SupportiveToast";
+import { OwlNotification } from "@/components/OwlNotification";
 import { AppProvider } from "@/context/AppContext";
 import { CalendarProvider } from "@/context/CalendarContext";
 import { NotificationProvider, useNotifications } from "@/context/NotificationContext";
+import { OwlProvider, useOwl } from "@/context/OwlContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 
 SplashScreen.preventAutoHideAsync();
@@ -36,6 +38,12 @@ function RootLayoutNav() {
 function ToastOverlay() {
   const { toast, dismissToast } = useNotifications();
   return <SupportiveToast payload={toast} onDismiss={dismissToast} />;
+}
+
+/** Animated owl — rendered as top-level overlay */
+function OwlOverlay() {
+  const { owlPayload, dismissOwl } = useOwl();
+  return <OwlNotification payload={owlPayload} onDismiss={dismissOwl} />;
 }
 
 export default function RootLayout() {
@@ -64,8 +72,11 @@ export default function RootLayout() {
                 <CalendarProvider>
                   <GestureHandlerRootView style={{ flex: 1 }}>
                     <KeyboardProvider>
-                      <RootLayoutNav />
-                      <ToastOverlay />
+                      <OwlProvider>
+                        <RootLayoutNav />
+                        <ToastOverlay />
+                        <OwlOverlay />
+                      </OwlProvider>
                     </KeyboardProvider>
                   </GestureHandlerRootView>
                 </CalendarProvider>

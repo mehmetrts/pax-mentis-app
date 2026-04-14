@@ -60,10 +60,14 @@ Android/iOS Expo uygulaması. Erteleme davranışını psikolojik bilimle ele al
 - Tüm takvim/not verileri cihaz üzerinde kalır, sunucuya gönderilmez
 
 **Bildirim sistemi:**
-- `lib/notificationService.ts` — 3 Android kanal, 7 bildirim türü, Türkçe mesaj kataloğu (2-3 varyant), sakin saat desteği
+- `lib/notificationService.ts` — 3 Android kanal, 7 bildirim türü, Türkçe mesaj kataloğu (2-3 varyant), sakin saat desteği; `registerOwlCallback` ile baykuş entegrasyonu
 - `context/NotificationContext.tsx` — bildirim ayarları (AsyncStorage), toast state, izin yönetimi
 - `components/SupportiveToast.tsx` — M3 Expressive spring animasyonlu uygulama içi banner (yukarıdan sürgün, ilerleme çubuğu, yukarı kaydır ile kapat)
-- `app/(tabs)/settings.tsx` — bildirim ayarları ekranı (ana toggle, kategori toggle'ları, sabah saati, sessiz saatler, önizleme)
+- `components/OwlNotification.tsx` — animasyonlu baykuş karakter bildirimi: ekranın 4 kenarından peek, spring slide-in, boş konuşma balonu, 4.5s sonra otomatik çıkış
+  - Sol: self_compassion / resistance_high | Sağ: gentle_nudge / streak_reminder | Üst: daily_morning | Alt: task_added / session_complete
+  - Baykuş View bileşenleriyle çizilmiş (mezuniyet şapkası, gözler, gaga, kanatlar), Amber accent
+- `context/OwlContext.tsx` — `showOwl(type)` imperatif hook, registerOwlCallback ile notificationService'e bağlı
+- `app/(tabs)/settings.tsx` — bildirim ayarları ekranı (ana toggle, kategori toggle'ları, sabah saati, sessiz saatler); BAYKUŞ BİLDİRİMİ TEST bölümü (4 yön butonu); GÖRÜNÜM (Sistem/Açık/Koyu) + DİL bölümleri
 - Tetikleyiciler: görev ekleme → `task_added`, direnç ≥70 → `resistance_high`, günlük sabah → `daily_morning`
 
 **Renk sistemi:** constants/colors.ts — light + dark mode

@@ -684,22 +684,31 @@ export default function SettingsScreen() {
       </View>
 
       {/* Preview */}
-      <SectionTitle text="TEST" />
-      <Pressable
-        onPress={() => notify("self_compassion")}
-        style={({ pressed }) => [
-          styles.previewBtn,
-          {
-            backgroundColor: pressed ? colors.primaryContainer : colors.surfaceContainer,
-            borderColor: colors.outlineVariant,
-          },
-        ]}
-      >
-        <Feather name="eye" size={16} color={colors.primary} />
-        <Text style={[styles.previewText, { color: colors.primary }]}>
-          Bildirim önizlemesi göster
-        </Text>
-      </Pressable>
+      <SectionTitle text="BAYKUŞ BİLDİRİMİ — TEST" />
+      <View style={[styles.owlTestGrid, { gap: 10 }]}>
+        {([
+          { type: "self_compassion",  label: "← Sol",   icon: "🌿", dir: "Öz-şefkat"    },
+          { type: "gentle_nudge",     label: "Sağ →",   icon: "💚", dir: "Dürtme"        },
+          { type: "daily_morning",    label: "↑ Üst",   icon: "☀️", dir: "Günaydın"      },
+          { type: "task_added",       label: "↓ Alt",   icon: "✅", dir: "Görev"         },
+        ] as const).map(({ type, label, icon, dir }) => (
+          <Pressable
+            key={type}
+            onPress={() => notify(type as any)}
+            style={({ pressed }) => [
+              styles.owlTestBtn,
+              {
+                backgroundColor: pressed ? colors.primaryContainer : colors.surfaceContainer,
+                borderColor: colors.outlineVariant,
+              },
+            ]}
+          >
+            <Text style={styles.owlTestIcon}>{icon}</Text>
+            <Text style={[styles.owlTestLabel, { color: colors.onSurface }]}>{label}</Text>
+            <Text style={[styles.owlTestDir, { color: colors.onSurfaceVariant }]}>{dir}</Text>
+          </Pressable>
+        ))}
+      </View>
 
       {/* Add Note Modal */}
       <Modal
@@ -1060,6 +1069,32 @@ const styles = StyleSheet.create({
   modalSaveBtnText: {
     fontSize: 15,
     fontFamily: "Inter_600SemiBold",
+  },
+  // ── Owl test grid ────────────────────────────────────────────────────────────
+  owlTestGrid: {
+    marginHorizontal: 20,
+    flexDirection:    "row",
+    flexWrap:         "wrap",
+  },
+  owlTestBtn: {
+    width:         "47%",
+    borderRadius:  14,
+    borderWidth:   1,
+    padding:       14,
+    alignItems:    "center",
+    gap:           4,
+  },
+  owlTestIcon: {
+    fontSize: 24,
+    lineHeight: 30,
+  },
+  owlTestLabel: {
+    fontSize:   14,
+    fontFamily: "Inter_600SemiBold",
+  },
+  owlTestDir: {
+    fontSize:   11,
+    fontFamily: "Inter_400Regular",
   },
   // ── Theme segment ────────────────────────────────────────────────────────────
   segmentCard: {

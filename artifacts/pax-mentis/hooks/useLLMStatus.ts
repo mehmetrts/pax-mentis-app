@@ -7,6 +7,8 @@ export interface LLMStatusInfo {
   isNative: boolean;
   label: string;
   color: string;
+  loadError: string | null;
+  retry: () => void;
 }
 
 const STATUS_META: Record<ModelStatus, { label: string; color: string }> = {
@@ -20,14 +22,25 @@ const STATUS_META: Record<ModelStatus, { label: string; color: string }> = {
 
 export function useLLMStatus(): LLMStatusInfo {
   const [status, setStatus] = useState<ModelStatus>(llmBridge.status);
+  const [loadError, setLoadError] = useState<string | null>(llmBridge.loadError);
 
   useEffect(() => {
     let alive = true;
     const poll = setInterval(() => {
-      if (alive) setStatus(llmBridge.status);
+      if (alive) {
+        setStatus(llmBridge.status);
+        setLoadError(llmBridge.loadError);
+      }
     }, 2000);
     return () => { alive = false; clearInterval(poll); };
   }, []);
+
+  const retry = () => {
+    llmBridge.initialize().then(() => {
+      setStatus(llmBridge.status);
+      setLoadError(llmBridge.loadError);
+    });
+  };
 
   const meta = STATUS_META[status] ?? STATUS_META.error;
   return {
@@ -35,5 +48,7 @@ export function useLLMStatus(): LLMStatusInfo {
     isNative: IS_LLM_NATIVE_AVAILABLE,
     label: IS_LLM_NATIVE_AVAILABLE ? meta.label : "Demo",
     color: IS_LLM_NATIVE_AVAILABLE ? meta.color : "#9ca3af",
+    loadError,
+    retry,
   };
 }

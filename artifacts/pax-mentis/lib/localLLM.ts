@@ -38,8 +38,8 @@ const DEFAULT_CONFIG: LLMConfig = {
   maxTokens: 220,
   temperature: 0.72,
   topP: 0.9,
-  contextLength: 2048,
-  nGpuLayers: 0,  // CPU-only — Vulkan GPU offload cihaza göre değişir, 0 güvenli default
+  contextLength: 512,  // Düşük RAM kullanımı — Samsung S23 için güvenli başlangıç
+  nGpuLayers: 0,
 };
 
 const CONFIG_KEY = "@pax_mentis:llm_config";
@@ -91,7 +91,16 @@ export class LocalLLMBridge {
   async initialize(): Promise<void> {
     try {
       const saved = await AsyncStorage.getItem(CONFIG_KEY);
-      if (saved) this.config = { ...DEFAULT_CONFIG, ...JSON.parse(saved) };
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // contextLength: kayıtlı eski değer (2048) varsa da 512'yi aşmasın
+        this.config = {
+          ...DEFAULT_CONFIG,
+          ...parsed,
+          contextLength: Math.min(parsed.contextLength ?? DEFAULT_CONFIG.contextLength, 512),
+          nGpuLayers: 0, // Her zaman CPU-only
+        };
+      }
 
       let activeId = await modelManager.getActiveModelId();
 
@@ -159,7 +168,8 @@ export class LocalLLMBridge {
       return true;
     } catch (e: unknown) {
       this._status = "error";
-      this._loadError = e instanceof Error ? e.message : "Model yüklenemedi";
+      this._loadError = e instanceof Error ? e.message : String(e) ?? "Model yüklenemedi";
+      console.error("[LLM] loadModel failed:", this._loadError);
       return false;
     }
   }

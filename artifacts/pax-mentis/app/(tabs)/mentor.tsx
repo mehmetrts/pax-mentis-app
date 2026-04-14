@@ -392,20 +392,38 @@ export default function MentorScreen() {
               </View>
             )}
             {!llmLoaded && (
-              <View style={[
-                styles.phaseBadge,
-                {
-                  backgroundColor: llmStatus.status === "error" ? "#FF6B6B18" : "#F59E0B18",
-                  borderWidth: 1,
-                  borderColor: llmStatus.status === "error" ? "#FF6B6B55" : "#F59E0B55",
-                },
-              ]}>
-                <Text style={[styles.phaseBadgeText, {
-                  color: llmStatus.status === "error" ? "#E05555" : "#B45309",
-                }]}>
-                  {llmStatus.label}
-                </Text>
-              </View>
+              <TouchableOpacity
+                onPress={() => {
+                  if (llmStatus.status === "error") {
+                    Alert.alert(
+                      "Model Hatası",
+                      llmStatus.loadError ?? "Bilinmeyen hata",
+                      [
+                        { text: "İptal", style: "cancel" },
+                        { text: "Tekrar Dene", onPress: llmStatus.retry },
+                      ]
+                    );
+                  } else if (llmStatus.status === "not_downloaded") {
+                    Alert.alert("Model Yok", "Ayarlar ekranından Llama 3.2 3B modelini indir.");
+                  }
+                }}
+                activeOpacity={llmStatus.status === "error" ? 0.7 : 1}
+              >
+                <View style={[
+                  styles.phaseBadge,
+                  {
+                    backgroundColor: llmStatus.status === "error" ? "#FF6B6B18" : "#F59E0B18",
+                    borderWidth: 1,
+                    borderColor: llmStatus.status === "error" ? "#FF6B6B55" : "#F59E0B55",
+                  },
+                ]}>
+                  <Text style={[styles.phaseBadgeText, {
+                    color: llmStatus.status === "error" ? "#E05555" : "#B45309",
+                  }]}>
+                    {llmStatus.label}
+                  </Text>
+                </View>
+              </TouchableOpacity>
             )}
             {currentResistance > 0 && (
               <View style={styles.signalRow}>

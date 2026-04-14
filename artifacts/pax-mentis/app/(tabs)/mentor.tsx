@@ -3,6 +3,7 @@ import * as Haptics from "expo-haptics";
 import { useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Alert,
   FlatList,
   Platform,
   StyleSheet,
@@ -120,7 +121,15 @@ export default function MentorScreen() {
 
   const handleMicPress = useCallback(async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (!voice.isSTTAvailable) return;
+
+    if (!voice.isSTTAvailable) {
+      Alert.alert(
+        "Sesli Giriş Yok",
+        "Bu özellik yalnızca özel geliştirici yapısında (dev build) çalışır. Expo Go üzerinden bağlandıysan dev build'i yüklemen gerekiyor.",
+        [{ text: "Tamam" }]
+      );
+      return;
+    }
 
     if (voice.sttStatus === "recording") {
       const transcript = await voice.stopRecording();
@@ -348,7 +357,9 @@ export default function MentorScreen() {
     );
   }, [isGenerating, streamingContent]);
 
-  const topPad = Platform.OS === "web" ? 24 : insets.top + 16;
+  const topPad    = Platform.OS === "web" ? 24 : insets.top + 16;
+  // Tab bar is no longer absolute on Android → content area ends above tab bar.
+  // Only need safe-area bottom (gesture nav) + small gap.
   const bottomInset = Platform.OS === "web" ? 34 : insets.bottom;
 
   return (
@@ -449,9 +460,7 @@ export default function MentorScreen() {
               backgroundColor:
                 voice.sttStatus === "recording"
                   ? colors.primary + "33"
-                  : voice.sttStatus === "processing"
-                  ? colors.muted
-                  : colors.muted,
+                  : colors.surfaceContainer,
               borderRadius: 20,
               borderWidth: voice.sttStatus === "recording" ? 1.5 : 0,
               borderColor: voice.sttStatus === "recording" ? colors.primary : "transparent",
@@ -459,17 +468,23 @@ export default function MentorScreen() {
           ]}
           onPress={handleMicPress}
           activeOpacity={0.7}
-          disabled={voice.sttStatus === "processing" || !voice.isSTTAvailable}
+          disabled={voice.sttStatus === "processing"}
         >
           <Feather
-            name={voice.sttStatus === "recording" ? "mic" : "mic"}
+            name={
+              !voice.isSTTAvailable
+                ? "mic-off"
+                : voice.sttStatus === "recording"
+                ? "mic"
+                : "mic"
+            }
             size={18}
             color={
               voice.sttStatus === "recording"
                 ? colors.primary
-                : voice.isSTTAvailable
-                ? colors.mutedForeground
-                : colors.mutedForeground + "55"
+                : !voice.isSTTAvailable
+                ? colors.onSurfaceVariant + "66"
+                : colors.onSurfaceVariant
             }
           />
         </TouchableOpacity>

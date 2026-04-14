@@ -50,7 +50,8 @@ function ClassicTabLayout() {
         tabBarInactiveTintColor: colors.mutedForeground,
         headerShown: false,
         tabBarStyle: {
-          position: "absolute",
+          // iOS only: absolute so BlurView shows through; Android: normal flow
+          ...(isIOS ? { position: "absolute" as const } : {}),
           backgroundColor: isIOS ? "transparent" : colors.surface,
           borderTopWidth: 1,
           borderTopColor: colors.outlineVariant,

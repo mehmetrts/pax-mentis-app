@@ -86,7 +86,9 @@ export class LocalLLMBridge {
   get status(): ModelStatus { return this._status; }
   get isLoaded(): boolean { return this._status === "loaded"; }
   get loadError(): string | null { return this._loadError; }
-  get isNativeAvailable(): boolean { return IS_LLM_NATIVE_AVAILABLE; }
+  get isNativeAvailable(): boolean {
+    return IS_LLM_NATIVE_AVAILABLE && !this._initLlamaUnavailable;
+  }
 
   async initialize(): Promise<void> {
     try {
@@ -137,8 +139,8 @@ export class LocalLLMBridge {
   }
 
   async loadModel(modelId?: string): Promise<boolean> {
-    if (!_initLlama) {
-      this._loadError = "Native modül mevcut değil (Expo Go)";
+    if (!_initLlama || this._initLlamaUnavailable) {
+      this._loadError = "Native modül mevcut değil (Expo Go veya JSI eksik APK)";
       return false;
     }
 
@@ -167,12 +169,24 @@ export class LocalLLMBridge {
       this._status = "loaded";
       return true;
     } catch (e: unknown) {
-      this._status = "error";
-      this._loadError = e instanceof Error ? e.message : String(e) ?? "Model yüklenemedi";
-      console.error("[LLM] loadModel failed:", this._loadError);
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("[LLM] loadModel failed:", msg);
+
+      if (msg.includes("JSI bindings not installed") || msg.includes("JSI")) {
+        // APK llama.rn native kodu içermiyor — EAS dev build yeniden derlenmeli
+        // Demo moduna düş, "Hata" yerine "Model Yok" göster
+        this._initLlamaUnavailable = true;
+        this._status = "not_downloaded";
+        this._loadError = "Bu APK llama.rn native modülünü içermiyor. Lütfen EAS dev build'i yeniden derle: cd artifacts/pax-mentis && eas build --profile development --platform android";
+      } else {
+        this._status = "error";
+        this._loadError = msg;
+      }
       return false;
     }
   }
+
+  private _initLlamaUnavailable = false;
 
   async unloadModel(): Promise<void> {
     if (this.llamaContext) {

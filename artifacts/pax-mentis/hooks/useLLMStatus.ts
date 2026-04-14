@@ -42,12 +42,13 @@ export function useLLMStatus(): LLMStatusInfo {
     });
   };
 
+  const isNative = llmBridge.isNativeAvailable;
   const meta = STATUS_META[status] ?? STATUS_META.error;
   return {
     status,
-    isNative: IS_LLM_NATIVE_AVAILABLE,
-    label: IS_LLM_NATIVE_AVAILABLE ? meta.label : "Demo",
-    color: IS_LLM_NATIVE_AVAILABLE ? meta.color : "#9ca3af",
+    isNative,
+    label: isNative ? meta.label : "Demo",
+    color: isNative ? meta.color : "#9ca3af",
     loadError,
     retry,
   };

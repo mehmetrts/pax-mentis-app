@@ -14,7 +14,9 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SupportiveToast } from "@/components/SupportiveToast";
 import { AppProvider } from "@/context/AppContext";
+import { NotificationProvider, useNotifications } from "@/context/NotificationContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,6 +28,12 @@ function RootLayoutNav() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
     </Stack>
   );
+}
+
+/** Global toast overlay — rendered above everything */
+function ToastOverlay() {
+  const { toast, dismissToast } = useNotifications();
+  return <SupportiveToast payload={toast} onDismiss={dismissToast} />;
 }
 
 export default function RootLayout() {
@@ -49,11 +57,14 @@ export default function RootLayout() {
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <AppProvider>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <KeyboardProvider>
-                <RootLayoutNav />
-              </KeyboardProvider>
-            </GestureHandlerRootView>
+            <NotificationProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <KeyboardProvider>
+                  <RootLayoutNav />
+                  <ToastOverlay />
+                </KeyboardProvider>
+              </GestureHandlerRootView>
+            </NotificationProvider>
           </AppProvider>
         </QueryClientProvider>
       </ErrorBoundary>

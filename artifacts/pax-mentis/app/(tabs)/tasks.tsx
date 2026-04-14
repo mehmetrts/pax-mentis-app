@@ -16,6 +16,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
+import { useNotifications } from "@/context/NotificationContext";
 import { TaskCard } from "@/components/TaskCard";
 import { PlanCard } from "@/components/PlanCard";
 import { Task, TaskPriority, TaskStatus } from "@/context/AppContext";
@@ -33,6 +34,7 @@ export default function TasksScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { tasks, plans, addTask, completeTask, deferTask, toggleStep } = useApp();
+  const { notify } = useNotifications();
 
   const [activeFilter, setActiveFilter] = useState<FilterTab>("active");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -71,6 +73,7 @@ export default function TasksScreen() {
       tags: [],
     });
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    notify("task_added");
     setNewTitle("");
     setNewDescription("");
     setNewPriority("medium");

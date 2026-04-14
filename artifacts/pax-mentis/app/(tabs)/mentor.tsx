@@ -15,6 +15,7 @@ import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
+import { useNotifications } from "@/context/NotificationContext";
 import { useVoice } from "@/hooks/useVoice";
 import { MentorBubble } from "@/components/MentorBubble";
 import { ResistanceMeter } from "@/components/ResistanceMeter";
@@ -66,6 +67,7 @@ export default function MentorScreen() {
   const insets = useSafeAreaInsets();
   const { taskId } = useLocalSearchParams<{ taskId?: string }>();
   const { tasks, addSession, updateSession, updateTask, addPlan } = useApp();
+  const { notify } = useNotifications();
   const voice = useVoice();
 
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
@@ -267,6 +269,11 @@ export default function MentorScreen() {
       userProfileRef.current = updatedProfile;
 
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+      // ─── Bildirim tetikleyicileri ─────────────────────────────────────────
+      if (analysis.score >= 70) {
+        notify("resistance_high");
+      }
 
       // ─── Session yönetimi ────────────────────────────────────────────────
       const session = currentSessionRef.current;

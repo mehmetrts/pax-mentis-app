@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ConversationPhase } from "./wikiKnowledge";
 
 export interface LLMMessage {
   role: "system" | "user" | "assistant";
@@ -17,35 +18,31 @@ const DEFAULT_CONFIG: LLMConfig = {
   temperature: 0.7,
 };
 
-const MOCK_RESPONSES: Record<string, string[]> = {
-  avoidance: [
-    "Bunu fark etmek zaten cesaret ister. Şu an kaçmak istediğini hissediyorsun — bu çok insani. Peki bu görevin arkasında gerçekten ne var, seni zorlayan ne?",
-    "Kaçınma isteği bir sinyal — beynin seni korumaya çalışıyor. Ama neye karşı? 2 dakika boyunca sadece bu soruyla kal.",
+// ─── Faz bazlı mock yanıtlar ─────────────────────────────────────────────────
+// Gerçek LLM entegre edildiğinde bu kısım tamamen kaldırılır.
+// Sistem prompt'u her fazda LLM'e iletilir — LLM o kurallara göre üretir.
+const PHASE_MOCK_RESPONSES: Record<ConversationPhase, string[]> = {
+  discovery: [
+    "Bunu benimle paylaşman güzel. Biraz daha anlamak istiyorum — bu durum ne zamandan beri böyle?",
+    "Duyuyorum seni. Peki tam olarak ne oluyor içinde, bunu düşündüğünde?",
+    "Anlıyorum. Bu görev sana nasıl hissettiriyor — söylersen daha iyi anlayabilirim.",
+    "Buradayım. Bu konuda ne zamandır bu şekilde hissediyorsun?",
   ],
-  overwhelm: [
-    "Her şeyi birden görmek bunaltıcı hissettiriyor. Şu an için sadece bir sonraki adımın ne olduğunu düşün — tek bir adım.",
-    "Zihnin çok fazla tab açık tutmuş. Hangisini şimdi kapatsan, biraz nefes alabilirsin?",
+  diagnosis: [
+    "Söylediklerinden bir şey dikkatimi çekti — bu görevi düşündüğünde beynin seni nereye götürüyor, geçmişe mi yoksa geleceğe mi?",
+    "Şunu merak ediyorum: Bu görevi ertelemek sana anlık bir rahatlama veriyor mu, yoksa tam tersi mi?",
+    "İlginç. Seni durduran şey görevin kendisi mi, yoksa başarısız olma ihtimali mi?",
+    "Bir adım geri çekilelim — eğer bu görevi yapamazsam diye düşündüğünde, aslında ne yaşanmasından korkuyorsun?",
   ],
-  perfectionism: [
-    "Mükemmel yapmak yerine tamamlanmış bir şey çok daha değerli. Başlamak için ne kadar 'hazır' olman gerekiyor gerçekten?",
-    "Mükemmeliyetçilik bazen korkunun kılık değiştirmesidir. Korku neyle ilgili olabilir?",
+  planning: [
+    "Seninle birlikte somut bir plan yapmak istiyorum. Şu an için sadece üç adım: ilki sadece 10 dakika. Bunun nasıl görünmesini istersin?",
+    "Anlattıklarından yola çıkarak bir şey önerebilirim. Önce en küçük adımı belirleyelim — yarın sabah sadece 5 dakika bu işe ayırsan, o 5 dakikada ne yapardın?",
+    "Sana bir çerçeve sunmak istiyorum: Bugün için tek bir hedef, tek bir zaman, tek bir ortam. Hangi saat sana en uygun gelir?",
   ],
-  fear: [
-    "Korku bir tehdit değil, bir bilgi. Sana neyi söylüyor?",
-    "En kötü senaryo gerçekleşse bile — sonra ne olur? Gerçekten dayanamayacağın bir şey mi?",
-  ],
-  ambiguity: [
-    "Belirsizlik enerji tüketiyor. Şu an için sadece ilk 5 dakikalık adımı netleştirelim. O adım ne olurdu?",
-    "Ne bilmediğini bilmek zaten bir başlangıç. Hangi soruyu cevaplayabilirsen devam edebilirsin?",
-  ],
-  low_energy: [
-    "Yorgunluk gerçek — onu yadsımak işe yaramaz. Ama şu an 'yapamam' mı diyorsun yoksa 'yapmak istemiyorum' mu?",
-    "Bedenin dinlenme istiyor. Bunu hak ediyorsun. Ama görev de bekliyor. İkisini nasıl dengeleyebilirsin?",
-  ],
-  neutral: [
-    "Şu an nasıl hissediyorsun? Gerçekten nasıl?",
-    "Bugün seni en çok ne düşündürüyor?",
-    "Hangi görev üzerinde çalışmak istiyorsun — ve içinde buna karşı ne kadar direnç var?",
+  followup: [
+    "Geçen seferden beri nasıl gidiyor? İlk adımı denedin mi?",
+    "O planı düşündüğünde ne hissediyorsun şu an — daha yakın mı hissettiriyor?",
+    "Küçük de olsa bir ilerleme oldu mu? Bana anlat.",
   ],
 };
 
@@ -85,21 +82,29 @@ export class LocalLLMBridge {
     return this.config;
   }
 
+  /**
+   * Yanıt üretir.
+   * - Gerçek LLM entegre edildiğinde: messages[0].content sistem prompt'u içerir
+   *   ve LLM o talimatlara göre üretim yapar. Bu mock ise faz bilgisini
+   *   signals parametresinden alıp faz uyumlu cevap döner.
+   * - onToken callback'i streaming simülasyonu için kullanılır.
+   */
   async generateResponse(
     messages: LLMMessage[],
     resistanceSignal: string = "neutral",
-    onToken?: (token: string) => void
+    onToken?: (token: string) => void,
+    phase: ConversationPhase = "discovery"
   ): Promise<string> {
-    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200));
+    // Gerçekçi gecikme simülasyonu
+    await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 900));
 
-    const signal = resistanceSignal as keyof typeof MOCK_RESPONSES;
-    const responses = MOCK_RESPONSES[signal] || MOCK_RESPONSES.neutral;
+    const responses = PHASE_MOCK_RESPONSES[phase];
     const response = responses[Math.floor(Math.random() * responses.length)];
 
     if (onToken) {
       const words = response.split(" ");
       for (const word of words) {
-        await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 80));
+        await new Promise(resolve => setTimeout(resolve, 40 + Math.random() * 60));
         onToken(word + " ");
       }
     }
@@ -117,7 +122,7 @@ export const llmBridge = new LocalLLMBridge();
 
 export const MODEL_OPTIONS = [
   { id: "gemma-2b-it-q4", name: "Gemma 2B IT (Q4)", size: "1.4 GB", speed: "Hızlı", quality: "İyi" },
-  { id: "gemma-7b-it-q4", name: "Gemma 7B IT (Q4)", size: "4.1 GB", speed: "Orta", quality: "Çok İyi" },
   { id: "llama-3.2-3b-q4", name: "Llama 3.2 3B (Q4)", size: "1.8 GB", speed: "Hızlı", quality: "Çok İyi" },
+  { id: "gemma-3-4b-q4", name: "Gemma 3 4B (Q4)", size: "2.5 GB", speed: "Orta", quality: "Çok İyi" },
   { id: "mistral-7b-q4", name: "Mistral 7B (Q4)", size: "4.1 GB", speed: "Orta", quality: "Mükemmel" },
 ];

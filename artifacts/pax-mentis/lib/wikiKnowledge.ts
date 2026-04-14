@@ -569,6 +569,376 @@ export const WIKI_CHUNKS: WikiChunk[] = [
     interventionEn: "Meaning injection: 'This [boring task] matters for [value/person/purpose].' Make the connection explicit.",
     source: "Danckert & Merrifield (2018). Boredom. MIT Press.",
   },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 10: Öz-Belirlenim Teorisi (Ryan & Deci)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "sdt_01",
+    theory: "SDT",
+    topic: "Otonom vs Kontrollü Motivasyon",
+    topicEn: "Autonomous vs Controlled Motivation",
+    keywords: ["zorunda", "yapmalıyım", "mecburum", "baskı", "isteyerek değil", "zorlanıyorum"],
+    keywordsEn: ["have to", "must", "forced", "pressure", "don't want to but", "obligation"],
+    content: "Ryan & Deci — SDT: Motivasyonun kalitesi miktarından önemlidir. 'Yapmak zorundayım' (kontrollü) enerjisi tüketir ve ertelemeye yol açar. 'Yapmak istiyorum çünkü değer taşıyor' (otonom) enerjisi besler. Aynı görev, farklı 'neden' ile tamamen farklı hissettirir.",
+    contentEn: "Ryan & Deci — SDT: Quality of motivation matters more than quantity. 'I have to' (controlled) drains energy and leads to procrastination. 'I want to because it matters' (autonomous) energizes. Same task, different 'why' — completely different feel.",
+    socraaticPrompt: "Bu görevi 'yapmak zorunda olduğun için' mi yoksa 'önemli olduğu için' mi yapıyorsun?",
+    socraaticPromptEn: "Are you doing this task because you 'have to' — or because it genuinely matters to you?",
+    intervention: "Görevi kendi seçimine çevir: 'Bunu seçiyorum çünkü [kişisel anlam].' Kontrol duygusu enerjini değiştirir.",
+    interventionEn: "Reframe as a choice: 'I choose to do this because [personal meaning].' A sense of agency changes your energy.",
+    source: "Ryan & Deci (2000). Self-Determination Theory. Psychological Review.",
+  },
+  {
+    id: "sdt_02",
+    theory: "SDT",
+    topic: "Temel Psikolojik İhtiyaçlar",
+    topicEn: "Basic Psychological Needs",
+    keywords: ["kendimi yetersiz hissediyorum", "ait değilim", "kontrol kaybı", "özgürlük yok", "değersiz"],
+    keywordsEn: ["feel inadequate", "don't belong", "losing control", "no freedom", "worthless"],
+    content: "SDT: Üç temel psikolojik ihtiyaç — Özerklik (kendi kararlarımı alabilmek), Yeterlik (başarabileceğime inanmak), Bağlılık (önemli biriyle bağ kurmak). Bu üçü kırıldığında motivasyon çöker.",
+    contentEn: "SDT: Three basic psychological needs — Autonomy (making my own decisions), Competence (believing I can succeed), Relatedness (connecting with someone important). When these three are broken, motivation collapses.",
+    socraaticPrompt: "Bu üçünden hangisi şu an eksik hissettiriyor — özgürlük mü, yeterlik mi, bağlantı mı?",
+    socraaticPromptEn: "Which of these three feels most lacking right now — autonomy, competence, or connection?",
+    intervention: "Eksik ihtiyacı hedefle: Özerklik için bir seçim yap; yeterlik için küçük bir başarı kazan; bağlılık için birine anlat.",
+    interventionEn: "Target the unmet need: For autonomy — make one choice; for competence — earn a small win; for relatedness — tell someone.",
+    source: "Ryan & Deci (2000); Deci & Ryan (2008). Self-determination theory.",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 11: Akış Teorisi (Csikszentmihalyi)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "flow_01",
+    theory: "Flow",
+    topic: "Zorluk-Beceri Dengesi",
+    topicEn: "Challenge-Skill Balance",
+    keywords: ["çok kolay", "çok zor", "sıkıştım", "bunalttı", "odaklanamıyorum", "ilgimi çekmiyor"],
+    keywordsEn: ["too easy", "too hard", "trapped", "overwhelmed", "can't focus", "not engaging"],
+    content: "Csikszentmihalyi — Akış: Görev çok kolaysa sıkılırsın, çok zorsa paniklersin. Akış tam ortada, becerilerinin biraz üstünde bir zorlukta gerçekleşir. Erteleme çoğu zaman bu dengesizliğin belirtisidir.",
+    contentEn: "Csikszentmihalyi — Flow: If the task is too easy, boredom; too hard, anxiety. Flow happens in the middle — at a challenge level slightly above your current skills. Procrastination is often a symptom of this imbalance.",
+    socraaticPrompt: "Bu görev sana fazla kolay mı geliyor yoksa fazla zor mu — hangisi daha yakın?",
+    socraaticPromptEn: "Does this task feel too easy or too hard — which is closer?",
+    intervention: "Dengeyi ayarla: Kolay geliyorsa bir kısıtlama ekle (süre, kalite). Zor geliyorsa görevi küçült, beceri düzeyine indir.",
+    interventionEn: "Adjust the balance: If too easy, add a constraint (time, quality). If too hard, shrink the task to match your current skill level.",
+    source: "Csikszentmihalyi (1990). Flow. Harper & Row.",
+  },
+  {
+    id: "flow_02",
+    theory: "Flow",
+    topic: "Akış Kapısı",
+    topicEn: "Flow Entry",
+    keywords: ["konsantrasyon", "odak", "dalmak istiyorum", "başlayınca duramıyorum", "kaybolmak"],
+    keywordsEn: ["concentration", "focus", "want to get in the zone", "once I start I can't stop", "lose myself"],
+    content: "Akışa girmek için önce 'ısınma' gerekir — ilk 5-10 dakika genellikle en zorıdur. Dikkat dağıtıcıları kaldır, tek bir göreveye kilitle, zamanlayıcıyı başlat. Akış başladığında beyin dopamin salgılar ve devam etmek otomatikleşir.",
+    contentEn: "Entering flow requires a 'warm-up' — the first 5-10 minutes are usually the hardest. Remove distractions, lock onto one task, start the timer. When flow begins, the brain releases dopamine and continuation becomes automatic.",
+    socraaticPrompt: "Akışa girdiğin bir anı hatırlıyor musun — o gün ne farklıydı?",
+    socraaticPromptEn: "Can you remember a time you were in flow — what was different that day?",
+    intervention: "Akış ritüeli: Telefonu sessize al, tek sekme aç, zamanlayıcıyı 25 dakikaya kur. İlk 10 dakika sadece orada ol.",
+    interventionEn: "Flow ritual: Silence phone, open one tab, set timer for 25 minutes. For the first 10 minutes, just be there.",
+    source: "Csikszentmihalyi (1990). Flow.",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 12: Öz-Yeterlik ve Büyüme Zihniyeti (Bandura / Dweck)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "bandura_01",
+    theory: "Bandura",
+    topic: "Öz-Yeterlik İnancı",
+    topicEn: "Self-Efficacy Belief",
+    keywords: ["beceremem", "başaramam", "yetkim yok", "zaten olmaz", "ben yapamam", "kapasitem yok"],
+    keywordsEn: ["I can't do it", "I'll fail", "not capable", "won't happen", "not up to it"],
+    content: "Albert Bandura: Öz-yeterlik — kişinin belirli bir görevi başarabileceğine dair inancıdır. Bu inanç birikimleri başarı deneyimlerine dayanır. 'Yapamam' hissi bir gerçek değil, önceki deneyimlerden gelen bir tahmindir.",
+    contentEn: "Albert Bandura: Self-efficacy — belief in one's ability to succeed at a specific task. This belief is built from accumulated mastery experiences. 'I can't' is not a fact — it's an estimate based on past experiences.",
+    socraaticPrompt: "Bu görevi %100 yapamayacağını nereden biliyorsun — daha önce benzerini hiç denedin mi?",
+    socraaticPromptEn: "How do you know 100% that you can't do this — have you ever tried something similar before?",
+    intervention: "Kanıt topla: Benzer bir zorluğu geçmişte başardığın bir anı bul. O an bugünkünden ne kadar farklı?",
+    interventionEn: "Gather evidence: Find a time you succeeded at a similar challenge in the past. How different was that from now?",
+    source: "Bandura, A. (1977). Self-efficacy. Psychological Review.",
+  },
+  {
+    id: "bandura_02",
+    theory: "Bandura",
+    topic: "Küçük Başarılar Birikiyor",
+    topicEn: "Mastery Accumulation",
+    keywords: ["küçük adım", "ilerleme", "biraz oldu", "az da olsa", "adım attım"],
+    keywordsEn: ["small step", "progress", "little done", "bit by bit", "took a step"],
+    content: "Bandura: En güçlü öz-yeterlik kaynağı 'ustalık deneyimleri'dir — kendi başardığın şeylerin birikimi. Her küçük tamamlanmış görev, 'başarabiliyorum' inancını yeniden kurar. İlerleme hissi motivasyonu yakıtar.",
+    contentEn: "Bandura: The strongest source of self-efficacy is 'mastery experiences' — your accumulation of personal achievements. Every small completed task rebuilds the belief 'I can succeed.' The feeling of progress fuels motivation.",
+    socraaticPrompt: "Bu hafta, küçük de olsa, başardığın bir şey var mı — ne kadar küçük olursa olsun?",
+    socraaticPromptEn: "This week, even if small, is there something you completed — no matter how tiny?",
+    intervention: "Başarıları görünür kıl: Bugün bitirdiğin her şeyi bir yere yaz. Beyin tamamlananları hafıza yenileyen dopaminle işler.",
+    interventionEn: "Make successes visible: Write down everything you completed today. The brain processes completions with memory-refreshing dopamine.",
+    source: "Bandura (1977, 1997). Self-efficacy.",
+  },
+  {
+    id: "dweck_01",
+    theory: "Growth Mindset",
+    topic: "Sabit vs Gelişim Zihniyeti",
+    topicEn: "Fixed vs Growth Mindset",
+    keywords: ["zekam yetmez", "yeteneğim yok", "doğuştan böyle", "değişemem", "beceriksizim"],
+    keywordsEn: ["not smart enough", "no talent", "born this way", "can't change", "incompetent"],
+    content: "Carol Dweck: Sabit zihniyet — 'Yeteneğim sabittir, başarısızlık yetersizliğimi kanıtlar.' Gelişim zihniyeti — 'Yetenek çabayla gelişir, başarısızlık bilgi sağlar.' Erteleyenlerin büyük çoğunluğu sabit zihniyet döngüsündedir.",
+    contentEn: "Carol Dweck: Fixed mindset — 'My ability is fixed; failure proves my inadequacy.' Growth mindset — 'Ability develops through effort; failure provides information.' The majority of procrastinators are caught in a fixed mindset loop.",
+    socraaticPrompt: "Başarısız olursan bu sana ne söyler — 'yetersizim' mi, yoksa 'buradan öğreniyorum' mu?",
+    socraaticPromptEn: "If you fail at this, what does it tell you — 'I'm inadequate' — or 'I'm learning from this'?",
+    intervention: "'Henüz değil' çerçevesi: 'Bunu yapamıyorum' yerine 'Bunu henüz yapamıyorum — ama öğreniyorum.'",
+    interventionEn: "'Not yet' framing: Instead of 'I can't do this' — 'I can't do this yet — but I'm learning.'",
+    source: "Dweck, C. (2006). Mindset. Random House.",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 13: Davranışsal İktisat ve Ödül Tasarımı
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "behav_01",
+    theory: "Behavioral Economics",
+    topic: "Cazip Paketleme",
+    topicEn: "Temptation Bundling",
+    keywords: ["sıkıcı görev", "zevksiz", "yapmak istemiyorum", "ödül istiyorum", "eğlenceli değil"],
+    keywordsEn: ["boring task", "unpleasant", "don't want to do it", "want a reward", "not fun"],
+    content: "Katy Milkman — Cazip Paketleme: Sıkıcı ama önemli bir görevi, sadece o sırada yapabileceğin keyifli bir şeyle birleştir. 'Raporumu yazarken sadece o podcast'i dinlerim.' Beyin görevi cazip aktiviteyle ilişkilendirir.",
+    contentEn: "Katy Milkman — Temptation Bundling: Pair a boring but important task with something enjoyable you only allow during that task. 'I only listen to that podcast while writing my report.' The brain associates the task with the tempting activity.",
+    socraaticPrompt: "Bu görevi yaparken tek izin vereceğin keyifli bir şey ne olabilir?",
+    socraaticPromptEn: "What is one enjoyable thing you could only allow yourself while doing this task?",
+    intervention: "Cazip paket kur: Görevi başlatmadan önce 'keyifli bağlantıyı' hazırla. Sadece görev sırasında erişim ver kendine.",
+    interventionEn: "Build your temptation bundle: Prepare the enjoyable element before starting the task. Only allow access to it during the task.",
+    source: "Milkman, K. (2021). How to Change. Portfolio.",
+  },
+  {
+    id: "behav_02",
+    theory: "Behavioral Economics",
+    topic: "Taahhüt Aygıtı",
+    topicEn: "Commitment Device",
+    keywords: ["söz verdim", "kendimi bağlamak", "dışarıdan baskı", "birinin bilmesi", "hesap verebilmek"],
+    keywordsEn: ["made a promise", "bind myself", "external pressure", "someone to know", "be accountable"],
+    content: "Ariely & Thaler: İnsanlar geleceğe ertelemek yerine şimdiden kendilerini bağladıklarında başarı oranları dramatik artar. 'Taahhüt aygıtı' — şimdiki benin, gelecekteki benin için karar almasını kısıtlaması. Aleni taahhüt, saygınlığı riske atar.",
+    contentEn: "Ariely & Thaler: When people bind themselves now rather than deferring to the future, success rates increase dramatically. A 'commitment device' — the present self restricting the future self's options. Public commitment puts reputation at stake.",
+    socraaticPrompt: "Bu görevi bir kişiye açıkça söylesen ve onun seni takip etmesini istesen — kim olurdu?",
+    socraaticPromptEn: "If you told one person about this task openly and asked them to follow up — who would that be?",
+    intervention: "Aleni taahhüt al: 'Cuma 18:00'e kadar [görevi] bitireceğim' diye birine söyle. Sosyal hesap verebilirlik güçlü bir tamamlama mekanizmasıdır.",
+    interventionEn: "Make a public commitment: Tell someone 'I will finish [task] by Friday 6pm.' Social accountability is a powerful completion mechanism.",
+    source: "Ariely, D. (2008). Predictably Irrational. Harper.",
+  },
+  {
+    id: "reward_01",
+    theory: "Dopamine",
+    topic: "Anlık Ödül Tasarımı",
+    topicEn: "Immediate Reward Design",
+    keywords: ["ödül", "kendimi ödüllendirmek", "motivasyon için", "teşvik", "sonunda ne var"],
+    keywordsEn: ["reward", "reward myself", "for motivation", "incentive", "what's in it for me"],
+    content: "Dopamin sisteminin anahtarı beklenti anıdır — ödülün kendisi değil. Görevi başlatmadan hemen önce küçük bir 'çapraz ödül' belirlemek beynin ileri hareketini ateşler. Ödülün görevle ilgisiz olması daha etkilidir.",
+    contentEn: "The key to the dopamine system is the moment of anticipation — not the reward itself. Deciding on a small 'cross-reward' just before starting activates the brain's forward movement. An unrelated reward is more effective.",
+    socraaticPrompt: "Bu görevi bitirince kendine ne vereceksin — ve bunu şimdi gerçekten istiyor musun?",
+    socraaticPromptEn: "What will you give yourself after finishing this task — and do you genuinely want that right now?",
+    intervention: "Somut, anlık bir ödül belirle: Görevi bitirince [belirli bir şey] yapacaksın. Bunu şimdi yaz.",
+    interventionEn: "Name a concrete, immediate reward: When you finish the task, you will do [specific thing]. Write this down now.",
+    source: "Berridge & Kringelbach (2015). Pleasure systems in the brain. Neuron.",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 14: WOOP — Zihinsel Zıtlama (Oettingen)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "woop_01",
+    theory: "WOOP",
+    topic: "Zihinsel Zıtlama",
+    topicEn: "Mental Contrasting",
+    keywords: ["hayal ediyorum", "olacak", "başarırsam", "bitirirsem", "sonunda", "ileride"],
+    keywordsEn: ["imagining", "it will happen", "if I succeed", "when I finish", "eventually"],
+    content: "Gabriele Oettingen: Sadece olumlu hayal kurmak ('vizyon') bazen motivasyonu düşürür — beyin hedefi zaten gerçekleşmiş gibi işler ve enerji azalır. Zihinsel Zıtlama: önce istediğin sonucu hayal et, sonra önündeki gerçek engeli. Bu ikisi birlikte harekete geçirir.",
+    contentEn: "Gabriele Oettingen: Purely positive visualization ('dreaming') can reduce motivation — the brain processes the goal as already achieved and energy drops. Mental Contrasting: first visualize the desired outcome, then the real obstacle in front of you. Together, these two mobilize action.",
+    socraaticPrompt: "Bu görevi tamamladığında nasıl bir his olur — ve şu an onu durduran en büyük engel ne?",
+    socraaticPromptEn: "What will it feel like to complete this task — and what is the biggest obstacle stopping you right now?",
+    intervention: "WOOP'un OO'sunu yap: Sonucu hayal et (Outcome), ardından engeli (Obstacle). Bu çift görüntü beyne 'gerçekten çalışmam gerekiyor' sinyali verir.",
+    interventionEn: "Do the OO of WOOP: Visualize the Outcome, then the Obstacle. This dual image signals the brain 'I actually need to work.'",
+    source: "Oettingen, G. (2014). Rethinking Positive Thinking. Current.",
+  },
+  {
+    id: "woop_02",
+    theory: "WOOP",
+    topic: "WOOP Planı",
+    topicEn: "WOOP Full Plan",
+    keywords: ["plan yapmak", "somut adım", "engeli aşmak", "yol haritası", "nasıl yapacağım"],
+    keywordsEn: ["make a plan", "concrete steps", "overcome obstacle", "roadmap", "how will I do this"],
+    content: "WOOP: Wish (Dilek) → Outcome (Sonuç) → Obstacle (Engel) → Plan (Eğer-Öyleyse). Sadece W ve O değil, O ve P de kritiktir. 'Eğer [engel] çıkarsa, [plan] yapacağım.' Bu formül Gollwitzer'in uygulama niyetiyle birleşir.",
+    contentEn: "WOOP: Wish → Outcome → Obstacle → Plan (If-Then). Not just W and O — O and P are also critical. 'If [obstacle] appears, I will [plan].' This formula merges with Gollwitzer's implementation intention.",
+    socraaticPrompt: "En büyük engelini biliyor musun — ve o engel çıkarsa tam olarak ne yapacaksın?",
+    socraaticPromptEn: "Do you know your biggest obstacle — and if it appears, exactly what will you do?",
+    intervention: "Tam WOOP yaz: 1. Dileğin ne, 2. Sonuç nasıl hissettirir, 3. Engel ne, 4. Eğer engel çıkarsa ne yaparsın.",
+    interventionEn: "Write the full WOOP: 1. Your wish, 2. How the outcome feels, 3. What's the obstacle, 4. If obstacle appears, what do you do.",
+    source: "Oettingen (2014); Oettingen & Gollwitzer (2010).",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 15: Biyolojik Ritim ve Karar Yorgunluğu
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "chrono_01",
+    theory: "Chronobiology",
+    topic: "Biyolojik Tepe Zamanı",
+    topicEn: "Biological Peak Time",
+    keywords: ["sabah mı", "akşam mı", "hangi saatte", "en verimli", "zaman", "ne zaman çalışmalıyım"],
+    keywordsEn: ["morning or evening", "what time", "most productive", "best time to work", "when to work"],
+    content: "Daniel Pink ve biyolojik ritim araştırmaları: Çoğu insan ('sabahçı') bilişsel zirveyi öğleden önce, günün çukurunu öğleden sonra 2-3'te yaşar. Zor, odak gerektiren görevler için tepe zamanı; rutin görevler için çukur zamanı kullan.",
+    contentEn: "Daniel Pink and chronobiology research: Most people ('larks') hit cognitive peak before noon, the daily trough around 2-3pm. Use peak time for hard, focus-demanding tasks; use trough time for routine tasks.",
+    socraaticPrompt: "Günün hangi saatinde en berrak ve enerjik hissediyorsun — o saat için ne planlıyorsun?",
+    socraaticPromptEn: "At what time of day do you feel clearest and most energized — what are you planning for that slot?",
+    intervention: "En zor görevi tepe saatine planla. Şu an tepe saatin miydi? Değilse, görevi o saate taşı.",
+    interventionEn: "Schedule your hardest task at your peak time. Are you at your peak right now? If not, move the task to that time.",
+    source: "Pink, D. (2018). When. Riverhead Books.",
+  },
+  {
+    id: "chrono_02",
+    theory: "Chronobiology",
+    topic: "Karar Yorgunluğu",
+    topicEn: "Decision Fatigue",
+    keywords: ["karar veremiyorum", "seçemiyorum", "kafam doldu", "ne yapacağımı bilemiyorum", "bunaldım"],
+    keywordsEn: ["can't decide", "can't choose", "brain full", "don't know what to do", "overwhelmed by choices"],
+    content: "Baumeister — Ego Tükenmesi ve Karar Yorgunluğu: Her karar öz-kontrol kapasitesinden bir miktar tüketir. Gün ilerledikçe karar kalitesi düşer; erteleme kapasitesi artar. Sabah saatlerinde alınan kararlar daha sağlam ve uzun vadeli odaklıdır.",
+    contentEn: "Baumeister — Ego Depletion and Decision Fatigue: Every decision draws from self-control capacity. As the day progresses, decision quality drops; procrastination capacity increases. Morning decisions are more solid and long-term focused.",
+    socraaticPrompt: "Bu kararı vermekte zorlanıyorsun — günün kaçı ve bugün kaç önemli karar verdin zaten?",
+    socraaticPromptEn: "You're struggling with this decision — what time is it and how many important decisions have you made today already?",
+    intervention: "Büyük kararları sabaha ertele. Şu an için: tek bir küçük eylem seç ve hemen yap. Seçim yorgunluğunu kır.",
+    interventionEn: "Defer big decisions to the morning. For now: choose one small action and do it immediately. Break the choice fatigue.",
+    source: "Baumeister et al. (1998). Ego depletion. JPSP.",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 16: Bilişsel Terapi — CBT (Beck)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "cbt_01",
+    theory: "CBT",
+    topic: "Felakete Götürme",
+    topicEn: "Catastrophizing",
+    keywords: ["her şey mahvolur", "felaket olur", "en kötüsü", "kesinlikle başarısız", "berbat sonuç"],
+    keywordsEn: ["everything will go wrong", "catastrophe", "worst case", "definitely fail", "terrible outcome"],
+    content: "Beck — Bilişsel Terapi: Felakete götürme — olası en kötü sonucu kaçınılmaz gibi değerlendirmek. 'Bunu yapmazsam hayatım biter' tipik bir bilişsel çarpıtmadır. Erteleyenlerin büyük çoğunluğu bu çarpıtmayı yaşar.",
+    contentEn: "Beck — Cognitive Therapy: Catastrophizing — treating the worst possible outcome as inevitable. 'If I don't do this, my life is over' is a typical cognitive distortion. The vast majority of procrastinators experience this distortion.",
+    socraaticPrompt: "En kötü senaryo gerçekten ne kadar olası — ve olsa bile, bundan geriye dönemez misin?",
+    socraaticPromptEn: "How likely is the worst case scenario really — and even if it happened, couldn't you recover?",
+    intervention: "Gerçekçi senaryo yaz: En kötü olasılık, en iyi olasılık, en gerçekçi olasılık. Hangisi en çok yer kaplıyor kafanda?",
+    interventionEn: "Write realistic scenarios: worst case, best case, most realistic case. Which one is taking up most space in your head?",
+    source: "Beck, A.T. (1979). Cognitive Therapy of Depression. Guilford.",
+  },
+  {
+    id: "cbt_02",
+    theory: "CBT",
+    topic: "Ya Hep Ya Hiç",
+    topicEn: "All-or-Nothing Thinking",
+    keywords: ["ya tam yaparsam", "ya mükemmel ya hiç", "ya bitirirsem ya bırakırım", "orta yolu yok", "tamamen"],
+    keywordsEn: ["either perfectly or not at all", "all or nothing", "no middle ground", "completely"],
+    content: "Beck — Ya Hep Ya Hiç Düşüncesi: İşleri siyah-beyaz değerlendirmek. '%70 yaptım — başarısız sayılır.' Bu düşünce hem mükemmeliyetçiliği hem de ertelemeyi besler. Kısmi ilerleme tam yokluktan her zaman daha değerlidir.",
+    contentEn: "Beck — All-or-Nothing Thinking: Evaluating things in black and white. 'I did 70% — that counts as a failure.' This thinking feeds both perfectionism and procrastination. Partial progress is always more valuable than total absence.",
+    socraaticPrompt: "Bu görevi %60 yaptıysan — başarısız mısın yoksa %60 başarılı mısın?",
+    socraaticPromptEn: "If you completed 60% of this task — are you a failure, or are you 60% successful?",
+    intervention: "'İlerleme skoru' kullan: Bugün %0'dan %20'ye gidersen — bu zafer. Tamamlanmamış olmak başlanmamış olmaktan farklıdır.",
+    interventionEn: "Use a 'progress score': If you go from 0% to 20% today — that's a victory. Being incomplete is different from being unstarted.",
+    source: "Beck (1979); Burns, D. (1980). Feeling Good. Morrow.",
+  },
+  {
+    id: "cbt_03",
+    theory: "CBT",
+    topic: "Bilişsel Yeniden Çerçeveleme",
+    topicEn: "Cognitive Reframing",
+    keywords: ["bakış açısı", "farklı düşünmek", "yeniden bakmak", "perspektif", "anlam değişirse"],
+    keywordsEn: ["perspective", "think differently", "look at it differently", "reframe", "if the meaning changes"],
+    content: "CBT — Yeniden Çerçeveleme: Olayın kendisi değil, olaya atfettiğimiz anlam duyguyu belirler. 'Bu görev beni mahvediyor' → 'Bu görev becerilerimi test ediyor.' Aynı gerçeklik, farklı çerçeve, farklı motivasyon.",
+    contentEn: "CBT — Reframing: Not the event itself, but the meaning we assign to it determines our emotions. 'This task is destroying me' → 'This task is testing my skills.' Same reality, different frame, different motivation.",
+    socraaticPrompt: "Bu görevi 'tehdit' olarak değil, 'fırsat' olarak gördüğünde ne değişiyor?",
+    socraaticPromptEn: "When you see this task as an 'opportunity' rather than a 'threat' — what changes?",
+    intervention: "Çerçeve dönüştürme: 'Bu görev [olumsuz anlam]' → 'Bu görev [gelişim/değer/güç anlamı].' Yeni cümleyi yüksek sesle söyle.",
+    interventionEn: "Frame shift: 'This task is [negative meaning]' → 'This task is [growth/value/strength meaning].' Say the new sentence aloud.",
+    source: "Beck (1979); Ellis, A. (1962). Reason and Emotion in Psychotherapy.",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 17: Farkındalık — Mindfulness (Kabat-Zinn)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "mindful_01",
+    theory: "Mindfulness",
+    topic: "Şimdiki Ana Dönüş",
+    topicEn: "Return to Present Moment",
+    keywords: ["aklım dağıldı", "düşünceler geliyor", "geçmiş", "gelecek kaygısı", "konsantre olamıyorum"],
+    keywordsEn: ["mind is scattered", "thoughts keep coming", "past", "future anxiety", "can't concentrate"],
+    content: "Kabat-Zinn — Farkındalık: Geçmiş pişmanlık + gelecek kaygı = şimdiki an kaybolur. Erteleme çoğunlukla 'ya başarısız olursam' (gelecek) veya 'daha önce de yapamadım' (geçmiş) döngüsünde yaşar. Şimdiki anın tek sorusu: 'Şu an, burada ne yapabilirim?'",
+    contentEn: "Kabat-Zinn — Mindfulness: Past regret + future anxiety = present moment disappears. Procrastination most often lives in 'what if I fail' (future) or 'I couldn't do it before' (past) loops. The only question in the present: 'Right now, here, what can I do?'",
+    socraaticPrompt: "Şu an, tam bu dakikada, önündeki tek adım ne — geçmiş ve gelecek paranteze alınırsa?",
+    socraaticPromptEn: "Right now, at this exact moment, what is the one step in front of you — if past and future are bracketed out?",
+    intervention: "Mindful bir dakika: Gözleri kapa, 3 nefes al, sadece şu anki duyuma gel. Sonra tek soruyu sor: 'Şimdi ne yapabilirim?'",
+    interventionEn: "One mindful minute: Close eyes, take 3 breaths, arrive at just this moment's sensations. Then ask one question: 'What can I do now?'",
+    source: "Kabat-Zinn, J. (1994). Wherever You Go There You Are. Hyperion.",
+  },
+  {
+    id: "mindful_02",
+    theory: "Mindfulness",
+    topic: "Merak Modu",
+    topicEn: "Curiosity Mode",
+    keywords: ["tedirginim", "rahatsız oluyorum", "bu duygudan kaçmak", "katlanamıyorum", "zor geliyor"],
+    keywordsEn: ["anxious", "uncomfortable", "want to flee this feeling", "can't stand it", "feels hard"],
+    content: "Farkındalık araştırmacısı Judson Brewer: 'Kaygı modunda' olan beyin kaçmaya çalışır. 'Merak moduna' geçen beyin gözlemler. 'Bu rahatsızlık tam olarak nasıl hissettiriyor?' sorusu, kaçınma dürtüsünü merak dürtüsüne dönüştürür.",
+    contentEn: "Mindfulness researcher Judson Brewer: The brain in 'anxiety mode' tries to flee. The brain in 'curiosity mode' observes. The question 'What exactly does this discomfort feel like?' converts the avoidance urge into a curiosity urge.",
+    socraaticPrompt: "Bu görevi düşündüğünde bedeninde tam olarak ne hissediyorsun — merak ederek tarif edebilir misin?",
+    socraaticPromptEn: "When you think about this task, what exactly do you feel in your body — can you describe it with curiosity?",
+    intervention: "Kaygıyı gözlemle: 'Bu his [nerede, nasıl].' İsim koy: 'Bu görev kaygısı.' İsimlendirmek prefrontal korteksi aktive eder.",
+    interventionEn: "Observe the anxiety: 'This feeling is [where, how].' Name it: 'This is task anxiety.' Naming activates the prefrontal cortex.",
+    source: "Brewer, J. (2021). Unwinding Anxiety. Avery.",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 18: Sosyal Hesap Verebilirlik ve Vücut Çiftleşmesi
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "social_01",
+    theory: "Social Accountability",
+    topic: "Vücut Çiftleşmesi",
+    topicEn: "Body Doubling",
+    keywords: ["yalnız başaramıyorum", "biri olsa", "yanımda biri olsaydı", "beraber çalışmak", "ortam lazım"],
+    keywordsEn: ["can't do it alone", "if someone were here", "wish someone was with me", "work together", "need an environment"],
+    content: "ADHD araştırmacılarının keşfi: Başka biri aynı odada (ya da video'da) sadece kendi işini yaparken bile, erteleme oranı dramatik düşer. 'Vücut çiftleşmesi' — fiziksel varlık prefrontal korteks aktivasyonunu artırır. Çalışma kafesi, online çalışma grupları aynı etkiyi sağlar.",
+    contentEn: "ADHD researchers' discovery: When another person is in the same room (or on video) just doing their own work, procrastination rates drop dramatically. 'Body doubling' — physical presence increases prefrontal cortex activation. Coffee shops and online study groups provide the same effect.",
+    socraaticPrompt: "Bu görevi yalnız yapacak mısın, yoksa yanında biri olsa daha kolay olur muydu?",
+    socraaticPromptEn: "Will you do this task alone — or would it be easier if someone was beside you?",
+    intervention: "Vücut çiftleşmesi dene: Bir arkadaşa 'beraber çalışalım' de (ayrı işler, aynı ortam). Ya da kalabalık bir kafede otur.",
+    interventionEn: "Try body doubling: Tell a friend 'let's work together' (separate tasks, same space). Or sit in a busy café.",
+    source: "Ratey, J. (2008). Spark. Little, Brown. ADHD and focus research.",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 19: Ruminasyon vs Yapıcı Yansıma (Nolen-Hoeksema)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "rumin_01",
+    theory: "Rumination",
+    topic: "Ruminasyon Tuzağı",
+    topicEn: "Rumination Trap",
+    keywords: ["aklımdan çıkmıyor", "tekrar tekrar düşünüyorum", "kafamda dönüyor", "takıldım", "bırakamıyorum"],
+    keywordsEn: ["can't get it out of my head", "thinking about it over and over", "going in circles", "stuck on it", "can't let go"],
+    content: "Nolen-Hoeksema — Ruminasyon: Aynı olumsuz düşünceyi tekrarlayan bir döngü. Ertelemeyle birlikte güçlü bir geri bildirim oluşturur: Erteleme → Suçluluk → Ruminasyon → Daha fazla erteleme. Ruminasyon çözüm üretmez; sadece acıyı uzatır.",
+    contentEn: "Nolen-Hoeksema — Rumination: A loop of repeating the same negative thought. Creates a strong feedback loop with procrastination: Procrastination → Guilt → Rumination → More procrastination. Rumination doesn't produce solutions; it only prolongs pain.",
+    socraaticPrompt: "Bu düşünce kafanda kaç kez döndü — ve her seferinde yeni bir şey mi fark ettin, yoksa aynı yere mi döndün?",
+    socraaticPromptEn: "How many times has this thought circled in your head — and each time, did you notice something new, or return to the same place?",
+    intervention: "Dışarı çıkar: Düşünceyi yaz, fiziksel bir hareket yap (kalk, yürü), farklı bir nesneye 30 saniye bak. Döngüyü kır.",
+    interventionEn: "Break out: Write the thought down, do a physical movement (stand, walk), look at a different object for 30 seconds. Break the loop.",
+    source: "Nolen-Hoeksema, S. (1991). Responses to Depression. Journal of Personality.",
+  },
+  {
+    id: "rumin_02",
+    theory: "Rumination",
+    topic: "Yapıcı Yansıma",
+    topicEn: "Constructive Reflection",
+    keywords: ["nereden yanlış gitti", "neden böyle oldu", "kendimi anlamamak", "ders çıkarmak", "öğrenmek"],
+    keywordsEn: ["where did it go wrong", "why did this happen", "not understanding myself", "learn from it", "take a lesson"],
+    content: "Ruminasyon ile yansıma arasındaki fark: Ruminasyon sorular sorar ama cevap aramaz; yansıma cevap arar. 'Neden başarısız oldum?' (ruminasyon) → 'Bu deneyimden ne öğrenebilirim?' (yansıma). Yapıcı yansıma eyleme işaret eder.",
+    contentEn: "The difference between rumination and reflection: Rumination asks questions but doesn't seek answers; reflection seeks answers. 'Why did I fail?' (rumination) → 'What can I learn from this experience?' (reflection). Constructive reflection points toward action.",
+    socraaticPrompt: "Bu deneyimden eyleme dönüştürebileceğin tek bir öğrenim ne olurdu?",
+    socraaticPromptEn: "What is one learning from this experience that you could turn into action?",
+    intervention: "Yansıma → Eylem köprüsü: Öğrendiğini tek cümleyle yaz ve 'Bu konuda şimdi yapabileceğim şey...' diye bitir.",
+    interventionEn: "Reflection → Action bridge: Write your learning in one sentence and complete: 'What I can do about this now is...'",
+    source: "Nolen-Hoeksema (1991); Watkins, E. (2008). Constructive and Unconstructive Repetitive Thought. Psychological Bulletin.",
+  },
 ];
 
 // ─── Sinyal Tespiti ───────────────────────────────────────────────────────────
@@ -625,6 +995,53 @@ export function analyzeResistance(
   return "neutral";
 }
 
+// ─── Türkçe Morfoloji Yardımcısı ─────────────────────────────────────────────
+// Türkçe eklerini soyarak kök formla eşleşme sağlar.
+// Örnek: "başaramıyorum" → "başar" ile eşleşir
+const TR_SUFFIXES = [
+  "ıyorum","iyorum","uyorum","üyorum",
+  "ıyor","iyor","uyor","üyor",
+  "acak","ecek","acağım","eceğim",
+  "mıyorum","miyorum","muyorum","müyorum",
+  "amıyorum","emiyorum",
+  "amadım","emedim",
+  "amam","emem",
+  "abilir","ebilir",
+  "malıyım","meliyim",
+  "ların","lerin","larım","lerim",
+  "ların","lerin",
+  "ımı","imi","umu","ümü",
+  "dan","den","tan","ten",
+  "da","de","ta","te",
+  "ım","im","um","üm",
+  "lar","ler",
+  "mak","mek",
+  "ma","me",
+  "dı","di","du","dü","tı","ti","tu","tü",
+  "yı","yi","yu","yü",
+  "ı","i","u","ü",
+  "a","e",
+];
+
+function trStem(word: string): string {
+  for (const suffix of TR_SUFFIXES) {
+    if (word.endsWith(suffix) && word.length - suffix.length >= 3) {
+      return word.slice(0, word.length - suffix.length);
+    }
+  }
+  return word;
+}
+
+function trFuzzyMatch(inputWords: string[], keyword: string): boolean {
+  const kwLower = keyword.toLowerCase();
+  if (inputWords.some(w => w.includes(kwLower) || kwLower.includes(w))) return true;
+  const kwStem = trStem(kwLower);
+  return inputWords.some(w => {
+    const wStem = trStem(w);
+    return wStem.length >= 3 && kwStem.length >= 3 && (wStem === kwStem || wStem.startsWith(kwStem) || kwStem.startsWith(wStem));
+  });
+}
+
 // ─── Chunk Retrieval ──────────────────────────────────────────────────────────
 
 export function retrieveRelevantChunks(
@@ -633,24 +1050,37 @@ export function retrieveRelevantChunks(
   maxChunks = 3
 ): WikiChunk[] {
   const lower = inputText.toLowerCase();
+  const inputWords = lower.split(/\s+/);
 
   const signalTheoryMap: Record<ResistanceSignal, string[]> = {
-    avoidance: ["ACT", "Pychyl", "Motivational Interviewing"],
-    overwhelm: ["TMT", "PSI", "Atomic Habits"],
-    perfectionism: ["Perfectionism", "ACT", "Kahneman"],
-    fear: ["ACT", "Kahneman", "Pychyl"],
-    ambiguity: ["TMT", "Implementation Intentions", "PSI"],
-    low_energy: ["PSI", "Pychyl", "Active Listening"],
-    shame: ["Shame", "Active Listening", "Pychyl"],
-    boredom: ["Boredom", "ACT", "Atomic Habits"],
-    neutral: ["TMT", "Atomic Habits", "Socratic Method"],
+    avoidance:    ["ACT", "Pychyl", "Motivational Interviewing", "SDT", "Social Accountability", "Mindfulness"],
+    overwhelm:    ["TMT", "PSI", "Atomic Habits", "Flow", "Mindfulness", "CBT"],
+    perfectionism:["Perfectionism", "ACT", "Kahneman", "CBT", "Bandura", "Growth Mindset"],
+    fear:         ["ACT", "Kahneman", "Pychyl", "CBT", "Bandura", "Growth Mindset"],
+    ambiguity:    ["TMT", "Implementation Intentions", "PSI", "WOOP", "Chronobiology"],
+    low_energy:   ["PSI", "Pychyl", "Mindfulness", "Chronobiology", "SDT", "Rumination"],
+    shame:        ["Shame", "Active Listening", "Pychyl", "CBT", "Bandura", "Rumination"],
+    boredom:      ["Boredom", "ACT", "Atomic Habits", "Flow", "Behavioral Economics"],
+    neutral:      ["TMT", "Atomic Habits", "Socratic Method", "WOOP", "Implementation Intentions"],
   };
 
   const scored = WIKI_CHUNKS.map(chunk => {
     let score = 0;
     const allKeywords = [...chunk.keywords, ...chunk.keywordsEn];
-    allKeywords.forEach(kw => { if (lower.includes(kw.toLowerCase())) score += 3; });
+
+    allKeywords.forEach(kw => {
+      // Exact substring match (EN + short TR)
+      if (lower.includes(kw.toLowerCase())) {
+        score += 3;
+      // Türkçe morfoloji eşleşmesi
+      } else if (trFuzzyMatch(inputWords, kw)) {
+        score += 2;
+      }
+    });
+
+    // Sinyal-teori ağırlığı
     if (signalTheoryMap[signal].includes(chunk.theory)) score += 2;
+
     return { chunk, score };
   });
 

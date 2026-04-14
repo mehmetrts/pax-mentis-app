@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -9,13 +9,18 @@ import {
   View,
   Platform,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
+import { useLLMStatus } from "@/hooks/useLLMStatus";
 import { BentoCard, SectionHeader, StatCard } from "@/components/BentoGrid";
 import { TaskCard } from "@/components/TaskCard";
 import { PlanCard } from "@/components/PlanCard";
 import { ResistanceMeter } from "@/components/ResistanceMeter";
+import { OnboardingModal } from "@/components/OnboardingModal";
+
+const ONBOARDING_KEY = "@pax_mentis:onboarding_done";
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -42,6 +47,20 @@ export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { tasks, sessions, plans, streakDays, totalCompleted, completeTask, deferTask, toggleStep, isLoading } = useApp();
+  const llm = useLLMStatus();
+
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    AsyncStorage.getItem(ONBOARDING_KEY).then(v => {
+      if (!v) setShowOnboarding(true);
+    });
+  }, []);
+
+  const handleOnboardingDone = () => {
+    setShowOnboarding(false);
+    AsyncStorage.setItem(ONBOARDING_KEY, "1");
+  };
 
   const activeTasks = useMemo(
     () => tasks.filter(t => t.status === "pending" || t.status === "in_progress"),
@@ -90,12 +109,24 @@ export default function HomeScreen() {
     >
       {/* Başlık */}
       <View style={styles.headerSection}>
-        <Text style={[styles.greeting, { color: colors.mutedForeground }]}>{getGreeting()}</Text>
+        <View style={styles.headerTopRow}>
+          <Text style={[styles.greeting, { color: colors.mutedForeground }]}>{getGreeting()}</Text>
+          {/* Model Durumu Rozeti */}
+          <TouchableOpacity
+            onPress={() => router.push("/(tabs)/settings")}
+            style={[styles.modelBadge, { backgroundColor: llm.color + "18", borderColor: llm.color + "40" }]}
+          >
+            <View style={[styles.modelDot, { backgroundColor: llm.color }]} />
+            <Text style={[styles.modelBadgeText, { color: llm.color }]}>{llm.label}</Text>
+          </TouchableOpacity>
+        </View>
         <Text style={[styles.headline, { color: colors.foreground }]}>Pax Mentis</Text>
         <Text style={[styles.subHeadline, { color: colors.mutedForeground }]}>
           Zihinsel direncini aş, eyleme geç.
         </Text>
       </View>
+
+      <OnboardingModal visible={showOnboarding} onDone={handleOnboardingDone} />
 
       {/* Öncelikli Görev */}
       {urgentTask && (
@@ -396,4 +427,28 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   addButtonText: { fontSize: 15, fontFamily: "Inter_600SemiBold" },
+  headerTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  modelBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  modelDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+  },
+  modelBadgeText: {
+    fontSize: 11,
+    fontFamily: "Inter_600SemiBold",
+    letterSpacing: 0.2,
+  },
 });

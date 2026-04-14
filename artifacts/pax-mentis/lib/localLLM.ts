@@ -174,21 +174,33 @@ export class LocalLLMBridge {
     phase: ConversationPhase = "discovery"
   ): Promise<string> {
     if (this.llamaContext) {
-      return this._runInference(messages, onToken);
+      return this._runInference(messages, onToken, phase);
     }
     return this._mockResponse(phase, onToken);
   }
 
+  // Faz bazlı sıcaklık: Keşif fazı yaratıcı/açık → planning daha kararlı
+  private _phaseTemperature(phase: ConversationPhase): number {
+    const temps: Record<ConversationPhase, number> = {
+      discovery: 0.80,  // Açık, keşifçi, doğal
+      diagnosis: 0.72,  // Analitik ama sıcak
+      planning:  0.62,  // Somut, kararlı, düşük halüsinasyon
+      followup:  0.68,  // Destekleyici ama odaklı
+    };
+    return temps[phase] ?? this.config.temperature;
+  }
+
   private async _runInference(
     messages: LLMMessage[],
-    onToken?: (token: string) => void
+    onToken?: (token: string) => void,
+    phase: ConversationPhase = "discovery"
   ): Promise<string> {
     try {
       const result = await this.llamaContext.completion(
         {
           messages,
           n_predict: this.config.maxTokens,
-          temperature: this.config.temperature,
+          temperature: this._phaseTemperature(phase),
           top_p: this.config.topP,
           stop: ["<|eot_id|>", "<|end_of_text|>", "User:", "Kullanıcı:"],
         },

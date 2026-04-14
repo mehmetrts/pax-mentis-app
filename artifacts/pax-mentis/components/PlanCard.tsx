@@ -34,7 +34,7 @@ export function PlanCard({ plan, onStepToggle, compact = false }: Props) {
   };
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border, borderRadius: 16 }]}>
+    <View style={[styles.card, { backgroundColor: colors.surfaceContainer, borderColor: colors.outlineVariant, borderRadius: 16 }]}>
       {/* Header */}
       <TouchableOpacity
         style={styles.header}
@@ -45,27 +45,27 @@ export function PlanCard({ plan, onStepToggle, compact = false }: Props) {
           <View style={[styles.theoryBadge, { backgroundColor: theoryColor + "22", borderRadius: 8 }]}>
             <Text style={[styles.theoryText, { color: theoryColor }]}>{plan.theory}</Text>
           </View>
-          <Text style={[styles.title, { color: colors.foreground }]} numberOfLines={1}>
+          <Text style={[styles.title, { color: colors.onSurface }]} numberOfLines={1}>
             {plan.title}
           </Text>
         </View>
 
         <View style={styles.headerRight}>
-          <Text style={[styles.progress, { color: completedCount === totalCount ? theoryColor : colors.mutedForeground }]}>
+          <Text style={[styles.progress, { color: completedCount === totalCount ? theoryColor : colors.onSurfaceVariant }]}>
             {completedCount}/{totalCount}
           </Text>
           {compact && (
             <Feather
               name={expanded ? "chevron-up" : "chevron-down"}
               size={16}
-              color={colors.mutedForeground}
+              color={colors.onSurfaceVariant}
             />
           )}
         </View>
       </TouchableOpacity>
 
       {/* Progress bar */}
-      <View style={[styles.progressBar, { backgroundColor: colors.muted, borderRadius: 4 }]}>
+      <View style={[styles.progressBar, { backgroundColor: colors.surfaceVariant, borderRadius: 4 }]}>
         <View
           style={[
             styles.progressFill,
@@ -88,7 +88,7 @@ export function PlanCard({ plan, onStepToggle, compact = false }: Props) {
                 style={[
                   styles.stepCheck,
                   {
-                    borderColor: step.isCompleted ? theoryColor : colors.border,
+                    borderColor: step.isCompleted ? theoryColor : colors.outlineVariant,
                     backgroundColor: step.isCompleted ? theoryColor : "transparent",
                     borderRadius: 6,
                   },
@@ -103,14 +103,14 @@ export function PlanCard({ plan, onStepToggle, compact = false }: Props) {
                   style={[
                     styles.stepText,
                     {
-                      color: step.isCompleted ? colors.mutedForeground : colors.foreground,
+                      color: step.isCompleted ? colors.onSurfaceVariant : colors.onSurface,
                       textDecorationLine: step.isCompleted ? "line-through" : "none",
                     },
                   ]}
                 >
                   {idx + 1}. {step.text}
                 </Text>
-                <Text style={[styles.stepDuration, { color: colors.mutedForeground }]}>
+                <Text style={[styles.stepDuration, { color: colors.onSurfaceVariant }]}>
                   ~{step.durationMinutes} dk
                 </Text>
               </View>

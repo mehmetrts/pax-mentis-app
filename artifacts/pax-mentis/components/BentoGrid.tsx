@@ -1,7 +1,13 @@
-import React from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import React, { useCallback } from "react";
+import { StyleSheet, Text, View, Pressable } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
+import { M3Spring } from "@/constants/colors";
 
 interface BentoCardProps {
   children: React.ReactNode;
@@ -12,32 +18,53 @@ interface BentoCardProps {
 
 export function BentoCard({ children, style, onPress, accent }: BentoCardProps) {
   const colors = useColors();
-  const content = (
-    <View
+
+  // M3 Expressive — spring press scale (spatialFast for responsiveness)
+  const scale = useSharedValue(1);
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = useCallback(() => {
+    scale.value = withSpring(0.97, M3Spring.spatialFast);
+  }, []);
+
+  const handlePressOut = useCallback(() => {
+    scale.value = withSpring(1, M3Spring.spatialDefault);
+  }, []);
+
+  const cardView = (
+    <Animated.View
       style={[
         styles.card,
         {
-          backgroundColor: colors.card,
-          borderRadius: (colors.radius || 16),
-          borderColor: accent ? accent + "33" : colors.border,
+          backgroundColor: accent ? colors.surfaceContainer : colors.card,
+          borderRadius: colors.radius || 16,
+          borderColor: accent ? accent + "44" : colors.outlineVariant,
           borderLeftWidth: accent ? 3 : 1,
-          borderLeftColor: accent || colors.border,
+          borderLeftColor: accent || colors.outlineVariant,
         },
         style,
+        animStyle,
       ]}
     >
       {children}
-    </View>
+    </Animated.View>
   );
 
   if (onPress) {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.85}>
-        {content}
-      </TouchableOpacity>
+      <Pressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+      >
+        {cardView}
+      </Pressable>
     );
   }
-  return content;
+
+  return cardView;
 }
 
 interface StatCardProps {
@@ -50,33 +77,46 @@ interface StatCardProps {
 
 export function StatCard({ label, value, icon, color, onPress }: StatCardProps) {
   const colors = useColors();
+  const toneColor = color || colors.primary;
+
   return (
-    <BentoCard accent={color} onPress={onPress} style={styles.statCard}>
+    <BentoCard accent={toneColor} onPress={onPress} style={styles.statCard}>
       <View style={styles.statHeader}>
         <View
           style={[
             styles.iconWrapper,
-            { backgroundColor: (color || colors.primary) + "22", borderRadius: 10 },
+            {
+              backgroundColor: toneColor + "28",
+              borderRadius: colors.shape?.medium ?? 12,
+            },
           ]}
         >
-          <Feather name={icon as any} size={16} color={color || colors.primary} />
+          <Feather name={icon as any} size={16} color={toneColor} />
         </View>
       </View>
-      <Text style={[styles.statValue, { color: colors.foreground }]}>{value}</Text>
-      <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>{label}</Text>
+      <Text style={[styles.statValue, { color: colors.onSurface }]}>{value}</Text>
+      <Text style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>{label}</Text>
     </BentoCard>
   );
 }
 
-export function SectionHeader({ title, action, onAction }: { title: string; action?: string; onAction?: () => void }) {
+export function SectionHeader({
+  title,
+  action,
+  onAction,
+}: {
+  title: string;
+  action?: string;
+  onAction?: () => void;
+}) {
   const colors = useColors();
   return (
     <View style={styles.sectionHeader}>
-      <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{title}</Text>
+      <Text style={[styles.sectionTitle, { color: colors.onSurface }]}>{title}</Text>
       {action && (
-        <TouchableOpacity onPress={onAction}>
+        <Pressable onPress={onAction}>
           <Text style={[styles.sectionAction, { color: colors.primary }]}>{action}</Text>
-        </TouchableOpacity>
+        </Pressable>
       )}
     </View>
   );
@@ -99,8 +139,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   iconWrapper: {
-    width: 32,
-    height: 32,
+    width: 34,
+    height: 34,
     alignItems: "center",
     justifyContent: "center",
   },

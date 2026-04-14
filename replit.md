@@ -34,13 +34,23 @@ Android/iOS Expo uygulaması. Erteleme davranışını psikolojik bilimle ele al
 
 **Özellikler:**
 - 4 tab: Ana Sayfa (Bento Grid), Mentor (sohbet), Görevler, Wiki
-- Yerel LLM köprüsü (lib/localLLM.ts) — Gemma / Llama on-device model için hazır
-- Wiki bilgi tabanı (lib/wikiKnowledge.ts) — TMT, PSI, ACT, Kahneman, Atomic Habits, Pychyl
-- RAG tabanlı bağlamsal içerik enjeksiyonu (retrieveRelevantChunks)
-- Direnç analizi (lib/resistanceAnalyzer.ts) — latency ölçümü + kelime analizi
-- Sokratik mentor sohbeti + streaming
-- AsyncStorage ile görev + oturum kalıcılığı
-- Zen renk paleti: Sage Green (#5a7a5a), Soft Sand, Pearl White
+- Yerel LLM köprüsü (lib/localLLM.ts) — Llama 3.2 3B on-device model + demo fallback
+- Wiki bilgi tabanı (lib/wikiKnowledge.ts) — 70 chunk, 31 teori (TMT, PSI, ACT, CBT, Rogers, OARS, SFBT, Gestalt, Sirois/Pychyl, vb.)
+- RAG tabanlı bağlamsal içerik enjeksiyonu (retrieveRelevantChunks) — Türkçe morfoloji desteği
+- Direnç analizi (lib/resistanceAnalyzer.ts) — 8 sinyal türü, faz bazlı sıcaklık kontrolü
+
+**Tasarım:**
+- Material 3 Expressive renk sistemi (constants/colors.ts) — tam M3 token seti
+  - Primary: Sage Green #3B6E3B / #8FCF91 (dark)
+  - Secondary: Neutral Green #52634F
+  - Tertiary: Warm Amber #7B5E00 / #F0BF45 (dark)
+  - surface, surfaceContainer, surfaceVariant, onSurface*, outline*, inverse* tokenları
+- M3Spring motion preset'leri (spatialDefault/Fast/Slow, effectDefault/Fast)
+- Reanimated 4 spring fizik animasyonları: giriş, basma, şekil morflama, loading dots
+- Shape token'ları (none→full 6 adım) + M3 pill butonlar (borderRadius: 9999)
+- Sokratik mentor sohbeti + streaming + faz etiketleri
+- AsyncStorage ile görev + oturum + plan kalıcılığı
+- Onboarding modal (5 slayt, ilk başlatmada)
 
 **Renk sistemi:** constants/colors.ts — light + dark mode
 **Global state:** context/AppContext.tsx — görevler, oturumlar, istatistikler

@@ -67,17 +67,17 @@ export function OnboardingModal({ visible, onDone }: Props) {
       statusBarTranslucent
     >
       <View style={styles.overlay}>
-        <View style={[styles.card, { backgroundColor: colors.card }]}>
-          {/* İkon */}
-          <View style={[styles.iconWrap, { backgroundColor: colors.sage + "22" }]}>
-            <Feather name={slide.icon as any} size={36} color={colors.sage} />
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          {/* İkon — M3 tonal icon container */}
+          <View style={[styles.iconWrap, { backgroundColor: colors.primaryContainer }]}>
+            <Feather name={slide.icon as any} size={36} color={colors.primary} />
           </View>
 
           {/* Metin */}
-          <Text style={[styles.title, { color: colors.foreground }]}>{slide.title}</Text>
-          <Text style={[styles.body, { color: colors.mutedForeground }]}>{slide.body}</Text>
+          <Text style={[styles.title, { color: colors.onSurface }]}>{slide.title}</Text>
+          <Text style={[styles.body, { color: colors.onSurfaceVariant }]}>{slide.body}</Text>
 
-          {/* Nokta göstergesi */}
+          {/* Nokta göstergesi — M3 indicator dots */}
           <View style={styles.dots}>
             {SLIDES.map((_, i) => (
               <View
@@ -85,7 +85,7 @@ export function OnboardingModal({ visible, onDone }: Props) {
                 style={[
                   styles.dot,
                   {
-                    backgroundColor: i === page ? colors.sage : colors.border,
+                    backgroundColor: i === page ? colors.primary : colors.outlineVariant,
                     width: i === page ? 20 : 8,
                   },
                 ]}
@@ -93,19 +93,26 @@ export function OnboardingModal({ visible, onDone }: Props) {
             ))}
           </View>
 
-          {/* Butonlar */}
+          {/* Butonlar — M3 filled + text button */}
           <View style={styles.btnRow}>
             {!isLast && (
               <TouchableOpacity onPress={onDone} style={styles.skipBtn}>
-                <Text style={[styles.skipText, { color: colors.mutedForeground }]}>Atla</Text>
+                <Text style={[styles.skipText, { color: colors.onSurfaceVariant }]}>Atla</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity
-              style={[styles.nextBtn, { backgroundColor: colors.sage, flex: isLast ? 1 : undefined }]}
+              style={[
+                styles.nextBtn,
+                { backgroundColor: colors.primary, flex: isLast ? 1 : undefined },
+              ]}
               onPress={isLast ? onDone : () => setPage(p => p + 1)}
             >
-              <Text style={styles.nextText}>{isLast ? "Başla" : "İleri"}</Text>
-              {!isLast && <Feather name="arrow-right" size={16} color="#fff" style={{ marginLeft: 4 }} />}
+              <Text style={[styles.nextText, { color: colors.onPrimary }]}>
+                {isLast ? "Başla" : "İleri"}
+              </Text>
+              {!isLast && (
+                <Feather name="arrow-right" size={16} color={colors.onPrimary} style={{ marginLeft: 4 }} />
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -174,7 +181,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     alignItems: "center",
-    borderRadius: 14,
+    borderRadius: 9999,
   },
   skipText: {
     fontSize: 15,
@@ -184,7 +191,7 @@ const styles = StyleSheet.create({
     flex: 2,
     flexDirection: "row",
     paddingVertical: 14,
-    borderRadius: 14,
+    borderRadius: 9999,
     justifyContent: "center",
     alignItems: "center",
   },

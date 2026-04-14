@@ -1,7 +1,13 @@
-import React, { useEffect, useRef } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
 import { useColors } from "@/hooks/useColors";
 import { getResistanceLevel } from "@/lib/resistanceAnalyzer";
+import { M3Spring } from "@/constants/colors";
 
 interface Props {
   score: number;
@@ -11,30 +17,32 @@ interface Props {
 
 export function ResistanceMeter({ score, showLabel = true, compact = false }: Props) {
   const colors = useColors();
-  const anim = useRef(new Animated.Value(0)).current;
   const level = getResistanceLevel(score);
 
+  // M3 Expressive spring — deliberate entry (spatialSlow) for the bar
+  const progress = useSharedValue(0);
+
   useEffect(() => {
-    Animated.spring(anim, {
-      toValue: score / 100,
-      useNativeDriver: false,
-      tension: 30,
-      friction: 8,
-    }).start();
+    progress.value = withSpring(score / 100, M3Spring.spatialSlow);
   }, [score]);
 
-  const barWidth = anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0%", "100%"],
-  });
+  const barStyle = useAnimatedStyle(() => ({
+    width: `${progress.value * 100}%` as any,
+  }));
 
   if (compact) {
     return (
-      <View style={[styles.compactContainer, { backgroundColor: colors.muted, borderRadius: 4 }]}>
+      <View
+        style={[
+          styles.compactTrack,
+          { backgroundColor: colors.surfaceVariant, borderRadius: 4 },
+        ]}
+      >
         <Animated.View
           style={[
             styles.compactBar,
-            { width: barWidth, backgroundColor: level.color, borderRadius: 4 },
+            { backgroundColor: level.color, borderRadius: 4 },
+            barStyle,
           ]}
         />
       </View>
@@ -45,19 +53,31 @@ export function ResistanceMeter({ score, showLabel = true, compact = false }: Pr
     <View style={styles.container}>
       {showLabel && (
         <View style={styles.labelRow}>
-          <Text style={[styles.label, { color: colors.mutedForeground }]}>Direnç Seviyesi</Text>
-          <Text style={[styles.levelText, { color: level.color }]}>{level.label}</Text>
+          <Text style={[styles.label, { color: colors.onSurfaceVariant }]}>
+            Direnç Seviyesi
+          </Text>
+          <Text style={[styles.levelText, { color: level.color }]}>
+            {level.label}
+          </Text>
         </View>
       )}
-      <View style={[styles.track, { backgroundColor: colors.muted, borderRadius: 8 }]}>
+      <View
+        style={[
+          styles.track,
+          { backgroundColor: colors.surfaceVariant, borderRadius: 8 },
+        ]}
+      >
         <Animated.View
           style={[
             styles.bar,
-            { width: barWidth, backgroundColor: level.color, borderRadius: 8 },
+            { backgroundColor: level.color, borderRadius: 8 },
+            barStyle,
           ]}
         />
       </View>
-      <Text style={[styles.scoreText, { color: colors.mutedForeground }]}>{score}/100</Text>
+      <Text style={[styles.scoreText, { color: colors.onSurfaceVariant }]}>
+        {score}/100
+      </Text>
     </View>
   );
 }
@@ -80,7 +100,7 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_600SemiBold",
   },
   track: {
-    height: 6,
+    height: 7,
     overflow: "hidden",
   },
   bar: {
@@ -91,8 +111,8 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_400Regular",
     textAlign: "right",
   },
-  compactContainer: {
-    height: 4,
+  compactTrack: {
+    height: 5,
     overflow: "hidden",
   },
   compactBar: {

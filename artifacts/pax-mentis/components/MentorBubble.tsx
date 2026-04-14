@@ -1,6 +1,18 @@
-import React, { useEffect, useRef } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withTiming,
+  interpolate,
+  Extrapolation,
+} from "react-native-reanimated";
 import { useColors } from "@/hooks/useColors";
+import { M3Spring } from "@/constants/colors";
 
 interface Props {
   content: string;
@@ -8,75 +20,114 @@ interface Props {
   isUser?: boolean;
 }
 
-export function MentorBubble({ content, isStreaming = false, isUser = false }: Props) {
-  const colors = useColors();
-  const dotAnim1 = useRef(new Animated.Value(0)).current;
-  const dotAnim2 = useRef(new Animated.Value(0)).current;
-  const dotAnim3 = useRef(new Animated.Value(0)).current;
+// M3 Expressive loading dot — springs up and down with stagger
+function SpringDot({ delay, color }: { delay: number; color: string }) {
+  const translateY = useSharedValue(0);
 
   useEffect(() => {
-    if (!isStreaming || content.length > 0) return;
+    translateY.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withSpring(-6, { stiffness: 420, damping: 18, mass: 0.6 }),
+          withSpring(0,  { stiffness: 380, damping: 22, mass: 0.6 }),
+        ),
+        -1,
+        false,
+      ),
+    );
+    return () => { translateY.value = 0; };
+  }, []);
 
-    const createPulse = (anim: Animated.Value, delay: number) =>
-      Animated.loop(
-        Animated.sequence([
-          Animated.delay(delay),
-          Animated.timing(anim, { toValue: 1, duration: 400, useNativeDriver: true }),
-          Animated.timing(anim, { toValue: 0.3, duration: 400, useNativeDriver: true }),
-        ])
-      );
+  const style = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
 
-    const a1 = createPulse(dotAnim1, 0);
-    const a2 = createPulse(dotAnim2, 150);
-    const a3 = createPulse(dotAnim3, 300);
-    a1.start();
-    a2.start();
-    a3.start();
+  return (
+    <Animated.View
+      style={[style, styles.dot, { backgroundColor: color }]}
+    />
+  );
+}
 
-    return () => {
-      a1.stop();
-      a2.stop();
-      a3.stop();
-    };
-  }, [isStreaming, content]);
+export function MentorBubble({ content, isStreaming = false, isUser = false }: Props) {
+  const colors = useColors();
+
+  // M3 Expressive — spring entry animation for every bubble
+  const scale   = useSharedValue(0.82);
+  const opacity = useSharedValue(0);
+  const translateY = useSharedValue(isUser ? 6 : -4);
+
+  useEffect(() => {
+    opacity.value    = withSpring(1, M3Spring.effectDefault);
+    scale.value      = withSpring(1, M3Spring.spatialDefault);
+    translateY.value = withSpring(0, M3Spring.spatialDefault);
+  }, []);
+
+  const bubbleStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [
+      { scale: scale.value },
+      { translateY: translateY.value },
+    ],
+  }));
 
   if (isUser) {
     return (
-      <View style={[styles.userBubble, { backgroundColor: colors.primary, borderRadius: 18, borderBottomRightRadius: 4 }]}>
-        <Text style={[styles.userText, { color: colors.primaryForeground }]}>{content}</Text>
-      </View>
+      <Animated.View style={[styles.userWrapper, bubbleStyle]}>
+        <View
+          style={[
+            styles.userBubble,
+            {
+              backgroundColor: colors.primary,
+              borderRadius: 20,
+              borderBottomRightRadius: 4,
+            },
+          ]}
+        >
+          <Text style={[styles.userText, { color: colors.onPrimary }]}>{content}</Text>
+        </View>
+      </Animated.View>
     );
   }
 
   return (
     <View style={styles.mentorRow}>
-      <View style={[styles.mentorAvatar, { backgroundColor: colors.sage || colors.primary, borderRadius: 20 }]}>
-        <Text style={styles.avatarText}>Ψ</Text>
-      </View>
+      {/* Avatar — M3 shape:full circle with sage primaryContainer background */}
       <View
+        style={[
+          styles.mentorAvatar,
+          {
+            backgroundColor: colors.primaryContainer,
+            borderRadius: 9999,
+          },
+        ]}
+      >
+        <Text style={[styles.avatarText, { color: colors.onPrimaryContainer }]}>Ψ</Text>
+      </View>
+
+      <Animated.View
         style={[
           styles.mentorBubble,
           {
-            backgroundColor: colors.card,
-            borderColor: colors.border,
-            borderRadius: 18,
+            backgroundColor: colors.surfaceContainer,
+            borderColor: colors.outlineVariant,
+            borderRadius: 20,
             borderTopLeftRadius: 4,
           },
+          bubbleStyle,
         ]}
       >
         {isStreaming && content.length === 0 ? (
           <View style={styles.dotsRow}>
-            {[dotAnim1, dotAnim2, dotAnim3].map((a, i) => (
-              <Animated.View
-                key={i}
-                style={[styles.dot, { backgroundColor: colors.mutedForeground, opacity: a }]}
-              />
-            ))}
+            <SpringDot delay={0}   color={colors.onSurfaceVariant} />
+            <SpringDot delay={120} color={colors.onSurfaceVariant} />
+            <SpringDot delay={240} color={colors.onSurfaceVariant} />
           </View>
         ) : (
-          <Text style={[styles.mentorText, { color: colors.foreground }]}>{content}</Text>
+          <Text style={[styles.mentorText, { color: colors.onSurface }]}>{content}</Text>
         )}
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -88,15 +139,14 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   mentorAvatar: {
-    width: 34,
-    height: 34,
+    width: 36,
+    height: 36,
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
   },
   avatarText: {
     fontSize: 16,
-    color: "#ffffff",
     fontFamily: "Inter_600SemiBold",
   },
   mentorBubble: {
@@ -111,17 +161,20 @@ const styles = StyleSheet.create({
   },
   dotsRow: {
     flexDirection: "row",
-    gap: 5,
-    paddingVertical: 6,
+    gap: 6,
+    paddingVertical: 8,
+    alignItems: "center",
   },
   dot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
-  userBubble: {
+  userWrapper: {
     alignSelf: "flex-end",
     maxWidth: "80%",
+  },
+  userBubble: {
     padding: 14,
   },
   userText: {

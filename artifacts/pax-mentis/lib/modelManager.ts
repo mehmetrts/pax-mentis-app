@@ -37,7 +37,7 @@ export const MODEL_CATALOG: ModelConfig[] = [
   {
     id: "gemma-3-4b-q4",
     name: "Gemma 3 4B (Q4_K_M)",
-    downloadUrl: "https://huggingface.co/bartowski/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf",
+    downloadUrl: "https://huggingface.co/bartowski/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf?download=true",
     sizeMB: 2500,
     description: "Güçlü talimat takibi — biraz daha büyük",
     recommended: false,

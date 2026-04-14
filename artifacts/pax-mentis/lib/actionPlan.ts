@@ -109,6 +109,16 @@ const STEP_TEMPLATES: Record<ResistanceSignal, (chunk: WikiChunk) => { text: str
     { text: chunk.intervention, durationMinutes: 5 },
     { text: "Enerji için en uygun saatini belirle ve görevi o saate kaydır.", durationMinutes: 10 },
   ],
+  shame: () => [
+    { text: "Bir kağıda yaz: 'Bu eylemimden utanıyorum' — ama ardından 'Bu benim tüm hikayem değil' ekle.", durationMinutes: 5 },
+    { text: "En iyi arkadaşına ne söylerdin? O cümleyi kendinle söyle.", durationMinutes: 5 },
+    { text: "Küçük ama somut bir adım at — seni tanımlamak için değil, hareket etmek için.", durationMinutes: 10 },
+  ],
+  boredom: (chunk) => [
+    { text: "Bu görevin neden önemli olduğunu tek cümleyle yaz — kimin için, ne için.", durationMinutes: 5 },
+    { text: chunk.intervention, durationMinutes: 5 },
+    { text: "Görevi oyunlaştır: Kendine küçük bir ödül belirle — bittikten sonra 15 dakika istediğini yap.", durationMinutes: 15 },
+  ],
   neutral: () => [
     { text: "Görevi başlatmak için tek bir tetikleyici ritüel belirle (örn: kahve, belirli bir masa).", durationMinutes: 5 },
     { text: "Sadece ilk 15 dakika için otur — daha uzunu düşünme.", durationMinutes: 15 },
@@ -123,6 +133,8 @@ const PLAN_TITLES: Record<ResistanceSignal, string> = {
   fear: "Korku Aşma Planı",
   ambiguity: "Netlik Kazanma Planı",
   low_energy: "Enerji Yenileme Planı",
+  shame: "Utanç Döngüsünü Kırma Planı",
+  boredom: "Anlam Bulma Planı",
   neutral: "Başlangıç Planı",
 };
 

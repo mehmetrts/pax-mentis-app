@@ -939,6 +939,150 @@ export const WIKI_CHUNKS: WikiChunk[] = [
     interventionEn: "Reflection → Action bridge: Write your learning in one sentence and complete: 'What I can do about this now is...'",
     source: "Nolen-Hoeksema (1991); Watkins, E. (2008). Constructive and Unconstructive Repetitive Thought. Psychological Bulletin.",
   },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 20: Davranışsal Aktivasyon (Lewinsohn / Jacobson)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "ba_01",
+    theory: "Behavioral Activation",
+    topic: "Duygu-Eylem Döngüsü",
+    topicEn: "Mood-Action Cycle",
+    keywords: ["zaten canım istemez", "önce iyi hissetsem", "moduma göre", "hissetmeden yapamam", "içimden gelmiyor"],
+    keywordsEn: ["don't feel like it", "feel good first", "depends on my mood", "can't without feeling it", "not motivated"],
+    content: "Lewinsohn — Davranışsal Aktivasyon: Çoğu insan 'önce iyi hissedeyim, sonra yapayım' der. Ancak araştırmalar tersi sırayı kanıtlar: Önce eylemin küçük adımı, sonra ruh hali iyileşmesi. Eylem duygudan önce gelir; bekleme tuzağından çıkmanın yolu harekettir.",
+    contentEn: "Lewinsohn — Behavioral Activation: Most people say 'I'll feel better first, then I'll do it.' But research proves the reverse order: first a small step of action, then mood improvement. Action precedes emotion; the way out of the waiting trap is movement.",
+    socraaticPrompt: "Şu an nasıl hissettiğini bir yana bırak — bu görevin en küçük fiziksel adımı ne olurdu?",
+    socraaticPromptEn: "Setting aside how you feel right now — what would be the smallest physical step for this task?",
+    intervention: "Aktivasyon deneyi: Sonucunu tahmin etme, sadece 5 dakika yap. Sonrasında ruh halinin nasıl değiştiğini not et.",
+    interventionEn: "Activation experiment: Don't predict the outcome, just do it for 5 minutes. Note how your mood shifts afterward.",
+    source: "Lewinsohn (1974); Jacobson et al. (1996). Behavioral activation for depression. JCCP. TherapistAid (2020).",
+  },
+  {
+    id: "ba_02",
+    theory: "Behavioral Activation",
+    topic: "Keyifli Aktivite Planlama",
+    topicEn: "Pleasant Activity Scheduling",
+    keywords: ["hiçbir şeyden zevk almıyorum", "her şey renksiz", "ne yapsam aynı", "keyif yok", "motivasyon sıfır"],
+    keywordsEn: ["nothing feels enjoyable", "everything is grey", "no matter what", "no pleasure", "zero motivation"],
+    content: "Davranışsal Aktivasyon: Keyifli ve anlamlı aktivitelerin planlanması, depresyon ve kaçınma döngüsünü kırar. Aktivite seçimi keyif + kolaylık matrisine göre yapılır. En kolay ve en az keyif veren aktivitelerle başlanarak ağır adım adım artırılır.",
+    contentEn: "Behavioral Activation: Scheduling enjoyable and meaningful activities breaks the depression and avoidance cycle. Activity selection follows a pleasure + ease matrix. Start with the easiest and slightly enjoyable activities and gradually increase.",
+    socraaticPrompt: "Geçmişte sana enerji veren üç aktivite neydi — bunlardan en küçüğünü bu hafta programına koyabilir misin?",
+    socraaticPromptEn: "What are three activities that gave you energy in the past — can you schedule the smallest one this week?",
+    intervention: "Aktivite listesi oluştur: Kolaylık 1-5, Keyif 1-5. En yüksek kolaylık skorundan başla ve planına yaz.",
+    interventionEn: "Build an activity list: Ease 1-5, Pleasure 1-5. Start from the highest ease score and write it in your schedule.",
+    source: "Lewinsohn (1974); TherapistAid Behavioral Activation Worksheets (2020).",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 21: Değişimin Aşamaları — TTM (Prochaska & DiClemente)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "ttm_01",
+    theory: "TTM",
+    topic: "Değişim Aşaması Tespiti",
+    topicEn: "Stage of Change Identification",
+    keywords: ["değişmek istemiyorum", "belki değiştiririm", "düşünüyorum ama", "bilmiyorum hazır mıyım", "adım atmak zor"],
+    keywordsEn: ["don't want to change", "maybe I'll change", "thinking about it", "not sure if ready", "hard to take a step"],
+    content: "Prochaska & DiClemente — Değişimin Aşamaları: Değişim bir karar değil, bir süreçtir. Ön düşünme (bilmiyorum) → Düşünme (belki) → Hazırlık (yakında) → Eylem (yapıyorum) → Sürdürme (devam). Her aşama farklı bir destek gerektirir.",
+    contentEn: "Prochaska & DiClemente — Stages of Change: Change is not a decision — it's a process. Precontemplation (unaware) → Contemplation (maybe) → Preparation (soon) → Action (doing) → Maintenance (continuing). Each stage requires different support.",
+    socraaticPrompt: "Bu konuda değişim için hazır hissediyorsun — ama 'hazır' ne demek senin için?",
+    socraaticPromptEn: "You feel ready for change here — but what does 'ready' mean for you?",
+    intervention: "Aşamanı belirle: 'Değiştirmeyi düşünmüyorum' → 'Belki' → 'Yakında' → 'Yapıyorum.' Hangi aşamada olduğunu bulmak, doğru adımı netleştirir.",
+    interventionEn: "Identify your stage: 'Not thinking about it' → 'Maybe' → 'Soon' → 'Doing it.' Finding where you are clarifies the right next step.",
+    source: "Prochaska & DiClemente (1983). Stages and Processes of Self-Change. JCCP. TherapistAid (2018).",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 22: Değerlere Doğru / Uzak Hamleler — ACT (Hayes)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "act_values_01",
+    theory: "ACT",
+    topic: "Değerlere Doğru Hamleler",
+    topicEn: "Toward & Away Moves",
+    keywords: ["değerlerime aykırı", "yaşamak istediğim hayat", "önem verdiğim şey", "uzaklaşıyorum", "kendime ihanet"],
+    keywordsEn: ["against my values", "life I want to live", "what matters to me", "drifting away", "betraying myself"],
+    content: "Hayes — ACT: Her davranış bir 'değere doğru' veya 'değerden uzak' hamledir. Erteleme çoğu zaman anlık rahatsızlıktan kaçınmak için değerden uzak bir hamledir. Güçlü bir 'neden'e bağlı eylem, kaçınma motivasyonunu devre dışı bırakır.",
+    contentEn: "Hayes — ACT: Every behavior is a move 'toward' or 'away from' a value. Procrastination is usually an away-move to escape momentary discomfort. Action connected to a strong 'why' overrides the avoidance motivation.",
+    socraaticPrompt: "Bu görevi ertelediğinde — hangi değerinden uzaklaşıyorsun? Ve bunu geri almak için en yakın 'doğru hamle' ne?",
+    socraaticPromptEn: "When you procrastinate on this task — which value are you moving away from? And what's the nearest 'toward move' to reclaim it?",
+    intervention: "İki sütun oluştur: Değerime doğru hamleler | Değerimden uzak hamleler. Bu görev için birer örnek yaz.",
+    interventionEn: "Create two columns: Toward moves | Away moves. Write one example for each related to this task.",
+    source: "Hayes, S.C. (2005). Get Out of Your Mind and Into Your Life. New Harbinger. TherapistAid ACT Worksheets.",
+  },
+  {
+    id: "act_defusion_01",
+    theory: "ACT",
+    topic: "Bilişsel Ayrışma",
+    topicEn: "Cognitive Defusion",
+    keywords: ["düşünce kafama yapışıyor", "aklımı kurcalıyor", "bu düşünceyi durduramıyorum", "kafam sabit", "takıntı gibi"],
+    keywordsEn: ["thought is stuck", "nagging me", "can't stop this thought", "mind fixed", "like an obsession"],
+    content: "Hayes — Bilişsel Ayrışma (Defüzyon): Düşüncenin içinden değil, dışından bakmak. 'Ben başaramam' düşüncesini 'Zihnimde bir ses var, o ses başaramayacağımı söylüyor' olarak yeniden çerçevele. Düşünceden uzaklık, düşüncenin davranış üzerindeki gücünü kırar.",
+    contentEn: "Hayes — Cognitive Defusion: Looking at a thought from outside, not inside it. Reframe 'I can't succeed' as 'There's a voice in my mind, that voice is saying I can't succeed.' Distance from a thought reduces its power over behavior.",
+    socraaticPrompt: "Şu an seni en çok durduran düşünce ne — ve onu 'zihnindeki bir ses' olarak tarif edebilir misin?",
+    socraaticPromptEn: "What is the thought most stopping you right now — and can you describe it as 'a voice in your mind'?",
+    intervention: "Yapraklar üzerinde düşünce: 'Bu düşünce geçip gidiyor' diye görselleştir. Zihnin akıyorsa, düşünceler de akar.",
+    interventionEn: "Leaves on a stream: Visualize 'this thought is passing by.' If your mind flows, thoughts flow too.",
+    source: "Hayes et al. (1999). Acceptance and Commitment Therapy. Guilford. TherapistAid ACT Worksheets.",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 23: Problem Çözme — CBT (D'Zurilla & Goldfried)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "problem_solving_01",
+    theory: "Problem Solving",
+    topic: "Beş Adım Problem Çözme",
+    topicEn: "Five-Step Problem Solving",
+    keywords: ["ne yapacağımı bilmiyorum", "çözüm yok", "nasıl ilerleyeceğim", "tıkandım", "seçenek göremiyorum"],
+    keywordsEn: ["don't know what to do", "no solution", "how to move forward", "stuck", "can't see options"],
+    content: "D'Zurilla & Goldfried — Problem Çözme Terapisi: Belirsizlik veya çözümsüzlük hissi, sistematik süreçle kırılabilir. 1. Problemi tanımla (yazılı, somut). 2. Çözüm alternatifleri üret (yargısız). 3. Her çözümü değerlendir (artılar/eksiler). 4. En iyisini seç ve uygula. 5. Sonucu gözden geçir.",
+    contentEn: "D'Zurilla & Goldfried — Problem Solving Therapy: The feeling of ambiguity or unsolvability can be broken with a systematic process. 1. Define the problem (written, concrete). 2. Generate alternatives (non-judgmentally). 3. Evaluate each option (pros/cons). 4. Select the best and implement. 5. Review the outcome.",
+    socraaticPrompt: "Bu problemi tam olarak tek bir cümleyle tanımlayabilir misin — 'Sorun şu ki...' diye başlayarak?",
+    socraaticPromptEn: "Can you define this problem in exactly one sentence — starting with 'The problem is...'?",
+    intervention: "Problemi yaz. Sonra 3 farklı çözüm yaz — mükemmel olması şart değil. Her birinin tek avantajını not et.",
+    interventionEn: "Write the problem. Then write 3 different solutions — they don't have to be perfect. Note one advantage of each.",
+    source: "D'Zurilla & Goldfried (1971). Problem-solving and behavior modification. Abnormal Psychology. TherapistAid (2019).",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 24: İç Koç — Öz-Şefkat Tekniği (Neff / TherapistAid)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "inner_coach_01",
+    theory: "Self-Compassion",
+    topic: "İç Eleştirmenden İç Koça",
+    topicEn: "Inner Critic to Inner Coach",
+    keywords: ["kendimi sert eleştiriyorum", "aptal gibi hissediyorum", "neden böyle yapıyorum", "kendimi affetmek", "iç ses acımasız"],
+    keywordsEn: ["harshly criticizing myself", "feel stupid", "why am I like this", "forgive myself", "inner voice is cruel"],
+    content: "Neff (+ TherapistAid) — İç Koç Tekniği: İç eleştirmen 'Yine başaramadın, berbatsın' der. İç koç ise aynı duruma 'Zorlandın, bu normal; bir sonraki adım ne?' der. Aynı olayı iç koç diliyle yeniden çerçevelemek öz-yeterliği ve harekete geçme isteğini artırır.",
+    contentEn: "Neff (+ TherapistAid) — Inner Coach Technique: The inner critic says 'You failed again, you're terrible.' The inner coach says 'You struggled, that's normal; what's the next step?' Reframing the same event in inner-coach language increases self-efficacy and the desire to take action.",
+    socraaticPrompt: "Şu an kendine ne söylüyorsun — ve bir koç olsaydı, aynı durumu nasıl tarif ederdi?",
+    socraaticPromptEn: "What are you saying to yourself right now — and if you were a coach, how would you describe the same situation?",
+    intervention: "İç eleştirmen sesini yaz. Sonra aynı cümleyi bir 'destekleyici koç' olarak yeniden yaz — ne değişiyor?",
+    interventionEn: "Write what your inner critic says. Then rewrite the same sentence as a 'supportive coach' — what changes?",
+    source: "Neff, K. (2011). Self-Compassion. Morrow. TherapistAid Inner Coach Worksheet (2021).",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 25: DBT Stres Toleransı (Linehan)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "dbt_tipp_01",
+    theory: "DBT",
+    topic: "TIPP: Bedenle Sakinleşme",
+    topicEn: "TIPP: Body-Based Calming",
+    keywords: ["çok gergin", "panik", "anlık yardım lazım", "bunaltıcı", "bedenimi sakinleştirmek", "soluğum kesildi"],
+    keywordsEn: ["very tense", "panic", "need immediate help", "overwhelming", "calm my body", "can't breathe"],
+    content: "Linehan — DBT TIPP: Yoğun duygusal uyarılma anında bilişsel teknikler çalışmaz — önce beden sakinleşmeli. TIPP: Sıcaklık (soğuk su ile yüz veya el), Yoğun Egzersiz (hızlı yürüyüş, merdiven), Yavaş Nefes (4-7-8), Progresif Kas Gevşemesi. Bu tekniklerin tümü parasempatik sinir sistemini aktive eder.",
+    contentEn: "Linehan — DBT TIPP: During intense emotional activation, cognitive techniques don't work — the body must calm first. TIPP: Temperature (cold water on face/hands), Intense Exercise (fast walk, stairs), Paced Breathing (4-7-8), Progressive Muscle Relaxation. All these techniques activate the parasympathetic nervous system.",
+    socraaticPrompt: "Şu an bedeninde yoğunluk 0-10 arasında kaç — ve bunları sakinleştirmek için şu an yapabileceğin en kolay beden hareketi ne?",
+    socraaticPromptEn: "What is the intensity in your body right now on a 0-10 scale — and what is the easiest physical movement you can do right now to calm it?",
+    intervention: "Hızlı TIPP: Şu an soğuk su ile ellerini ıslatabilirsin. Ya da 30 saniye yerinde zıpla. Beyin sakinleşmeden karar verme.",
+    interventionEn: "Quick TIPP: You can wet your hands with cold water right now. Or jump in place for 30 seconds. Don't make decisions before the brain calms.",
+    source: "Linehan, M.M. (1993). DBT Skills Training. Guilford. TherapistAid DBT Worksheets (2020).",
+  },
 ];
 
 // ─── Sinyal Tespiti ───────────────────────────────────────────────────────────
@@ -1053,15 +1197,15 @@ export function retrieveRelevantChunks(
   const inputWords = lower.split(/\s+/);
 
   const signalTheoryMap: Record<ResistanceSignal, string[]> = {
-    avoidance:    ["ACT", "Pychyl", "Motivational Interviewing", "SDT", "Social Accountability", "Mindfulness"],
-    overwhelm:    ["TMT", "PSI", "Atomic Habits", "Flow", "Mindfulness", "CBT"],
-    perfectionism:["Perfectionism", "ACT", "Kahneman", "CBT", "Bandura", "Growth Mindset"],
-    fear:         ["ACT", "Kahneman", "Pychyl", "CBT", "Bandura", "Growth Mindset"],
-    ambiguity:    ["TMT", "Implementation Intentions", "PSI", "WOOP", "Chronobiology"],
-    low_energy:   ["PSI", "Pychyl", "Mindfulness", "Chronobiology", "SDT", "Rumination"],
-    shame:        ["Shame", "Active Listening", "Pychyl", "CBT", "Bandura", "Rumination"],
-    boredom:      ["Boredom", "ACT", "Atomic Habits", "Flow", "Behavioral Economics"],
-    neutral:      ["TMT", "Atomic Habits", "Socratic Method", "WOOP", "Implementation Intentions"],
+    avoidance:    ["ACT", "Pychyl", "Motivational Interviewing", "SDT", "Social Accountability", "Mindfulness", "Behavioral Activation", "TTM"],
+    overwhelm:    ["TMT", "PSI", "Atomic Habits", "Flow", "Mindfulness", "CBT", "DBT", "Problem Solving"],
+    perfectionism:["Perfectionism", "ACT", "Kahneman", "CBT", "Bandura", "Growth Mindset", "Self-Compassion"],
+    fear:         ["ACT", "Kahneman", "Pychyl", "CBT", "Bandura", "Growth Mindset", "Problem Solving"],
+    ambiguity:    ["TMT", "Implementation Intentions", "PSI", "WOOP", "Chronobiology", "Problem Solving"],
+    low_energy:   ["PSI", "Pychyl", "Mindfulness", "Chronobiology", "SDT", "Rumination", "Behavioral Activation", "DBT"],
+    shame:        ["Shame", "Active Listening", "Pychyl", "CBT", "Bandura", "Rumination", "Self-Compassion"],
+    boredom:      ["Boredom", "ACT", "Atomic Habits", "Flow", "Behavioral Economics", "Behavioral Activation"],
+    neutral:      ["TMT", "Atomic Habits", "Socratic Method", "WOOP", "Implementation Intentions", "TTM"],
   };
 
   const scored = WIKI_CHUNKS.map(chunk => {

@@ -214,13 +214,17 @@ export async function requestNotificationPermission(): Promise<boolean> {
 
 export function initNotificationHandler(): void {
   Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: false,
-      shouldSetBadge: false,
-      shouldShowBanner: true,
-      shouldShowList:   true,
-    }),
+    handleNotification: async () => {
+      // Uygulama ön plandayken OS bildirim bannerı gösterme — in-app toast yeterli
+      const isActive = AppState.currentState === "active";
+      return {
+        shouldShowAlert:  !isActive,
+        shouldPlaySound:  false,
+        shouldSetBadge:   false,
+        shouldShowBanner: !isActive,
+        shouldShowList:   true,
+      };
+    },
   });
 }
 
@@ -331,9 +335,9 @@ export interface ToastPayload {
 let _toastCallback: ((payload: ToastPayload) => void) | null = null;
 let _owlCallback:   ((type: NotificationType) => void)   | null = null;
 
-// Mentor ekranı aktifken sadece mentor bildirimlerine izin ver
+// Mentor ekranı aktifken tüm anlık bildirimleri sustur
+// (resistance_high mentor yanıtında zaten yansır; session_complete sohbet bitiminde tetiklenir)
 let _mentorFocusActive = false;
-const MENTOR_ONLY_TYPES: NotificationType[] = ["resistance_high", "session_complete"];
 
 export function setMentorFocusMode(active: boolean): void {
   _mentorFocusActive = active;
@@ -353,8 +357,8 @@ export function triggerInAppToast(
 ): void {
   if (!settings.masterEnabled) return;
 
-  // Mentor ekranında sadece mentor bildirimlerini göster
-  if (_mentorFocusActive && !MENTOR_ONLY_TYPES.includes(type)) return;
+  // Mentor sohbet ekranında aktifken in-app toast da gösterme — sessiz mod
+  if (_mentorFocusActive) return;
 
   const typeEnabled: Record<NotificationType, boolean> = {
     task_added:       settings.taskAdded,
@@ -385,8 +389,9 @@ export function triggerInAppToast(
     body:    msg.body,
   });
 
-  // Maskot bildirimi — mentor modunda sadece resistance_high için
-  if (!_mentorFocusActive || type === "resistance_high") {
+  // Maskot (Baykuş) animasyonu — YALNIZCA uygulama arka planda / ekran kapalıyken
+  // Sohbet ekranında (mentorFocusActive) hiç gösterilmez
+  if (!_mentorFocusActive && AppState.currentState !== "active") {
     _owlCallback?.(type);
   }
 }

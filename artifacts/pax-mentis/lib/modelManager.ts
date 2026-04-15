@@ -42,6 +42,14 @@ export const MODEL_CATALOG: ModelConfig[] = [
     description: "Çok dilli güç — Türkçe dahil 29 dil",
     recommended: false,
   },
+  {
+    id: "qwen3-4b-q4",
+    name: "Qwen 3 4B (Q4_K_M)",
+    downloadUrl: "https://huggingface.co/unsloth/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf",
+    sizeMB: 2500,
+    description: "En yeni Qwen3 — derin düşünme, güçlü Türkçe (2.5 GB)",
+    recommended: false,
+  },
 ];
 
 const MODEL_DIR = FileSystem.documentDirectory + "llm_models/";

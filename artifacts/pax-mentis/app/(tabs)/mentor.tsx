@@ -228,9 +228,10 @@ export default function MentorScreen() {
           .join("\n\n") || undefined
       );
 
+      // Son 16 mesaja kadar geçmişi gönder — kısa Sokratik mesajlar 2048 token'a sığar
       const llmMessages = [
         { role: "system" as const, content: systemPrompt },
-        ...recentMessages.slice(-8).map(m => ({
+        ...recentMessages.slice(-16).map(m => ({
           role: m.role === "mentor" ? ("assistant" as const) : ("user" as const),
           content: m.content,
         })),

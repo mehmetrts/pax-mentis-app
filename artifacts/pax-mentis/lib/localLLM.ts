@@ -21,18 +21,30 @@ export const IS_LLM_NATIVE_AVAILABLE = _initLlama !== null;
 // Küçük modellerin İngilizce/Türkçe karıştırması durumunda sık hata yapılan
 // kelimeler Türkçe karşılıklarıyla değiştirilir.
 const EN_TR_MAP: [RegExp, string][] = [
+  // Zaman / miktar
+  [/\bfew\b/gi,             "birkaç"],
+  [/\bsome\b/gi,            "bazı"],
+  [/\bjust\b/gi,            "sadece"],
+  [/\brecently\b/gi,        "son zamanlarda"],
+  [/\btoday\b/gi,           "bugün"],
+  [/\btomorrow\b/gi,        "yarın"],
+  [/\bnow\b/gi,             "şimdi"],
+  [/\balways\b/gi,          "her zaman"],
+  [/\boften\b/gi,           "sık sık"],
+  [/\bnever\b/gi,           "asla"],
+  // Psikoloji / erteleme terimleri
   [/\bmotivation\b/gi,      "motivasyon"],
   [/\bfocus\b/gi,           "odak"],
   [/\bchallenge\b/gi,       "zorluk"],
-  [/\bgoal\b/gi,            "hedef"],
-  [/\btask\b/gi,            "görev"],
+  [/\bgoals?\b/gi,          "hedef"],
+  [/\btasks?\b/gi,          "görev"],
   [/\bprocrastination\b/gi, "erteleme"],
   [/\bstress\b/gi,          "stres"],
   [/\bperfect\b/gi,         "mükemmel"],
   [/\bperfectionism\b/gi,   "mükemmeliyetçilik"],
   [/\benergy\b/gi,          "enerji"],
-  [/\baction\b/gi,          "eylem"],
-  [/\bplan\b/gi,            "plan"],
+  [/\bactions?\b/gi,        "eylem"],
+  [/\bplans?\b/gi,          "plan"],
   [/\bsupport\b/gi,         "destek"],
   [/\bprimary\b/gi,         "birincil"],
   [/\bsecondary\b/gi,       "ikincil"],
@@ -47,19 +59,43 @@ const EN_TR_MAP: [RegExp, string][] = [
   [/\bcompassion\b/gi,      "şefkat"],
   [/\bawareness\b/gi,       "farkındalık"],
   [/\bcomfort\b/gi,         "rahatlık"],
-  [/\btrigger\b/gi,         "tetikleyici"],
-  [/\bpattern\b/gi,         "örüntü"],
+  [/\btriggers?\b/gi,       "tetikleyici"],
+  [/\bpatterns?\b/gi,       "örüntü"],
   [/\bhabits?\b/gi,         "alışkanlık"],
   [/\bcommitment\b/gi,      "kararlılık"],
   [/\bidentity\b/gi,        "kimlik"],
+  [/\bsteps?\b/gi,          "adım"],
+  [/\bblocking\b/gi,        "engelleyen"],
+  [/\bavoidance\b/gi,       "kaçınma"],
+  [/\boverwhelm\b/gi,       "bunalmışlık"],
+  [/\bperfectionist\b/gi,   "mükemmeliyetçi"],
+  [/\bimpossible\b/gi,      "imkansız"],
+  [/\bdifficult\b/gi,       "zor"],
+  [/\bimportant\b/gi,       "önemli"],
+  [/\bspecific\b/gi,        "belirli"],
+  [/\bsimple\b/gi,          "basit"],
+  [/\bsmall\b/gi,           "küçük"],
+  [/\bclear\b/gi,           "net"],
+  [/\bmeaningful\b/gi,      "anlamlı"],
+  [/\bintention\b/gi,       "niyet"],
+  [/\bemotions?\b/gi,       "duygu"],
+  [/\bfeelings?\b/gi,       "his"],
+  [/\bthoughts?\b/gi,       "düşünce"],
+  [/\bbreaks?\b/gi,         "mola"],
+  [/\bdeadlines?\b/gi,      "son tarih"],
+  [/\bprioritize\b/gi,      "önceliklendir"],
+  [/\bovercome\b/gi,        "aş"],
 ];
 
 function applyTurkishCorrections(text: string): string {
-  let out = text;
+  // Qwen3 "thinking" bloklarını çıkar (<think>...</think>)
+  let out = text.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
+  // Boş think açılışlarını da çıkar
+  out = out.replace(/<think>\s*/g, "").replace(/<\/think>\s*/g, "");
   for (const [re, tr] of EN_TR_MAP) {
     out = out.replace(re, tr);
   }
-  return out;
+  return out.trim();
 }
 
 // ─── Tipler ───────────────────────────────────────────────────────────────────
@@ -307,9 +343,15 @@ export class LocalLLMBridge {
     phase: ConversationPhase = "discovery"
   ): Promise<string> {
     try {
+      // Qwen3: Düşünme modunu kapat — hızlı yanıt için boş think bloğu enjekte et
+      const isQwen3 = this.config.modelId?.startsWith("qwen3");
+      const finalMessages = isQwen3
+        ? [...messages, { role: "assistant" as const, content: "<think>\n\n</think>" }]
+        : messages;
+
       const result = await this.llamaContext.completion(
         {
-          messages,
+          messages: finalMessages,
           n_predict: this.config.maxTokens,
           temperature: this._phaseTemperature(phase),
           top_p: this.config.topP,

@@ -29,6 +29,7 @@ const TYPE_CONFIG: Record<NotificationType, { direction: OwlDirection; icon: str
   streak_reminder:  { direction: "right",  icon: "🔥" },
   task_added:       { direction: "bottom", icon: "✅" },
   session_complete: { direction: "bottom", icon: "🌱" },
+  smart_nudge:      { direction: "right",  icon: "🧠" },
 };
 
 // ─── Bubble message catalog ───────────────────────────────────────────────────
@@ -68,6 +69,11 @@ const BUBBLE_CATALOG: Record<NotificationType, Array<{ title: string; body: stri
     { title: "Bugün cesurlaştın 🌱",      body: "Direncini tanımak onu yenmekten önemli bir ilk adımdır." },
     { title: "Aferin! 🙏",               body: "Her dürüst sohbet büyümeye kapı açar." },
   ],
+  smart_nudge: [
+    { title: "Tam zamanı 🧠",            body: "Takviminde boşluk var. Bir göreve başlamak ister misin?" },
+    { title: "Seni düşündüm 💡",         body: "Kısa bir sohbet bile enerjini yeniden kazandırabilir." },
+    { title: "Hazır mısın? ✨",          body: "Bugün planladıklarından en önemlisi hangisi?" },
+  ],
 };
 
 function pickRandom<T>(arr: T[]): T {
@@ -85,10 +91,10 @@ function buildPayload(type: NotificationType): OwlPayload {
 const MASCOT_KEY = "@pax_mentis:mascot_type";
 
 export const MASCOT_OPTIONS: Array<{ type: MascotType; label: string; emoji: string }> = [
-  { type: "owl",    label: "Baykuş", emoji: "🦉" },
-  { type: "cat",    label: "Kedi",   emoji: "🐱" },
-  { type: "dog",    label: "Köpek",  emoji: "🐶" },
-  { type: "rabbit", label: "Tavşan", emoji: "🐰" },
+  { type: "owl",    label: "Zürafa",  emoji: "🦒" },
+  { type: "cat",    label: "Kedi",    emoji: "🐱" },
+  { type: "dog",    label: "Köpek",   emoji: "🐶" },
+  { type: "rabbit", label: "Maymun",  emoji: "🐒" },
 ];
 
 // ─── Context ──────────────────────────────────────────────────────────────────

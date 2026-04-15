@@ -1590,8 +1590,8 @@ export function buildSystemPrompt(
       "Plan verildi. İlerlemeyi sor: 'İlk adımı denedin mi?' Zorlanmaları normalize et. Küçük ilerlemeleri kutla. Gerekirse planı güncelle.",
   };
 
-  // En alakalı 2 chunk — teori adını kesinlikle ekleme, sadece içgörü + soru
-  const chunkContext = chunks.slice(0, 2)
+  // İlk 3 chunk — teori adını kesinlikle ekleme, sadece içgörü + soru
+  const chunkContext = chunks.slice(0, 3)
     .map(c => {
       const firstSentence = c.content.split(/[.!?]/)[0].trim();
       return `• ${firstSentence}. Soru önerisi: "${c.socraaticPrompt}"`;

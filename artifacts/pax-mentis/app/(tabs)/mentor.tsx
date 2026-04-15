@@ -231,6 +231,33 @@ export default function MentorScreen() {
     firstKeystrokeTime.current = 0;
   }, [activeTask?.id]);
 
+  // Yeni sohbet başlat — aynı görevde kalır, sadece konuşma sıfırlanır
+  const handleNewConversation = useCallback(() => {
+    Alert.alert(
+      "Yeni Sohbet",
+      "Bu konuşma silinecek ve yeni bir sohbet başlayacak. Devam etmek istiyor musun?",
+      [
+        { text: "İptal", style: "cancel" },
+        {
+          text: "Başlat",
+          style: "destructive",
+          onPress: () => {
+            setMessages([makeWelcomeMessage(activeTask?.title)]);
+            setCurrentPhase("discovery");
+            setCurrentResistance(0);
+            setCurrentSignal("neutral");
+            setHasActionPlan(false);
+            planSavedRef.current = false;
+            updateCurrentSession(null);
+            firstKeystrokeTime.current = 0;
+            setInputText("");
+            setStreamingContent("");
+          },
+        },
+      ]
+    );
+  }, [activeTask?.title, updateCurrentSession]);
+
   const handleTextChange = useCallback((text: string) => {
     if (firstKeystrokeTime.current === 0 && text.length === 1) {
       firstKeystrokeTime.current = Date.now();
@@ -531,6 +558,16 @@ export default function MentorScreen() {
               <ResistanceMeter score={currentResistance} compact />
             </View>
           )}
+          {/* Yeni sohbet */}
+          <TouchableOpacity
+            style={[styles.iconBtn, { backgroundColor: colors.muted, borderRadius: 12 }]}
+            onPress={handleNewConversation}
+            activeOpacity={0.7}
+            disabled={isGenerating}
+          >
+            <Feather name="rotate-ccw" size={15} color={colors.mutedForeground} />
+          </TouchableOpacity>
+
           {/* TTS toggle */}
           <TouchableOpacity
             style={[

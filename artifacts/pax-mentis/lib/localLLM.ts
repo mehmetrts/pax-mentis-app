@@ -144,6 +144,24 @@ function applyTurkishCorrections(text: string): string {
   let out = text.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
   // Boş think açılışlarını da çıkar
   out = out.replace(/<think>\s*/g, "").replace(/<\/think>\s*/g, "");
+
+  // ── Yasaklı açılış ifadelerini sil ─────────────────────────────────────────
+  // Sistem prompt yasaklamasına rağmen modeller bunları üretiyor — post-process güvence
+  out = out.replace(/^(Anlıyorum|Tabii ki|Elbette|Kesinlikle|Harika|Mükemmel)[.!,]?\s*/i, "");
+  out = out.replace(/^(I understand|Of course|Certainly|Absolutely|Great|Sure)[.!,]?\s*/i, "");
+
+  // ── "ya da" çift soru kalıbını düzelt ──────────────────────────────────────
+  // "ne hissediyorsun ya da ne düşünüyorsun?" → sadece ilk soruyu bırak
+  // Yalnızca cümle sonundaki "ya da <alternatif soru>" kesimini kaldır
+  out = out.replace(/\s+ya da\s+[^.!?]*\?(\s*)$/, "?$1");
+
+  // ── "siz" formlarını "sen" formuna çevir ───────────────────────────────────
+  // Çoğul emir veya geniş zaman ekleri
+  out = out.replace(/\b(bakabilirsiniz|yapabilirsiniz|edebilirsiniz|atabilirsiniz|görebilirsiniz|deneyebilirsiniz|söyleyebilirsiniz)\b/g,
+    (m) => m.replace("siniz", "sin"));
+  out = out.replace(/\b(bulunduruyorsunuz|düşünüyorsunuz|hissediyorsunuz|söylüyorsunuz)\b/g,
+    (m) => m.replace("sunuz", "sun").replace("sunuz", "sun"));
+
   for (const [re, tr] of EN_TR_MAP) {
     out = out.replace(re, tr);
   }

@@ -280,7 +280,7 @@ export default function MentorScreen() {
         const planMsg: DisplayMessage = {
           id: Date.now().toString() + "_plan",
           role: "mentor",
-          content: `Seninle birlikte bir plan hazırladım — "${plan.title}". Görevler → Planlar sekmesinde adımlarını takip edebilirsin.`,
+          content: `Sohbetimize dayanarak senin için küçük adımlardan oluşan bir plan oluşturdum. Hazır hissedince "Görevler" sekmesinden bakabilirsin.`,
           timestamp: Date.now(),
         };
         setMessages(prev => [...prev, planMsg]);

@@ -317,7 +317,8 @@ export class LocalLLMBridge {
       const isQwen3Model = id.startsWith("qwen3") || id.startsWith("qwen-3");
       this.llamaContext = await _initLlama({
         model: modelPath,
-        // Qwen3 4B için bağlam biraz daha küçük → RAM tasarrufu + hız
+        // Qwen3: 1792 → RAM tasarrufu + uzun prompt işlemi hızlanır
+        // Gemma 4 MoE / Llama: 2048 (varsayılan, S23 Ultra için yeterli)
         n_ctx: isQwen3Model ? 1792 : this.config.contextLength,
         n_gpu_layers: this.config.nGpuLayers,
         // Snapdragon 8 Gen 2: 8 çekirdek — 6 thread optimal (2 verimlilik çekirdeği serbest)

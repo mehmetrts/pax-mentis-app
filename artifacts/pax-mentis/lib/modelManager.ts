@@ -50,6 +50,15 @@ export const MODEL_CATALOG: ModelConfig[] = [
     description: "En yeni Qwen3 — derin düşünme, güçlü Türkçe (2.5 GB)",
     recommended: false,
   },
+  {
+    id: "gemma4-e2b-q4",
+    name: "Gemma 4 E2B-it (Q4_K_M)",
+    downloadUrl: "https://huggingface.co/unsloth/gemma-4-E2B-it-GGUF/resolve/main/gemma-4-E2B-it-Q4_K_M.gguf",
+    sizeMB: 2963,
+    // Google MoE: 5B toplam ağırlık, yalnızca ~2B aktif parametre → Qwen3 4B'den belirgin hızlı
+    description: "Google Gemma 4 MoE — 2B aktif parametre, güçlü Türkçe, hızlı yanıt (3 GB)",
+    recommended: false,
+  },
 ];
 
 const MODEL_DIR = FileSystem.documentDirectory + "llm_models/";

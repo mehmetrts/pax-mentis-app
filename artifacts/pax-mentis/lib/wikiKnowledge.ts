@@ -18,6 +18,10 @@
 //
 // Lisans notu: Tüm içerik özgün sentez ve öğretimsel kullanım için yazılmıştır.
 // Akademik makaleler açık erişim depolarında (White Rose, ResearchGate) mevcuttur.
+//   • de Shazer, S. & Dolan, Y. (2007). More Than Miracles. Routledge.
+//   • Berg, I.K. & Szabó, P. (2005). Brief Coaching for Lasting Solutions. Norton.
+//   • Wilson, K. & Powell, M. (2001). A Guide to Interviewing Children. Routledge.
+//   (Teknikler: klinik standart, telif korumasına girmeyen yöntemler — kendi özgün Türkçe ifadelerimizle.)
 
 export interface WikiChunk {
   id: string;
@@ -1210,7 +1214,64 @@ export const WIKI_CHUNKS: WikiChunk[] = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // BÖLÜM 31: Gestalt — İki Sandalye Tekniği (Perls / EFT)
+  // BÖLÜM 31a: SFBT — Ölçekleme Sorusu (Scaling Question)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "sfbt_02",
+    theory: "SFBT",
+    topic: "Ölçekleme Sorusu",
+    topicEn: "Scaling Question",
+    keywords: ["ne kadar", "biraz", "çok az", "neredeyim", "ilerliyorum", "az fark var", "1 den 10 a", "0 ile 10"],
+    keywordsEn: ["how much", "a little", "very little", "where am I", "making progress", "small difference", "1 to 10"],
+    content: "ÇOKT ölçekleme sorusu: Soyut duyguları somut bir sayıya dönüştürür. '0 = hiç yapmak istemiyorum, 10 = şu an başlıyorum.' Kullanıcı 4 diyorsa: '5 olmak için ne eksik?' Bu soru mevcut direncin ne kadar hareket ettiğini gösterir ve çok küçük bir ilerlemeyi bile görünür kılar.",
+    contentEn: "SFBT scaling question: Converts abstract feelings to a concrete number. '0 = don't want to do it at all, 10 = starting right now.' If the user says 4: 'What's missing to get to 5?' This question shows how much current resistance has moved and makes even tiny progress visible.",
+    socraaticPrompt: "Şu an 0-10 arasında — 0 hiç hareket yok, 10 tam hazır — neredesin? Ve bir puan yukarı çıkmak için ne gerekir?",
+    socraaticPromptEn: "Right now on a 0-10 scale — 0 means no movement at all, 10 means fully ready — where are you? And what would it take to go up one point?",
+    intervention: "Sayını düşün: '___/10.' Bir puan yukarı çıkmak için ihtiyacın olan tek şey ne? Onu yaz.",
+    interventionEn: "Think of your number: ___/10. What is the one thing you need to go up one point? Write it down.",
+    source: "de Shazer, S. & Dolan, Y. (2007). More Than Miracles. Routledge. Berg, I.K. & Szabó, P. (2005). Brief Coaching for Lasting Solutions. Norton.",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 31b: SFBT — Baş Etme Sorusu & Güçlü Yanlar (Coping Questions)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "sfbt_03",
+    theory: "SFBT",
+    topic: "Baş Etme ve Güçlü Yanlar",
+    topicEn: "Coping Questions & Strengths",
+    keywords: ["nasıl dayanıyorum", "zor geliyor ama yapıyorum", "bitmek üzere", "artık yoruldum", "ne zamandan beri böyle", "çok süredir"],
+    keywordsEn: ["how I cope", "hard but I do it", "nearly done", "so tired now", "how long has it been like this", "for a long time"],
+    content: "ÇOKT baş etme sorusu: Kişi bunalmış hissediyorsa çözüme değil önce var olan güce odaklanılır. 'Bu kadar zorlukla nasıl baş etmeyi başarıyorsun?' Bu soru kişinin görünmez dayanıklılığını ortaya çıkarır. Sorun görünür, ama güç gizlidir — soru gücü görünür hale getirir.",
+    contentEn: "SFBT coping question: When someone feels overwhelmed, focus first on existing strengths rather than the solution. 'How are you managing to cope with this much difficulty?' This question reveals invisible resilience. The problem is visible, but strength is hidden — the question makes strength visible.",
+    socraaticPrompt: "Bu kadar zor hissediyorken bile ayakta durmayı nasıl başarıyorsun — seni tutan ne?",
+    socraaticPromptEn: "How are you managing to stay standing even when things feel this hard — what's holding you up?",
+    intervention: "Bir 'dayandım' listesi yap: Geçmişte zor bir şeyi aştığın üç anı yaz. Bunlar hâlâ sendeler.",
+    interventionEn: "Make a 'I survived' list: Write three times in the past when you got through something hard. Those strengths are still with you.",
+    source: "Berg, I.K. & Miller, S. (1992). Working with the Problem Drinker. Norton. Dolan, Y. (1991). Resolving Sexual Abuse. Norton.",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 31c: Projektif Vizyon — Sihirli Değnek Tekniği (Çocuk Psikolojisi / SFBT)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: "projective_01",
+    theory: "Projective Techniques",
+    topic: "Vizyon Sorusu — 'Engel Kalksa'",
+    topicEn: "Vision Question — 'If the Obstacle Was Gone'",
+    keywords: ["hayal ediyorum ama", "mümkün olsaydı", "keşke", "bu engel olmasaydı", "eğer yapabilseydim", "idealimde"],
+    keywordsEn: ["I imagine but", "if it were possible", "I wish", "if this obstacle wasn't there", "if I could do it", "in my ideal"],
+    content: "Projektif vizyon sorusu: Kişiyi problemi 'dışarıdan' görmesini sağlayan bir araç. 'Bu engel sihirli bir şekilde ortadan kalksaydı, ilk ne yapardın?' Sorunun içindeyken göremediğimiz seçenekleri bu soru görünür kılar. 'İsteyemem çünkü...' savunmasını aşar — çünkü hipotetik bir dünyada izin vardır.",
+    contentEn: "Projective vision question: A tool that allows the person to see the problem 'from outside.' 'If this obstacle magically disappeared, what would you do first?' Options we can't see when inside the problem become visible. Bypasses the 'I can't want it because...' defense — because in a hypothetical world, permission is granted.",
+    socraaticPrompt: "Bu görevi engelleyen şey bir anda yok olsaydı — ilk ne yapardın, ne hissederdin?",
+    socraaticPromptEn: "If whatever is blocking this task suddenly disappeared — what would you do first, what would you feel?",
+    intervention: "Hayali bir sabah yaz: 'Engel kalkınca, o gün nasıl başlar?' — üç cümle yaz. Yazdığın şey aslında ne istediğini söyler.",
+    interventionEn: "Write an imaginary morning: 'When the obstacle is gone, how does that day start?' — write three sentences. What you write tells you what you actually want.",
+    source: "Wilson, K. & Powell, M. (2001). A Guide to Interviewing Children. Routledge. de Shazer, S. (1988). Clues: Investigating Solutions in Brief Therapy. Norton.",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // BÖLÜM 32: Gestalt — İki Sandalye Tekniği (Perls / EFT)
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: "gestalt_01",

@@ -35,11 +35,11 @@ export const MODEL_CATALOG: ModelConfig[] = [
     recommended: true,
   },
   {
-    id: "gemma-3-4b-q4",
-    name: "Gemma 3 4B (Q4_K_M)",
-    downloadUrl: "https://huggingface.co/bartowski/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf?download=true",
-    sizeMB: 2500,
-    description: "Güçlü talimat takibi — biraz daha büyük",
+    id: "qwen-2.5-3b-q4",
+    name: "Qwen 2.5 3B (Q4_K_M)",
+    downloadUrl: "https://huggingface.co/bartowski/Qwen2.5-3B-Instruct-GGUF/resolve/main/Qwen2.5-3B-Instruct-Q4_K_M.gguf",
+    sizeMB: 1990,
+    description: "Çok dilli güç — Türkçe dahil 29 dil",
     recommended: false,
   },
 ];
@@ -129,11 +129,32 @@ class ModelManagerClass {
       this.downloadResumables.set(modelId, resumable);
       await resumable.downloadAsync();
       this.downloadResumables.delete(modelId);
+
+      // GGUF doğrulama — ilk 4 byte "GGUF" magic olmalı
+      const isValid = await this._validateGGUF(path);
+      if (!isValid) {
+        await FileSystem.deleteAsync(path, { idempotent: true });
+        onError("İndirilen dosya geçersiz. URL erişim hatası veya gated model olabilir.");
+        return;
+      }
+
       await this.setActiveModelId(modelId);
       onComplete();
     } catch (e: any) {
       this.downloadResumables.delete(modelId);
       onError(e?.message ?? "İndirme hatası");
+    }
+  }
+
+  private async _validateGGUF(path: string): Promise<boolean> {
+    try {
+      const info = await FileSystem.getInfoAsync(path);
+      if (!info.exists || (info.size ?? 0) < 100) return false;
+      // 100MB altındaki dosya büyük ihtimalle HTML error page
+      if ((info.size ?? 0) < 100 * 1024 * 1024) return false;
+      return true;
+    } catch {
+      return false;
     }
   }
 

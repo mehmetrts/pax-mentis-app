@@ -35,10 +35,10 @@ export interface LLMConfig {
 
 const DEFAULT_CONFIG: LLMConfig = {
   modelId: "llama-3.2-3b-q4",
-  maxTokens: 220,
+  maxTokens: 280,
   temperature: 0.72,
   topP: 0.9,
-  contextLength: 512,  // Düşük RAM kullanımı — Samsung S23 için güvenli başlangıç
+  contextLength: 2048, // Samsung S23 Ultra 12GB RAM — 2048 güvenli ve yeterli
   nGpuLayers: 0,
 };
 
@@ -95,11 +95,11 @@ export class LocalLLMBridge {
       const saved = await AsyncStorage.getItem(CONFIG_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        // contextLength: kayıtlı eski değer (2048) varsa da 512'yi aşmasın
         this.config = {
           ...DEFAULT_CONFIG,
           ...parsed,
-          contextLength: Math.min(parsed.contextLength ?? DEFAULT_CONFIG.contextLength, 512),
+          // contextLength: 2048'i aşmasın — S23 Ultra 12GB için optimum
+          contextLength: Math.min(parsed.contextLength ?? DEFAULT_CONFIG.contextLength, 2048),
           nGpuLayers: 0, // Her zaman CPU-only
         };
       }
@@ -253,8 +253,17 @@ export class LocalLLMBridge {
           n_predict: this.config.maxTokens,
           temperature: this._phaseTemperature(phase),
           top_p: this.config.topP,
-          repeat_penalty: 1.18,   // Robotik tekrarları azalt
-          stop: ["<|eot_id|>", "<|end_of_text|>", "User:", "Kullanıcı:", "\n\n\n"],
+          min_p: 0.05,            // Saçma token olasılığını kes
+          repeat_penalty: 1.15,   // Robotik tekrarları azalt
+          stop: [
+            "<|eot_id|>",
+            "<|end_of_text|>",
+            "<end_of_turn>",      // Gemma stop token
+            "<|im_end|>",         // Qwen stop token
+            "User:",
+            "Kullanıcı:",
+            "\n\n\n",
+          ],
         },
         (data: { token: string }) => {
           onToken?.(data.token);
@@ -323,10 +332,10 @@ export const MODEL_OPTIONS = [
     recommended: true,
   },
   {
-    id: "gemma-3-4b-q4",
-    name: "Gemma 3 4B (Q4_K_M)",
-    size: "2.5 GB",
-    speed: "Orta",
+    id: "qwen-2.5-3b-q4",
+    name: "Qwen 2.5 3B (Q4_K_M)",
+    size: "1.99 GB",
+    speed: "Hızlı",
     quality: "Çok İyi",
     recommended: false,
   },

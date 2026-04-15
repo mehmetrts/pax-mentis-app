@@ -115,6 +115,28 @@ const EN_TR_MAP: [RegExp, string][] = [
   [/\bsymptom\b/gi,         "belirti"],
   [/\bloop\b/gi,            "döngü"],
   [/\bcycle\b/gi,           "kısır döngü"],
+  // Türk araştırma literatüründen doğal terimler
+  [/\bresilience\b/gi,      "psikolojik sağlamlık"],
+  [/\bcognitive flexibility\b/gi, "bilişsel esneklik"],
+  [/\bcoping strategies?\b/gi,   "başa çıkma yolları"],
+  [/\bcoping\b/gi,          "baş etme"],
+  [/\bemotion regulation\b/gi,   "duygu düzenleme"],
+  [/\bself-efficacy\b/gi,   "öz yeterlilik"],
+  [/\bprocrastinator\b/gi,  "erteleyen kişi"],
+  [/\bavoidant\b/gi,        "kaçınan"],
+  [/\btask aversion\b/gi,   "görev tiksinmesi"],
+  [/\bdiscomfort\b/gi,      "rahatsızlık"],
+  [/\bdiscomfort tolerance\b/gi, "rahatsızlığa dayanma"],
+  [/\btemptation\b/gi,      "cazibeye kapılma"],
+  [/\bimpulse\b/gi,         "dürtü"],
+  [/\bself-regulation\b/gi, "öz düzenleme"],
+  [/\bsetback\b/gi,         "aksaklık"],
+  [/\bpersistence\b/gi,     "kararlı devam"],
+  [/\bmindfulness\b/gi,     "şimdiki an farkındalığı"],
+  [/\bacceptance\b/gi,      "kabul"],
+  [/\bvulnerability\b/gi,   "kırılganlık"],
+  [/\brecovery\b/gi,        "toparlanma"],
+  [/\bgrowth\b/gi,          "büyüme"],
 ];
 
 function applyTurkishCorrections(text: string): string {

@@ -17,11 +17,21 @@
 //   • Rogers, C. (1951). Client-Centered Therapy. Houghton Mifflin.
 //
 // Lisans notu: Tüm içerik özgün sentez ve öğretimsel kullanım için yazılmıştır.
-// Akademik makaleler açık erişim depolarında (White Rose, ResearchGate) mevcuttur.
+// Akademik makaleler açık erişim depolarında (White Rose, ResearchGate, DergiPark) mevcuttur.
 //   • de Shazer, S. & Dolan, Y. (2007). More Than Miracles. Routledge.
 //   • Berg, I.K. & Szabó, P. (2005). Brief Coaching for Lasting Solutions. Norton.
 //   • Wilson, K. & Powell, M. (2001). A Guide to Interviewing Children. Routledge.
 //   (Teknikler: klinik standart, telif korumasına girmeyen yöntemler — kendi özgün Türkçe ifadelerimizle.)
+//
+// Türkçe araştırma kaynakları (kavram/bulgu düzeyinde distilasyon):
+//   • Uzun Özer, B. & Demir, A. (2009). Erteleme: Türleri, Bileşenleri, Demografik Etkenler.
+//     Ege Eğitim Dergisi. DergiPark açık erişim: dergipark.org.tr/tr/download/article-file/57202
+//   • Deci, E.L. & Ryan, R.M. (2000). Öz Belirleme Kuramı. Türkçe adaptasyon çalışmaları
+//     — Türk Psikolojik Danışma ve Rehberlik Dergisi. DergiPark açık erişim.
+//   • Kaya, N. (2023). Erteleme: Nedenleri ve Çözümleri. Eksik Parça Yayınları.
+//     (Ticari kitap — yalnızca kavramsal çerçeve kullanıldı, verbatim alıntı yok.)
+//   • Ögel, K. & Şimşek, M. (2022). Motivasyonel Görüşme Tekniği. Psikonet Yayınları.
+//     (Ticari kitap — OARS/MI teknikler standart klinik uygulamadır.)
 
 export interface WikiChunk {
   id: string;
@@ -1288,6 +1298,71 @@ export const WIKI_CHUNKS: WikiChunk[] = [
     interventionEn: "Write both voices: 'I should do this because...' and 'I don't want to do this because...' — after writing both, build a bridge from the middle.",
     source: "Perls, F. (1969). Gestalt Therapy Verbatim. Real People Press. Greenberg, L. (2010). Emotion-Focused Therapy. APA.",
   },
+
+  // ─── BÖLÜM: Psikolojik Sağlamlık ─────────────────────────────────────────
+  {
+    id: "resilience_01",
+    theory: "Psikolojik Sağlamlık",
+    topic: "Toparlanma Kapasitesi",
+    topicEn: "Recovery Capacity",
+    keywords: ["tekrar düştüm", "yine olmadı", "bir daha başaramadım", "pes ettim", "umutsuzum", "ne zaman yapsam olmaz", "hep böyle"],
+    keywordsEn: ["fell again", "failed again", "can't do it anymore", "gave up", "hopeless", "never works", "always like this"],
+    content: "Türk erteleme araştırmacıları: Psikolojik sağlamlık — bir daha düşmemek değil, düştükten sonra tekrar kalkabilmektir. Sağlam kişiler başarısızlığı 'hep böyle olur' değil 'bu sefer olmadı' diye okurlar. Kalkış hızı, kalkış sayısından önemlidir.",
+    contentEn: "Turkish procrastination research: Psychological resilience is not about never falling — it is about being able to get back up after a fall. Resilient people read failure as 'this time it didn't work' not 'this is how it always goes.' Speed of recovery matters more than number of recoveries.",
+    socraaticPrompt: "En son tekrar başladığında — başlamak için ne değişmişti o an?",
+    socraaticPromptEn: "The last time you started again — what had changed that moment?",
+    intervention: "Bir önceki 'kalkış anını' hatırla. O an için ne işe yaramıştı? O küçük şeyi bugün kullanabilir misin?",
+    interventionEn: "Remember your previous 'comeback moment.' What had worked then? Can you use that small thing today?",
+    source: "Uzun Özer, B. & Demir, A. (2009). Erteleme: Türleri, Bileşenleri. Ege Eğitim Dergisi. DergiPark. Bandura, A. (1997). Self-Efficacy: The Exercise of Control. Freeman.",
+  },
+
+  {
+    id: "resilience_02",
+    theory: "Psikolojik Sağlamlık",
+    topic: "Kendine Gerçekçi Bakış",
+    topicEn: "Realistic Self-Assessment",
+    keywords: ["yetersizim", "beceremedim", "herkese yük oldum", "başarısızım", "değersizim", "olmaz zaten", "nasıl olsa"],
+    keywordsEn: ["I'm inadequate", "couldn't manage", "burden to everyone", "I'm a failure", "worthless", "won't work anyway", "no matter what"],
+    content: "Türk araştırmalarında öz yeterlilik düşüklüğü ertelemeyi doğrudan besler. Ama öz yeterlilik sabit bir özellik değil, geçici bir durumdur. 'Yetersizim' cümlesi genellikle 'şu an yorgunum ve bu iş çok büyük görünüyor' demektir. İki şeyi ayırmak — 'ben' ile 'bu an' — sağlamlığın çekirdeğidir.",
+    contentEn: "Turkish research shows low self-efficacy directly feeds procrastination. But self-efficacy is not a fixed trait — it is a temporary state. The sentence 'I'm inadequate' usually means 'right now I'm tired and this task looks too big.' Separating 'me' from 'this moment' is the core of resilience.",
+    socraaticPrompt: "Bu 'olmaz' hissinin içinde ne var — gerçekten bu görevi beceremeyeceğin mi, yoksa şu an çok ağır mı hissettiriyor?",
+    socraaticPromptEn: "Inside this 'can't do it' feeling — is it that you truly can't do this task, or does it feel too heavy right now?",
+    intervention: "Şu an için değil, 10 dakika için başla. Sadece 10 dakika. Bundan sonra ne hissedeceğini izle.",
+    interventionEn: "Start not for the whole thing — just for 10 minutes. Only 10. Then observe what you feel after.",
+    source: "Uzun Özer, B. & Demir, A. (2009). Ege Eğitim Dergisi. Bandura, A. (1997). Self-Efficacy. Freeman. Türk üniversite araştırmaları: öz yeterlilik-erteleme ilişkisi.",
+  },
+
+  {
+    id: "cognitive_flex_01",
+    theory: "Bilişsel Esneklik",
+    topic: "Alternatif Yaklaşım Üretme",
+    topicEn: "Generating Alternative Approaches",
+    keywords: ["başka yolu yok", "tek yolu bu", "nasıl yapacağımı bilmiyorum", "ne yaparsam yapayım", "aynı yere geliyorum", "çıkış yok"],
+    keywordsEn: ["no other way", "this is the only way", "don't know how", "whatever I do", "keep coming back to same place", "no way out"],
+    content: "Bilişsel esneklik araştırmaları: Erteleme döngüsünü kıran insanlar tek bir doğru yol aramaz — birden fazla yaklaşımın var olduğunu görürler. 'Bunu yapmak zorundayım' yerine 'bunu nasıl farklı yapabilirim?' sorusu bile beyin için kilidi açar. Küçük değişiklik: saat, yer, ortam, yöntem — biri tıkandıysa diğerini dene.",
+    contentEn: "Cognitive flexibility research: People who break the procrastination loop don't look for a single right way — they see that multiple approaches exist. Even the question 'how can I do this differently?' instead of 'I have to do this' unlocks the brain. Small change: time, place, environment, method — if one is blocked, try another.",
+    socraaticPrompt: "Bu görevi şimdiye kadar hep aynı şekilde mi yapmaya çalıştın? Daha önce hiç farklı bir an veya yerde denedin mi?",
+    socraaticPromptEn: "Have you always tried to do this task the same way? Have you ever tried a different time or place?",
+    intervention: "Şimdiye kadar kullandığın yöntemi listele. Sonra tam tersini düşün: daha küçük, daha kısa, başka bir yerde. Bunlardan biri daha az direnç yaratıyor mu?",
+    interventionEn: "List the method you've used so far. Then think the opposite: smaller, shorter, somewhere else. Does any of these create less resistance?",
+    source: "Martin, M.M. & Anderson, C.M. (1998). The Cognitive Flexibility Scale. Communication Reports. Türk Psikoloji literatürü: bilişsel esneklik-erteleme bağlantısı (DergiPark açık erişim makaleleri).",
+  },
+
+  {
+    id: "turkish_context_01",
+    theory: "Kültürel Bağlam",
+    topic: "Utanç ve Sosyal Baskı",
+    topicEn: "Shame and Social Pressure",
+    keywords: ["ne derler", "utanıyorum", "benden çok bekleniyordu", "hayal kırıklığı yarattım", "ailemi hayal kırıklığına uğrattım", "herkes yapıyor ben yapamıyorum", "yargılanacağım"],
+    keywordsEn: ["what will they say", "I'm ashamed", "much was expected of me", "I disappointed", "let my family down", "everyone else can I can't", "I'll be judged"],
+    content: "Türkiye'de erteleme araştırmaları: Toplulukçu kültürde erteleme çoğu zaman bireysel başarısızlık değil, 'başkalarını hayal kırıklığına uğratma korkusu' ile örülüdür. Utanç (başkalarının gözündeki değer kaybı) ile suçluluk (kişisel değerlere aykırı davranma) farklı şeylerdir. Utanç 'ben kötüyüm' der, suçluluk 'bu davranışım iyi değildi' der. Biri felç eder, diğeri harekete geçirir.",
+    contentEn: "Turkey procrastination research: In a collectivist culture, procrastination is often intertwined not with individual failure but with 'fear of disappointing others.' Shame (loss of worth in others' eyes) and guilt (acting against personal values) are different things. Shame says 'I am bad,' guilt says 'this action of mine was not good.' One paralyzes, the other mobilizes.",
+    socraaticPrompt: "Bu görevi ertelediğinde 'kendimi hayal kırıklığına uğrattım' mı hissediyorsun, yoksa 'başkasını hayal kırıklığına uğrattım' mı — hangisi daha ağır?",
+    socraaticPromptEn: "When you procrastinate, do you feel 'I let myself down' or 'I let someone else down' — which feels heavier?",
+    intervention: "Eğer utanç varsa: şu an yargılayan kişi kim — gerçek biri mi, yoksa aklındaki o ses mi? O sesin sana ne söylediğini yaz.",
+    interventionEn: "If shame is present: who is judging right now — a real person, or that voice in your head? Write what that voice tells you.",
+    source: "Uzun Özer, B. & Demir, A. (2009). Erteleme: Kültürel Farklılıklar. Ege Eğitim Dergisi. Neff, K. (2011). Self-Compassion. William Morrow. Türk üniversite öğrencileri araştırmaları: kolektif kültürde utanç-erteleme örüntüsü.",
+  },
 ];
 
 // ─── Sinyal Tespiti ───────────────────────────────────────────────────────────
@@ -1305,31 +1380,34 @@ export function analyzeResistance(
   const signals: Array<{ signal: ResistanceSignal; words: string[] }> = [
     {
       signal: "shame",
-      words: ["utanıyorum", "mahcup", "rezil", "kimseye söyleyemem", "ashamed", "embarrassed", "hiding", "terrible person"],
+      // Türkiye'de kolektif kültür utanç örüntüsü eklendi (turkish_context_01)
+      words: ["utanıyorum", "mahcup", "rezil", "kimseye söyleyemem", "ne derler", "hayal kırıklığı yarattım", "benden çok bekleniyordu", "herkes yapıyor ben yapamıyorum", "yargılanacağım", "ailemi", "ashamed", "embarrassed", "hiding", "terrible person", "let them down", "what will they think"],
     },
     {
       signal: "perfectionism",
-      words: ["mükemmel", "hazır değilim", "doğru değil", "yanlış olur", "eksik", "perfect", "not ready", "not right", "mistake"],
+      words: ["mükemmel", "hazır değilim", "doğru değil", "yanlış olur", "eksik", "tam değil", "olmaz böyle", "perfect", "not ready", "not right", "mistake", "not good enough"],
     },
     {
       signal: "fear",
-      words: ["korktum", "endişe", "başarısız", "rezil", "mahvedersem", "afraid", "scared", "fail", "mess up", "anxious"],
+      words: ["korktum", "endişe", "başarısız", "rezil", "mahvedersem", "tedirgin", "kaygı", "afraid", "scared", "fail", "mess up", "anxious", "terrified"],
     },
     {
       signal: "overwhelm",
-      words: ["çok fazla", "bunaltıcı", "tıkandım", "yapamam", "bitiremedim", "too much", "overwhelmed", "stuck", "can't", "buried"],
+      // Bilişsel esneklik tıkanması eklendi (cognitive_flex_01)
+      words: ["çok fazla", "bunaltıcı", "tıkandım", "yapamam", "bitiremedim", "başka yolu yok", "tek yolu bu", "çıkış yok", "aynı yere geliyorum", "too much", "overwhelmed", "stuck", "can't", "buried", "no way out", "dead end"],
     },
     {
       signal: "avoidance",
-      words: ["kaçmak", "istemiyorum", "erteleyeyim", "sonra", "yarın", "ilgilenmiyorum", "avoid", "later", "tomorrow", "don't want"],
+      words: ["kaçmak", "istemiyorum", "erteleyeyim", "sonra", "yarın", "ilgilenmiyorum", "avoid", "later", "tomorrow", "don't want", "putting it off"],
     },
     {
       signal: "ambiguity",
-      words: ["ne yapacağımı", "nasıl", "nereden başlayacağım", "bilmiyorum", "belirsiz", "don't know", "how to", "where to start", "unclear"],
+      words: ["ne yapacağımı", "nasıl", "nereden başlayacağım", "bilmiyorum", "belirsiz", "don't know", "how to", "where to start", "unclear", "confused"],
     },
     {
       signal: "low_energy",
-      words: ["yorgun", "enerji yok", "bıktım", "pes", "artık yeter", "tired", "exhausted", "no energy", "burned out", "drained"],
+      // Psikolojik sağlamlık kırılması eklendi (resilience_01, resilience_02)
+      words: ["yorgun", "enerji yok", "bıktım", "pes", "artık yeter", "tekrar düştüm", "yine olmadı", "bir daha başaramadım", "umutsuzum", "olmaz zaten", "nasıl olsa", "yetersizim", "değersizim", "tired", "exhausted", "no energy", "burned out", "drained", "hopeless", "gave up", "can't do it anymore"],
     },
     {
       signal: "boredom",

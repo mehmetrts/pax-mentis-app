@@ -38,6 +38,7 @@ import {
 } from "@/lib/userProfile";
 import { generateActionPlan } from "@/lib/actionPlan";
 import { summarizeConversation } from "@/lib/sessionSummary";
+import { setMentorFocusMode } from "@/lib/notificationService";
 import { SessionMessage, MentorSession } from "@/context/AppContext";
 
 interface DisplayMessage {
@@ -106,6 +107,12 @@ export default function MentorScreen() {
 
   const llmStatus = useLLMStatus();
   const llmLoaded = llmStatus.status === "loaded";
+
+  // Mentor odak modu — bu ekrandayken diğer bildirimleri sustur
+  useEffect(() => {
+    setMentorFocusMode(true);
+    return () => setMentorFocusMode(false);
+  }, []);
 
   // Initialize LLM bridge and user profile
   useEffect(() => {

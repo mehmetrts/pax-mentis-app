@@ -17,6 +17,51 @@ try {
 
 export const IS_LLM_NATIVE_AVAILABLE = _initLlama !== null;
 
+// ─── Türkçe post-processing ────────────────────────────────────────────────────
+// Küçük modellerin İngilizce/Türkçe karıştırması durumunda sık hata yapılan
+// kelimeler Türkçe karşılıklarıyla değiştirilir.
+const EN_TR_MAP: [RegExp, string][] = [
+  [/\bmotivation\b/gi,      "motivasyon"],
+  [/\bfocus\b/gi,           "odak"],
+  [/\bchallenge\b/gi,       "zorluk"],
+  [/\bgoal\b/gi,            "hedef"],
+  [/\btask\b/gi,            "görev"],
+  [/\bprocrastination\b/gi, "erteleme"],
+  [/\bstress\b/gi,          "stres"],
+  [/\bperfect\b/gi,         "mükemmel"],
+  [/\bperfectionism\b/gi,   "mükemmeliyetçilik"],
+  [/\benergy\b/gi,          "enerji"],
+  [/\baction\b/gi,          "eylem"],
+  [/\bplan\b/gi,            "plan"],
+  [/\bsupport\b/gi,         "destek"],
+  [/\bprimary\b/gi,         "birincil"],
+  [/\bsecondary\b/gi,       "ikincil"],
+  [/\bprocess\b/gi,         "süreç"],
+  [/\bprogress\b/gi,        "ilerleme"],
+  [/\bfeedback\b/gi,        "geri bildirim"],
+  [/\bstrategy\b/gi,        "strateji"],
+  [/\bsession\b/gi,         "oturum"],
+  [/\bmindset\b/gi,         "zihniyet"],
+  [/\bresistance\b/gi,      "direnç"],
+  [/\bcourage\b/gi,         "cesaret"],
+  [/\bcompassion\b/gi,      "şefkat"],
+  [/\bawareness\b/gi,       "farkındalık"],
+  [/\bcomfort\b/gi,         "rahatlık"],
+  [/\btrigger\b/gi,         "tetikleyici"],
+  [/\bpattern\b/gi,         "örüntü"],
+  [/\bhabits?\b/gi,         "alışkanlık"],
+  [/\bcommitment\b/gi,      "kararlılık"],
+  [/\bidentity\b/gi,        "kimlik"],
+];
+
+function applyTurkishCorrections(text: string): string {
+  let out = text;
+  for (const [re, tr] of EN_TR_MAP) {
+    out = out.replace(re, tr);
+  }
+  return out;
+}
+
 // ─── Tipler ───────────────────────────────────────────────────────────────────
 
 export interface LLMMessage {
@@ -129,7 +174,7 @@ export class LocalLLMBridge {
       }
 
       if (_initLlama) {
-        await this.loadModel(activeId);
+        await this.loadModelSafe(activeId);
       } else {
         this._status = "ready"; // Expo Go: model var ama native modül yok
       }
@@ -187,6 +232,16 @@ export class LocalLLMBridge {
   }
 
   private _initLlamaUnavailable = false;
+  private _loadingPromise: Promise<boolean> | null = null;
+
+  // Çift yüklemeyi önler — aynı anda iki kez initLlama çağrılmaz
+  async loadModelSafe(modelId?: string): Promise<boolean> {
+    if (this._loadingPromise) return this._loadingPromise;
+    this._loadingPromise = this.loadModel(modelId).finally(() => {
+      this._loadingPromise = null;
+    });
+    return this._loadingPromise;
+  }
 
   async unloadModel(): Promise<void> {
     if (this.llamaContext) {
@@ -216,6 +271,11 @@ export class LocalLLMBridge {
     onToken?: (token: string) => void,
     phase: ConversationPhase = "discovery"
   ): Promise<string> {
+    // Model yükleniyorsa tamamlanmasını bekle (race condition önleme)
+    if (this._loadingPromise) {
+      await this._loadingPromise;
+    }
+
     if (this.llamaContext) {
       return this._runInference(messages, onToken, phase);
     }
@@ -233,10 +293,10 @@ export class LocalLLMBridge {
   // Faz bazlı sıcaklık: Keşif fazı yaratıcı/açık → planning daha kararlı
   private _phaseTemperature(phase: ConversationPhase): number {
     const temps: Record<ConversationPhase, number> = {
-      discovery: 0.80,  // Açık, keşifçi, doğal
-      diagnosis: 0.72,  // Analitik ama sıcak
-      planning:  0.62,  // Somut, kararlı, düşük halüsinasyon
-      followup:  0.68,  // Destekleyici ama odaklı
+      discovery: 0.70,  // Düşük → halüsinasyon azalır (Qwen/Llama için kritik)
+      diagnosis: 0.65,  // Analitik, odaklı
+      planning:  0.55,  // Somut, kararlı
+      followup:  0.60,  // Destekleyici ama odaklı
     };
     return temps[phase] ?? this.config.temperature;
   }
@@ -253,8 +313,9 @@ export class LocalLLMBridge {
           n_predict: this.config.maxTokens,
           temperature: this._phaseTemperature(phase),
           top_p: this.config.topP,
-          min_p: 0.05,            // Saçma token olasılığını kes
-          repeat_penalty: 1.15,   // Robotik tekrarları azalt
+          top_k: 40,              // En olası 40 token içinde kal — garble azalır
+          min_p: 0.08,            // Saçma token olasılığını daha agresif kes
+          repeat_penalty: 1.15,
           stop: [
             "<|eot_id|>",
             "<|end_of_text|>",
@@ -269,7 +330,8 @@ export class LocalLLMBridge {
           onToken?.(data.token);
         }
       );
-      return (result?.text ?? "").trim();
+      const raw = (result?.text ?? "").trim();
+      return applyTurkishCorrections(raw);
     } catch (e: unknown) {
       this._loadError = e instanceof Error ? e.message : "İnferans hatası";
       return this._fallbackError();

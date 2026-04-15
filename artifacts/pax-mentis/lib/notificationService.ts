@@ -11,7 +11,7 @@
 
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
-import { Platform } from "react-native";
+import { Platform, AppState } from "react-native";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -238,6 +238,9 @@ export async function scheduleLocalNotification(
   if (!settings.masterEnabled) return;
   if (isInQuietHours(settings.quietStart, settings.quietEnd)) return;
 
+  // Uygulama açık ve ön plandayken OS push gönderme — in-app toast yeterli
+  if (AppState.currentState === "active" && delaySec === 0) return;
+
   const typeEnabled: Record<NotificationType, boolean> = {
     task_added:       settings.taskAdded,
     session_complete: settings.sessionComplete,
@@ -328,6 +331,14 @@ export interface ToastPayload {
 let _toastCallback: ((payload: ToastPayload) => void) | null = null;
 let _owlCallback:   ((type: NotificationType) => void)   | null = null;
 
+// Mentor ekranı aktifken sadece mentor bildirimlerine izin ver
+let _mentorFocusActive = false;
+const MENTOR_ONLY_TYPES: NotificationType[] = ["resistance_high", "session_complete"];
+
+export function setMentorFocusMode(active: boolean): void {
+  _mentorFocusActive = active;
+}
+
 export function registerToastCallback(cb: (payload: ToastPayload) => void): void {
   _toastCallback = cb;
 }
@@ -341,6 +352,9 @@ export function triggerInAppToast(
   settings: NotificationSettings,
 ): void {
   if (!settings.masterEnabled) return;
+
+  // Mentor ekranında sadece mentor bildirimlerini göster
+  if (_mentorFocusActive && !MENTOR_ONLY_TYPES.includes(type)) return;
 
   const typeEnabled: Record<NotificationType, boolean> = {
     task_added:       settings.taskAdded,
@@ -371,6 +385,8 @@ export function triggerInAppToast(
     body:    msg.body,
   });
 
-  // Also trigger animated owl notification
-  _owlCallback?.(type);
+  // Maskot bildirimi — mentor modunda sadece resistance_high için
+  if (!_mentorFocusActive || type === "resistance_high") {
+    _owlCallback?.(type);
+  }
 }

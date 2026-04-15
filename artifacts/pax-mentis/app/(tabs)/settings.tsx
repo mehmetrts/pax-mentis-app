@@ -45,6 +45,7 @@ import {
   DownloadProgress,
 } from "@/lib/modelManager";
 import { llmBridge } from "@/lib/localLLM";
+import { NotificationModal } from "@/components/NotificationModal";
 
 function SettingRow({
   icon,
@@ -149,6 +150,7 @@ export default function SettingsScreen() {
     sharedNotes, addNote, toggleNote, deleteNote, clearAllNotes,
   } = useCalendar();
 
+  const [showNotifModal, setShowNotifModal]     = useState(false);
   const [showAddNoteModal, setShowAddNoteModal] = useState(false);
   const [noteContent, setNoteContent] = useState("");
   const [noteLabel, setNoteLabel]     = useState("");
@@ -298,6 +300,7 @@ export default function SettingsScreen() {
   };
 
   return (
+    <>
     <ScrollView
       style={[styles.container, { backgroundColor: colors.surface }]}
       contentContainerStyle={{ paddingTop: topPad, paddingBottom: bottomPad }}
@@ -333,9 +336,22 @@ export default function SettingsScreen() {
         </Pressable>
       )}
 
-      {/* Master toggle */}
+      {/* Bildirimler butonu → modal açar */}
       <SectionTitle text="BİLDİRİMLER" />
-      <View style={[styles.masterCard, { backgroundColor: settings.masterEnabled ? colors.primaryContainer : colors.surfaceContainer, borderColor: settings.masterEnabled ? colors.primary + "44" : colors.outlineVariant }]}>
+      <Pressable
+        onPress={() => setShowNotifModal(true)}
+        style={({ pressed }) => [
+          styles.masterCard,
+          {
+            backgroundColor: settings.masterEnabled
+              ? colors.primaryContainer + (pressed ? "99" : "55")
+              : colors.surfaceContainer,
+            borderColor: settings.masterEnabled
+              ? colors.primary + "44"
+              : colors.outlineVariant,
+          },
+        ]}
+      >
         <View style={styles.masterLeft}>
           <View style={[styles.masterIcon, { backgroundColor: settings.masterEnabled ? colors.primary : colors.outline, borderRadius: 9999 }]}>
             <Feather name="bell" size={20} color={settings.masterEnabled ? colors.onPrimary : colors.surface} />
@@ -345,100 +361,14 @@ export default function SettingsScreen() {
               Tüm Bildirimler
             </Text>
             <Text style={[styles.masterDesc, { color: settings.masterEnabled ? colors.onPrimaryContainer + "AA" : colors.onSurfaceVariant }]}>
-              {settings.masterEnabled ? "Bildirimler açık" : "Tüm bildirimler kapalı"}
+              {settings.masterEnabled
+                ? `Açık · Sabah ${formatTime(settings.morningHour, settings.morningMinute)}`
+                : "Tüm bildirimler kapalı · Aç ve yönet"}
             </Text>
           </View>
         </View>
-        <Switch
-          value={settings.masterEnabled}
-          onValueChange={(v) => updateSettings({ masterEnabled: v })}
-          trackColor={{ false: colors.surfaceVariant, true: colors.primary }}
-          thumbColor={colors.onPrimary}
-        />
-      </View>
-
-      {/* Categories */}
-      <SectionTitle text="BİLDİRİM TÜRLERİ" />
-      <View style={styles.rowGroup}>
-        <SettingRow
-          icon="plus-circle"
-          iconColor={colors.primary}
-          label="Görev Eklendiğinde"
-          description="Yeni görev eklediğinde destekleyici mesaj"
-          value={settings.taskAdded}
-          onToggle={(v) => updateSettings({ taskAdded: v })}
-          disabled={!settings.masterEnabled}
-        />
-        <SettingRow
-          icon="message-circle"
-          iconColor={colors.tertiary}
-          label="Sohbet Tamamlandığında"
-          description="Mentor sohbeti bitince teşvik mesajı"
-          value={settings.sessionComplete}
-          onToggle={(v) => updateSettings({ sessionComplete: v })}
-          disabled={!settings.masterEnabled}
-        />
-        <SettingRow
-          icon="activity"
-          iconColor={colors.error}
-          label="Yüksek Direnç Tespit Edilince"
-          description="Direnç %70 üzerinde olduğunda destek"
-          value={settings.resistanceHigh}
-          onToggle={(v) => updateSettings({ resistanceHigh: v })}
-          disabled={!settings.masterEnabled}
-        />
-        <SettingRow
-          icon="zap"
-          iconColor={colors.tertiary}
-          label="Seri Hatırlatması"
-          description="Günlük serini korumak için motivasyon"
-          value={settings.streakReminder}
-          onToggle={(v) => updateSettings({ streakReminder: v })}
-          disabled={!settings.masterEnabled}
-        />
-        <SettingRow
-          icon="clock"
-          iconColor={colors.onSurfaceVariant}
-          label="Nazik Hatırlatma"
-          description="Uzun süre kullanılmadığında nazikçe hatırlatır"
-          value={settings.gentleNudge}
-          onToggle={(v) => updateSettings({ gentleNudge: v })}
-          disabled={!settings.masterEnabled}
-        />
-        <SettingRow
-          icon="heart"
-          iconColor={colors.lavender ?? colors.accent}
-          label="Öz-şefkat Mesajları"
-          description="Erteleme sonrası kendinle barışık kal"
-          value={settings.selfCompassion}
-          onToggle={(v) => updateSettings({ selfCompassion: v })}
-          disabled={!settings.masterEnabled}
-        />
-      </View>
-
-      {/* Daily Morning */}
-      <SectionTitle text="SABAH HATIRLATMASI" />
-      <View style={styles.rowGroup}>
-        <SettingRow
-          icon="sun"
-          iconColor={colors.tertiary}
-          label="Günlük Sabah Sorusu"
-          description="Her sabah motivasyon ve soru mesajı"
-          value={settings.dailyMorning}
-          onToggle={(v) => updateSettings({ dailyMorning: v })}
-          disabled={!settings.masterEnabled}
-        />
-        <InfoRow
-          icon="clock"
-          label="Hatırlatma Saati"
-          value={formatTime(settings.morningHour, settings.morningMinute)}
-        />
-        <InfoRow
-          icon="moon"
-          label="Sessiz Saatler"
-          value={`${String(settings.quietStart).padStart(2,"0")}:00 – ${String(settings.quietEnd).padStart(2,"0")}:00`}
-        />
-      </View>
+        <Feather name="chevron-right" size={20} color={settings.masterEnabled ? colors.primary : colors.onSurfaceVariant} />
+      </Pressable>
 
 
       {/* ── TAKVİM ─────────────────────────────────────────────────────────── */}
@@ -1018,6 +948,12 @@ export default function SettingsScreen() {
         </View>
       </Modal>
     </ScrollView>
+
+    <NotificationModal
+      visible={showNotifModal}
+      onClose={() => setShowNotifModal(false)}
+    />
+    </>
   );
 }
 

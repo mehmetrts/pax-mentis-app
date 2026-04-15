@@ -15,6 +15,7 @@ import React, {
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
+import { AppState, AppStateStatus } from "react-native";
 import {
   NotificationSettings,
   NotificationType,
@@ -26,6 +27,7 @@ import {
   scheduleLocalNotification,
   scheduleDailyMorning,
   scheduleGentleNudge,
+  scheduleSmartNotification,
   registerToastCallback,
   triggerInAppToast,
 } from "@/lib/notificationService";
@@ -76,6 +78,19 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       if (toastTimer.current) clearTimeout(toastTimer.current);
       toastTimer.current = setTimeout(() => setToast(null), 4800);
     });
+  }, []);
+
+  // ── Smart notification: trigger when app goes to background ───────────────
+  const settingsRef = useRef(settings);
+  useEffect(() => { settingsRef.current = settings; }, [settings]);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (nextState: AppStateStatus) => {
+      if (nextState === "background" || nextState === "inactive") {
+        scheduleSmartNotification(settingsRef.current);
+      }
+    });
+    return () => sub.remove();
   }, []);
 
   // ── Re-schedule daily on settings change ──────────────────────────────────

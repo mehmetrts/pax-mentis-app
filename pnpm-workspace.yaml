@@ -33,6 +33,15 @@ minimumReleaseAgeExclude:
   # this setting guards against does not apply to our own packages.
   - '@replit/*'
   - stripe-replit-sync
+  # Expo and React Native packages — actively maintained by Meta/Expo, low supply-chain risk
+  - 'expo'
+  - 'expo-*'
+  - '@expo/*'
+  - 'react-native'
+  - 'react-native-*'
+  - '@react-native/*'
+  - '@react-native-community/*'
+  - 'llama.rn'
 
 packages:
   - artifacts/*
@@ -72,6 +81,7 @@ onlyBuiltDependencies:
   - esbuild
   - msw
   - unrs-resolver
+  - llama.rn
 
 overrides:
   # replit uses linux-x64 only, we can exclude all other platforms

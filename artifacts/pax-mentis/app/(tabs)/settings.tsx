@@ -145,12 +145,18 @@ export default function SettingsScreen() {
     calSettings, updateCalSettings,
     permissionStatus: calPermStatus, requestPermission: requestCalPerm,
     availableCalendars, insight, isLoading: calLoading, refresh: refreshCal,
+    icalFeeds, addICalFeed, removeICalFeed, toggleICalFeed, icalLoading,
     sharedNotes, addNote, toggleNote, deleteNote, clearAllNotes,
   } = useCalendar();
 
   const [showAddNoteModal, setShowAddNoteModal] = useState(false);
   const [noteContent, setNoteContent] = useState("");
   const [noteLabel, setNoteLabel]     = useState("");
+
+  const [showAddFeedModal, setShowAddFeedModal] = useState(false);
+  const [feedUrl, setFeedUrl]   = useState("");
+  const [feedName, setFeedName] = useState("");
+  const [feedError, setFeedError] = useState<string | null>(null);
 
   // ── Model state ─────────────────────────────────────────────────────────────
   const [modelStatuses, setModelStatuses] = useState<Record<string, ModelStatus>>({});
@@ -244,6 +250,32 @@ export default function SettingsScreen() {
     }
     await updateCalSettings({ enabled: v });
     if (v) refreshCal();
+  };
+
+  const handleAddFeed = async () => {
+    if (!feedUrl.trim()) return;
+    setFeedError(null);
+    const err = await addICalFeed(feedUrl.trim(), feedName.trim());
+    if (err) {
+      setFeedError(err);
+    } else {
+      setFeedUrl("");
+      setFeedName("");
+      setFeedError(null);
+      setShowAddFeedModal(false);
+      refreshCal();
+    }
+  };
+
+  const handleRemoveFeed = (id: string, name: string) => {
+    Alert.alert(
+      "Bağlantıyı Kaldır",
+      `"${name}" takvim bağlantısı kaldırılacak.`,
+      [
+        { text: "İptal", style: "cancel" },
+        { text: "Kaldır", style: "destructive", onPress: () => removeICalFeed(id) },
+      ],
+    );
   };
 
   const handleAddNote = async () => {
@@ -458,6 +490,84 @@ export default function SettingsScreen() {
           </Text>
         </View>
       )}
+
+      {/* ── iCAL BAĞLANTILARI ─────────────────────────────────────────────── */}
+      <SectionTitle text="TAKVİM BAĞLANTILARI" />
+
+      <View style={[styles.privacyCard, { backgroundColor: colors.surfaceContainer, borderColor: colors.outlineVariant }]}>
+        <Feather name="link" size={14} color={colors.onSurfaceVariant} />
+        <Text style={[styles.privacyText, { color: colors.onSurface }]}>
+          Google Calendar, Outlook veya herhangi bir takvim hizmetinden iCal (.ics) bağlantısı ekle. İş yeri hesabı senkronizasyona kapalıysa bu yöntemi kullanabilirsin.
+        </Text>
+      </View>
+
+      {/* Kılavuz kartı */}
+      <View style={[styles.icalGuideCard, { backgroundColor: colors.surfaceContainer, borderColor: colors.outlineVariant }]}>
+        <Text style={[styles.icalGuideTitle, { color: colors.onSurface }]}>Bağlantıyı nasıl alırsın?</Text>
+        <Text style={[styles.icalGuideRow, { color: colors.onSurfaceVariant }]}>
+          <Text style={{ fontFamily: "Inter_600SemiBold" }}>Google Calendar: </Text>
+          Takvim Ayarları → Takvimi Entegre Et → Gizli Adres (iCal formatı)
+        </Text>
+        <Text style={[styles.icalGuideRow, { color: colors.onSurfaceVariant }]}>
+          <Text style={{ fontFamily: "Inter_600SemiBold" }}>Outlook: </Text>
+          Takvimi yayımla → ICS bağlantısını kopyala
+        </Text>
+        <Text style={[styles.icalGuideRow, { color: colors.onSurfaceVariant }]}>
+          <Text style={{ fontFamily: "Inter_600SemiBold" }}>Kurumsal hesap: </Text>
+          BT yöneticisi engellemiş olabilir. Bu durumda Google/kişisel Outlook takvimine etkinlik kopyalayabilirsin.
+        </Text>
+      </View>
+
+      {/* Mevcut feed'ler */}
+      {icalFeeds.length > 0 && (
+        <View style={[styles.rowGroup, { marginBottom: 4 }]}>
+          {icalFeeds.map(feed => (
+            <View
+              key={feed.id}
+              style={[styles.feedRow, { backgroundColor: colors.surfaceContainer, borderColor: colors.outlineVariant }]}
+            >
+              <Pressable onPress={() => toggleICalFeed(feed.id)}>
+                <View style={[styles.feedDot, { backgroundColor: feed.enabled ? feed.color : colors.outline }]} />
+              </Pressable>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.feedName, { color: colors.onSurface }]} numberOfLines={1}>
+                  {feed.name}
+                </Text>
+                {feed.lastError ? (
+                  <Text style={[styles.feedError, { color: colors.error }]} numberOfLines={1}>
+                    Hata: {feed.lastError}
+                  </Text>
+                ) : (
+                  <Text style={[styles.feedUrl, { color: colors.onSurfaceVariant }]} numberOfLines={1}>
+                    {feed.url.replace(/^https?:\/\//, "").slice(0, 50)}
+                  </Text>
+                )}
+              </View>
+              <Pressable
+                onPress={() => handleRemoveFeed(feed.id, feed.name)}
+                hitSlop={10}
+                style={{ padding: 4 }}
+              >
+                <Feather name="trash-2" size={14} color={colors.error} />
+              </Pressable>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* Bağlantı ekle düğmesi */}
+      <View style={styles.noteActions}>
+        <Pressable
+          onPress={() => { setFeedUrl(""); setFeedName(""); setFeedError(null); setShowAddFeedModal(true); }}
+          style={({ pressed }) => [
+            styles.addNoteBtn,
+            { backgroundColor: pressed ? colors.primaryContainer : colors.surfaceContainer, borderColor: colors.outlineVariant },
+          ]}
+        >
+          <Feather name="link" size={16} color={colors.primary} />
+          <Text style={[styles.addNoteBtnText, { color: colors.primary }]}>iCal Bağlantısı Ekle</Text>
+        </Pressable>
+      </View>
 
       {/* ── PAYLAŞILAN NOTLAR (E-posta / Mesaj / Görev) ──────────────────── */}
       <SectionTitle text="MENTOR BAĞLAM NOTLARI" />
@@ -818,6 +928,92 @@ export default function SettingsScreen() {
             ]}
           >
             <Text style={[styles.modalSaveBtnText, { color: colors.onPrimary }]}>Kaydet</Text>
+          </Pressable>
+        </View>
+      </Modal>
+
+      {/* iCal Feed Ekle Modal */}
+      <Modal
+        visible={showAddFeedModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowAddFeedModal(false)}
+      >
+        <View style={[styles.modalContainer, { backgroundColor: colors.surface }]}>
+          <View style={styles.modalHeader}>
+            <Text style={[styles.modalTitle, { color: colors.onSurface }]}>Takvim Bağlantısı</Text>
+            <Pressable onPress={() => setShowAddFeedModal(false)}>
+              <Feather name="x" size={22} color={colors.onSurface} />
+            </Pressable>
+          </View>
+
+          <Text style={[styles.modalLabel, { color: colors.onSurfaceVariant }]}>Takvim adı (isteğe bağlı)</Text>
+          <TextInput
+            style={[styles.modalInput, { backgroundColor: colors.surfaceContainer, color: colors.onSurface, borderColor: colors.outlineVariant }]}
+            placeholder="örn. İş Takvimi, Kişisel…"
+            placeholderTextColor={colors.onSurfaceVariant + "88"}
+            value={feedName}
+            onChangeText={setFeedName}
+            maxLength={60}
+          />
+
+          <Text style={[styles.modalLabel, { color: colors.onSurfaceVariant }]}>iCal (.ics) URL'i</Text>
+          <TextInput
+            style={[styles.modalInput, { backgroundColor: colors.surfaceContainer, color: colors.onSurface, borderColor: feedError ? colors.error : colors.outlineVariant }]}
+            placeholder="https://calendar.google.com/calendar/ical/…"
+            placeholderTextColor={colors.onSurfaceVariant + "88"}
+            value={feedUrl}
+            onChangeText={v => { setFeedUrl(v); setFeedError(null); }}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+          />
+          {feedError && (
+            <Text style={[styles.feedErrorInline, { color: colors.error }]}>
+              {feedError}
+            </Text>
+          )}
+
+          <View style={[styles.icalHowTo, { backgroundColor: colors.primaryContainer + "44", borderColor: colors.primary + "33" }]}>
+            <Feather name="info" size={12} color={colors.primary} />
+            <View style={{ flex: 1, gap: 4 }}>
+              <Text style={[styles.icalHowToText, { color: colors.onSurface }]}>
+                <Text style={{ fontFamily: "Inter_600SemiBold" }}>Google Calendar: </Text>
+                Takvim Ayarları → Takvimi Entegre Et → Gizli Adres (iCal formatı)
+              </Text>
+              <Text style={[styles.icalHowToText, { color: colors.onSurface }]}>
+                <Text style={{ fontFamily: "Inter_600SemiBold" }}>Outlook: </Text>
+                Takvimi yayımla → ICS bağlantısını kopyala
+              </Text>
+            </View>
+          </View>
+
+          <View style={[styles.modalPrivacy, { backgroundColor: colors.tertiaryContainer + "44" }]}>
+            <Feather name="lock" size={12} color={colors.tertiary} />
+            <Text style={[styles.modalPrivacyText, { color: colors.onSurface }]}>
+              Bağlantı yalnızca bu cihazda saklanır. Yalnızca etkinlik başlıkları ve saatleri okunur.
+            </Text>
+          </View>
+
+          <Pressable
+            onPress={handleAddFeed}
+            disabled={icalLoading || !feedUrl.trim()}
+            style={({ pressed }) => [
+              styles.modalSaveBtn,
+              {
+                backgroundColor: (!feedUrl.trim() || icalLoading)
+                  ? colors.outline
+                  : pressed ? colors.primary + "CC" : colors.primary,
+              },
+            ]}
+          >
+            {icalLoading ? (
+              <ActivityIndicator color={colors.onPrimary} size="small" />
+            ) : (
+              <Text style={[styles.modalSaveBtnText, { color: colors.onPrimary }]}>
+                Bağla ve Doğrula
+              </Text>
+            )}
           </Pressable>
         </View>
       </Modal>
@@ -1301,5 +1497,71 @@ const styles = StyleSheet.create({
   modelBtnText: {
     fontSize: 13,
     fontFamily: "Inter_500Medium",
+  },
+  // ── iCal feed ─────────────────────────────────────────────────────────────
+  icalGuideCard: {
+    marginHorizontal: 20,
+    marginBottom: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 14,
+    gap: 8,
+  },
+  icalGuideTitle: {
+    fontSize: 12,
+    fontFamily: "Inter_600SemiBold",
+    marginBottom: 2,
+  },
+  icalGuideRow: {
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+    lineHeight: 18,
+  },
+  feedRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    padding: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  feedDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    flexShrink: 0,
+  },
+  feedName: {
+    fontSize: 13,
+    fontFamily: "Inter_500Medium",
+  },
+  feedUrl: {
+    fontSize: 11,
+    fontFamily: "Inter_400Regular",
+    marginTop: 2,
+  },
+  feedError: {
+    fontSize: 11,
+    fontFamily: "Inter_400Regular",
+    marginTop: 2,
+  },
+  feedErrorInline: {
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+    marginTop: -4,
+    marginBottom: 4,
+  },
+  icalHowTo: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginTop: 4,
+  },
+  icalHowToText: {
+    fontSize: 11,
+    fontFamily: "Inter_400Regular",
+    lineHeight: 17,
   },
 });

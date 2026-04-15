@@ -17,10 +17,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   CalendarInsight,
   AvailableCalendar,
+  ICalFeed,
   getCalendarPermissionStatus,
   requestCalendarPermission,
   getAvailableCalendars,
   fetchCalendarInsight,
+  fetchAllICalFeeds,
+  validateICalUrl,
 } from "@/lib/calendarService";
 import {
   SharedNote,
@@ -32,7 +35,8 @@ import {
   buildSharedNotesContext,
 } from "@/lib/sharedNotes";
 
-const SETTINGS_KEY = "@pax_mentis:calendar_settings";
+const SETTINGS_KEY   = "@pax_mentis:calendar_settings";
+const ICAL_FEEDS_KEY = "@pax_mentis:ical_feeds";
 
 export interface CalendarSettings {
   enabled:           boolean;
@@ -48,6 +52,11 @@ const DEFAULT_CAL_SETTINGS: CalendarSettings = {
   injectIntoMentor:  true,
 };
 
+const FEED_COLORS = [
+  "#3B82F6", "#10B981", "#F59E0B", "#EF4444",
+  "#8B5CF6", "#EC4899", "#06B6D4", "#84CC16",
+];
+
 interface CalendarContextValue {
   calSettings:        CalendarSettings;
   updateCalSettings:  (patch: Partial<CalendarSettings>) => Promise<void>;
@@ -57,6 +66,12 @@ interface CalendarContextValue {
   insight:            CalendarInsight | null;
   isLoading:          boolean;
   refresh:            () => Promise<void>;
+  // iCal URL feed yönetimi
+  icalFeeds:          ICalFeed[];
+  addICalFeed:        (url: string, name: string) => Promise<string | null>;
+  removeICalFeed:     (id: string) => Promise<void>;
+  toggleICalFeed:     (id: string) => Promise<void>;
+  icalLoading:        boolean;
   // Shared notes (e-posta/not paylaşımı)
   sharedNotes:        SharedNote[];
   addNote:            (content: string, label: string) => Promise<void>;
@@ -78,15 +93,21 @@ export function CalendarProvider({ children }: { children: React.ReactNode }) {
   const [insight, setInsight]                       = useState<CalendarInsight | null>(null);
   const [isLoading, setIsLoading]                   = useState(false);
   const [sharedNotes, setSharedNotes]               = useState<SharedNote[]>([]);
+  const [icalFeeds, setIcalFeeds]                   = useState<ICalFeed[]>([]);
+  const [icalLoading, setIcalLoading]               = useState(false);
 
   // ── Load persisted settings ───────────────────────────────────────────────
   useEffect(() => {
     Promise.all([
       AsyncStorage.getItem(SETTINGS_KEY),
+      AsyncStorage.getItem(ICAL_FEEDS_KEY),
       loadSharedNotes(),
-    ]).then(([raw, notes]) => {
+    ]).then(([raw, rawFeeds, notes]) => {
       if (raw) {
         try { setCalSettings(s => ({ ...s, ...JSON.parse(raw) })); } catch (_) {}
+      }
+      if (rawFeeds) {
+        try { setIcalFeeds(JSON.parse(rawFeeds)); } catch (_) {}
       }
       setSharedNotes(notes);
     });
@@ -121,11 +142,68 @@ export function CalendarProvider({ children }: { children: React.ReactNode }) {
         ? calSettings.selectedCalendars
         : cals.map(c => c.id);
       const result = await fetchCalendarInsight(ids, calSettings.daysAhead);
+
+      // iCal feed'lerinden gelen etkinlikleri de dahil et
+      if (icalFeeds.length > 0) {
+        const { events: icalEvents, errors } = await fetchAllICalFeeds(icalFeeds, calSettings.daysAhead);
+        // Hataları feed'lere kaydet
+        if (Object.keys(errors).length > 0) {
+          setIcalFeeds(prev => prev.map(f =>
+            errors[f.id] ? { ...f, lastError: errors[f.id] } : { ...f, lastError: null },
+          ));
+        }
+        // iCal etkinliklerini yerleşik insight ile birleştir
+        const allEvents = [...result.upcomingEvents, ...icalEvents]
+          .sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+        const todayEnd = new Date();
+        todayEnd.setHours(23, 59, 59, 999);
+        result.todayEvents    = allEvents.filter(e => e.startDate <= todayEnd);
+        result.upcomingEvents = allEvents.slice(0, 15);
+        result.totalEvents    = allEvents.length;
+      }
+
       setInsight(result);
     } finally {
       setIsLoading(false);
     }
-  }, [calSettings]);
+  }, [calSettings, icalFeeds]);
+
+  // ── iCal feed yönetimi ────────────────────────────────────────────────────
+
+  const saveIcalFeeds = useCallback(async (feeds: ICalFeed[]) => {
+    setIcalFeeds(feeds);
+    await AsyncStorage.setItem(ICAL_FEEDS_KEY, JSON.stringify(feeds));
+  }, []);
+
+  const addICalFeed = useCallback(async (url: string, name: string): Promise<string | null> => {
+    setIcalLoading(true);
+    try {
+      const error = await validateICalUrl(url);
+      if (error) return error;
+
+      const newFeed: ICalFeed = {
+        id:          `ical_${Date.now()}`,
+        name:        name.trim() || "Takvim",
+        url:         url.trim(),
+        enabled:     true,
+        color:       FEED_COLORS[icalFeeds.length % FEED_COLORS.length],
+        lastFetched: Date.now(),
+        lastError:   null,
+      };
+      await saveIcalFeeds([...icalFeeds, newFeed]);
+      return null;
+    } finally {
+      setIcalLoading(false);
+    }
+  }, [icalFeeds, saveIcalFeeds]);
+
+  const removeICalFeed = useCallback(async (id: string) => {
+    await saveIcalFeeds(icalFeeds.filter(f => f.id !== id));
+  }, [icalFeeds, saveIcalFeeds]);
+
+  const toggleICalFeed = useCallback(async (id: string) => {
+    await saveIcalFeeds(icalFeeds.map(f => f.id === id ? { ...f, enabled: !f.enabled } : f));
+  }, [icalFeeds, saveIcalFeeds]);
 
   const updateCalSettings = useCallback(async (patch: Partial<CalendarSettings>) => {
     setCalSettings(prev => {
@@ -183,6 +261,11 @@ export function CalendarProvider({ children }: { children: React.ReactNode }) {
         insight,
         isLoading,
         refresh,
+        icalFeeds,
+        addICalFeed,
+        removeICalFeed,
+        toggleICalFeed,
+        icalLoading,
         sharedNotes,
         addNote,
         toggleNote,

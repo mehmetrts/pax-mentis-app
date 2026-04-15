@@ -314,10 +314,15 @@ export class LocalLLMBridge {
 
     try {
       // Android güvenli parametreler — use_mlock ve use_metal Android'de çökmeye yol açar
+      const isQwen3Model = id.startsWith("qwen3") || id.startsWith("qwen-3");
       this.llamaContext = await _initLlama({
         model: modelPath,
-        n_ctx: this.config.contextLength,
+        // Qwen3 4B için bağlam biraz daha küçük → RAM tasarrufu + hız
+        n_ctx: isQwen3Model ? 1792 : this.config.contextLength,
         n_gpu_layers: this.config.nGpuLayers,
+        // Snapdragon 8 Gen 2: 8 çekirdek — 6 thread optimal (2 verimlilik çekirdeği serbest)
+        // Bu parametre olmadan llama.rn genellikle 1–4 thread kullanır → 3–4x yavaş
+        n_threads: 6,
       });
       this._status = "loaded";
       this._activeModelId = id;
@@ -425,17 +430,21 @@ export class LocalLLMBridge {
       const activeId = this._activeModelId ?? this.config.modelId ?? "";
       const isQwen3 = activeId.startsWith("qwen3") || activeId.startsWith("qwen-3");
 
-      // Qwen3 için daha yüksek token limiti — düşünme modu kapatılsa da yanıt uzun olabilir
-      const nPredict = isQwen3 ? Math.max(this.config.maxTokens, 512) : this.config.maxTokens;
+      // Qwen3: kısa mentor yanıtları için 200 token yeterli (512 → 2.5x yavaş)
+      // Llama 3.2 için kullanıcı ayarındaki maxTokens geçerli
+      const nPredict = isQwen3 ? 200 : this.config.maxTokens;
 
-      // Qwen3: sistem mesajına /no_think bayrağı ekle — resmi thinking-off yöntemi.
-      // Bu sayede model think bloğu üretmeden doğrudan yanıta geçer (~10x hızlanma).
+      // Qwen3: /no_think bayrağı SON KULLANICI mesajına eklenmeli — sistem mesajı değil.
+      // Resmi Qwen3 belgesi: kullanıcı prompt'una "/no_think" ekle → thinking devre dışı.
+      // Sistem mesajına eklemek çalışmaz; model think bloğu üretmeye devam eder (binlerce token).
       const finalMessages = isQwen3
-        ? messages.map((m) =>
-            m.role === "system"
-              ? { ...m, content: m.content + "\n/no_think" }
-              : m
-          )
+        ? messages.map((m, idx) => {
+            if (m.role === "user" && idx === messages.length - 1) {
+              // Son user mesajına bayrağı sessizce ekle (UI'a yansımaz)
+              return { ...m, content: m.content + " /no_think" };
+            }
+            return m;
+          })
         : messages;
 
       // Qwen3 streaming filtresi: <think>...</think> token'ları UI'a ulaşmasın.
@@ -493,9 +502,9 @@ export class LocalLLMBridge {
           n_predict: nPredict,
           temperature: this._phaseTemperature(phase),
           top_p: this.config.topP,
-          top_k: 40,              // En olası 40 token içinde kal — garble azalır
-          min_p: 0.08,            // Saçma token olasılığını daha agresif kes
-          repeat_penalty: 1.15,
+          top_k: isQwen3 ? 20 : 40,  // Qwen3: daha az aday → hızlı örnekleme
+          min_p: isQwen3 ? 0.05 : 0.08,
+          repeat_penalty: 1.1,
           stop: [
             "<|eot_id|>",
             "<|end_of_text|>",

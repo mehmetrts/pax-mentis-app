@@ -12,6 +12,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
+  cancelAnimation,
+} from "react-native-reanimated";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "@/context/AppContext";
@@ -40,6 +48,68 @@ import { generateActionPlan } from "@/lib/actionPlan";
 import { summarizeConversation } from "@/lib/sessionSummary";
 import { setMentorFocusMode } from "@/lib/notificationService";
 import { SessionMessage, MentorSession } from "@/context/AppContext";
+
+/** Qwen3 think bloğu işlenirken gösterilen nefes alan animasyon */
+function ThinkingBubble() {
+  const opacity = useSharedValue(1);
+  const scale   = useSharedValue(1);
+  const colors  = useColors();
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.3, { duration: 700, easing: Easing.inOut(Easing.sine) }),
+      -1,
+      true
+    );
+    scale.value = withRepeat(
+      withTiming(1.05, { duration: 900, easing: Easing.inOut(Easing.sine) }),
+      -1,
+      true
+    );
+    return () => {
+      cancelAnimation(opacity);
+      cancelAnimation(scale);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const animStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <Animated.View
+      style={[
+        thinkBubbleStyle,
+        { backgroundColor: colors.surfaceContainer, borderColor: colors.outlineVariant },
+        animStyle,
+      ]}
+    >
+      <Feather name="cpu" size={13} color={colors.onSurfaceVariant} />
+      <Text style={[thinkTextStyle, { color: colors.onSurfaceVariant }]}>
+        Düşünüyor…
+      </Text>
+    </Animated.View>
+  );
+}
+
+const thinkBubbleStyle = {
+  flexDirection: "row" as const,
+  alignItems: "center" as const,
+  gap: 6,
+  paddingHorizontal: 14,
+  paddingVertical: 10,
+  borderRadius: 18,
+  borderWidth: 1,
+  alignSelf: "flex-start" as const,
+};
+
+const thinkTextStyle = {
+  fontSize: 13,
+  fontFamily: "Inter_400Regular",
+  fontStyle: "italic" as const,
+};
 
 interface DisplayMessage {
   id: string;
@@ -78,6 +148,7 @@ export default function MentorScreen() {
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [inputText, setInputText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
   const [currentResistance, setCurrentResistance] = useState(0);
   const [currentSignal, setCurrentSignal] = useState("neutral");
@@ -198,6 +269,7 @@ export default function MentorScreen() {
 
     setMessages(prev => [...prev, userMsg]);
     setIsGenerating(true);
+    setIsThinking(false);
     setStreamingContent("");
 
     try {
@@ -246,7 +318,8 @@ export default function MentorScreen() {
           fullResponse += token;
           setStreamingContent(fullResponse);
         },
-        nextPhase
+        nextPhase,
+        (thinking) => setIsThinking(thinking),
       );
 
       const mentorMsg: DisplayMessage = {
@@ -341,6 +414,7 @@ export default function MentorScreen() {
       ]);
     } finally {
       setIsGenerating(false);
+      setIsThinking(false);
     }
   }, [inputText, isGenerating, messages, activeTask, hasActionPlan, voice]);
 
@@ -362,12 +436,19 @@ export default function MentorScreen() {
 
   const ListFooter = useCallback(() => {
     if (!isGenerating) return null;
+    if (isThinking && !streamingContent) {
+      return (
+        <View style={[styles.messageWrapper, styles.mentorWrapper]}>
+          <ThinkingBubble />
+        </View>
+      );
+    }
     return (
       <View style={[styles.messageWrapper, styles.mentorWrapper]}>
         <MentorBubble content={streamingContent} isStreaming isUser={false} />
       </View>
     );
-  }, [isGenerating, streamingContent]);
+  }, [isGenerating, isThinking, streamingContent]);
 
   const topPad    = Platform.OS === "web" ? 24 : insets.top + 16;
   // Tab bar is no longer absolute on Android → content area ends above tab bar.

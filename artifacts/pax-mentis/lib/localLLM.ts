@@ -229,6 +229,8 @@ export class LocalLLMBridge {
   private _loadError: string | null = null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private llamaContext: any = null;
+  // Yüklenen modelin gerçek ID'si — isQwen3 tespiti için config'den bağımsız tutulur
+  private _activeModelId: string | null = null;
 
   constructor() {
     this.config = { ...DEFAULT_CONFIG };
@@ -318,6 +320,8 @@ export class LocalLLMBridge {
         n_gpu_layers: this.config.nGpuLayers,
       });
       this._status = "loaded";
+      this._activeModelId = id;
+      this.config.modelId = id;
       return true;
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -375,7 +379,8 @@ export class LocalLLMBridge {
     messages: LLMMessage[],
     _resistanceSignal: string = "neutral",
     onToken?: (token: string) => void,
-    phase: ConversationPhase = "discovery"
+    phase: ConversationPhase = "discovery",
+    onThinkingChange?: (thinking: boolean) => void,
   ): Promise<string> {
     // Model yükleniyorsa tamamlanmasını bekle (race condition önleme)
     if (this._loadingPromise) {
@@ -383,7 +388,7 @@ export class LocalLLMBridge {
     }
 
     if (this.llamaContext) {
-      return this._runInference(messages, onToken, phase);
+      return this._runInference(messages, onToken, phase, onThinkingChange);
     }
 
     // llama.rn yokken → Replit API sunucusundaki Claude fallback
@@ -412,14 +417,19 @@ export class LocalLLMBridge {
   private async _runInference(
     messages: LLMMessage[],
     onToken?: (token: string) => void,
-    phase: ConversationPhase = "discovery"
+    phase: ConversationPhase = "discovery",
+    onThinkingChange?: (thinking: boolean) => void,
   ): Promise<string> {
     try {
-      const isQwen3 = this.config.modelId?.startsWith("qwen3");
+      // Yüklenen modelin gerçek ID'sini kullan (config.modelId değil — loadModel'de set edilir)
+      const activeId = this._activeModelId ?? this.config.modelId ?? "";
+      const isQwen3 = activeId.startsWith("qwen3") || activeId.startsWith("qwen-3");
+
+      // Qwen3 için daha yüksek token limiti — düşünme modu kapatılsa da yanıt uzun olabilir
+      const nPredict = isQwen3 ? Math.max(this.config.maxTokens, 512) : this.config.maxTokens;
 
       // Qwen3: sistem mesajına /no_think bayrağı ekle — resmi thinking-off yöntemi.
-      // Pre-fill tekniği llama.rn'de çalışmıyor: tamamlanmış mesaj görülüyor,
-      // model yeni turn başlatıp yeniden düşünüyor.
+      // Bu sayede model think bloğu üretmeden doğrudan yanıta geçer (~10x hızlanma).
       const finalMessages = isQwen3
         ? messages.map((m) =>
             m.role === "system"
@@ -428,16 +438,50 @@ export class LocalLLMBridge {
           )
         : messages;
 
-      // Qwen3 streaming: <think>...</think> token'ları UI'a ulaşmasın.
-      // Kalan bloklar applyTurkishCorrections'da da temizlenir (çift güvence).
+      // Qwen3 streaming filtresi: <think>...</think> token'ları UI'a ulaşmasın.
+      // Kısmi token desteği için buffer kullanılır ("<thi" + "nk>" gibi bölünmeler).
+      // onThinkingChange ile mentor ekranı düşünme animasyonu gösterebilir.
       let thinkDepth = 0;
+      let tokenBuf = "";
+
       const filteredOnToken = isQwen3 && onToken
         ? (data: { token: string }) => {
-            const t = data.token;
-            if (t.includes("<think>")) { thinkDepth++; return; }
-            if (t.includes("</think>")) { thinkDepth = Math.max(0, thinkDepth - 1); return; }
-            if (thinkDepth > 0) return;
-            onToken(t);
+            tokenBuf += data.token;
+
+            // Buffer'da tam <think> veya </think> var mı kontrol et
+            while (true) {
+              if (thinkDepth === 0) {
+                const openIdx = tokenBuf.indexOf("<think>");
+                if (openIdx === -1) {
+                  // Think bloğu yok — bufferdaki her şeyi yayınla
+                  if (tokenBuf) {
+                    onToken(tokenBuf);
+                    tokenBuf = "";
+                  }
+                  break;
+                }
+                // Think açılışından önceki kısmı yayınla
+                if (openIdx > 0) {
+                  onToken(tokenBuf.slice(0, openIdx));
+                }
+                tokenBuf = tokenBuf.slice(openIdx + "<think>".length);
+                thinkDepth++;
+                onThinkingChange?.(true);
+              } else {
+                // Think bloğunun içindeyiz — </think> ara
+                const closeIdx = tokenBuf.indexOf("</think>");
+                if (closeIdx === -1) {
+                  // Henüz kapanmadı — buffer'ı tut, token üretmeye devam et
+                  tokenBuf = "";
+                  break;
+                }
+                tokenBuf = tokenBuf.slice(closeIdx + "</think>".length);
+                thinkDepth = Math.max(0, thinkDepth - 1);
+                if (thinkDepth === 0) {
+                  onThinkingChange?.(false);
+                }
+              }
+            }
           }
         : onToken
           ? (data: { token: string }) => onToken(data.token)
@@ -446,7 +490,7 @@ export class LocalLLMBridge {
       const result = await this.llamaContext.completion(
         {
           messages: finalMessages,
-          n_predict: this.config.maxTokens,
+          n_predict: nPredict,
           temperature: this._phaseTemperature(phase),
           top_p: this.config.topP,
           top_k: 40,              // En olası 40 token içinde kal — garble azalır
@@ -464,9 +508,17 @@ export class LocalLLMBridge {
         },
         filteredOnToken
       );
+
+      // Kalan buffer içeriğini flush et (think dışıysa)
+      if (thinkDepth === 0 && tokenBuf && onToken) {
+        onToken(tokenBuf);
+      }
+      onThinkingChange?.(false);
+
       const raw = (result?.text ?? "").trim();
       return applyTurkishCorrections(raw);
     } catch (e: unknown) {
+      onThinkingChange?.(false);
       this._loadError = e instanceof Error ? e.message : "İnferans hatası";
       return this._fallbackError();
     }

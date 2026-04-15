@@ -236,16 +236,13 @@ export async function requestNotificationPermission(): Promise<boolean> {
 
 export function initNotificationHandler(): void {
   Notifications.setNotificationHandler({
-    handleNotification: async () => {
-      const isActive = AppState.currentState === "active";
-      return {
-        shouldShowAlert:  !isActive,
-        shouldPlaySound:  true,   // Ekran kapalıyken ses çalsın
-        shouldSetBadge:   false,
-        shouldShowBanner: !isActive,
-        shouldShowList:   true,
-      };
-    },
+    handleNotification: async () => ({
+      shouldShowAlert:  true,   // Uygulama açıkken de bildirim banner'ı göster
+      shouldPlaySound:  true,
+      shouldSetBadge:   false,
+      shouldShowBanner: true,
+      shouldShowList:   true,
+    }),
   });
 }
 
@@ -258,7 +255,6 @@ export async function scheduleLocalNotification(
 ): Promise<void> {
   if (!settings.masterEnabled) return;
   if (isInQuietHours(settings.quietStart, settings.quietEnd)) return;
-  if (AppState.currentState === "active" && delaySec === 0) return;
 
   // Frequency guard (morning is exempt)
   if (type !== "daily_morning") {
@@ -507,7 +503,8 @@ export function triggerInAppToast(
 
   _toastCallback?.({ type, variant: VARIANT_MAP[type], title: msg.title, body: msg.body });
 
-  if (!_mentorFocusActive && AppState.currentState !== "active") {
+  // Owl mascot bildirimi — mentor ekranı dışındayken göster
+  if (!_mentorFocusActive) {
     _owlCallback?.(type);
   }
 }

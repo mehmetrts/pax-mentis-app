@@ -1,99 +1,89 @@
 # Pax Mentis — GitHub & Android Studio Kurulum Kılavuzu
 
 ## 1. GitHub Reposu
-URL: https://github.com/mehmetrts/pax-mentis-app
+**URL:** https://github.com/mehmetrts/pax-mentis-app
+
+> İlk push tamamlandı — repo canlı ve güncel.
 
 ---
 
-## 2. İlk Push (Replit Shell'den — tek seferlik)
+## 2. Sonraki Push'lar (değişiklik yaptıktan sonra)
 
-Replit'te sol menüden **Shell** sekmesini aç ve şunu yapıştır:
-
-```bash
-cd /home/runner/workspace
-git config user.email "pax-mentis@replit.com"
-git config user.name "Pax Mentis Replit"
-git remote add github-pax "https://mehmetrts:$GITHUB_TOKEN@github.com/mehmetrts/pax-mentis-app.git"
-git push github-pax HEAD:main
-```
-
----
-
-## 3. Sonraki Push'lar (değişiklik yaptıktan sonra)
+Replit'te **Shell** sekmesini aç ve şunu çalıştır:
 
 ```bash
 bash scripts/github-sync.sh
-# ya da özel mesajla:
-bash scripts/github-sync.sh "feat: bildirim sesi eklendi"
+```
+
+Özel commit mesajıyla:
+```bash
+bash scripts/github-sync.sh "feat: yeni özellik açıklaması"
 ```
 
 ---
 
-## 4. Android Studio'da Açmak
+## 3. Android Studio'da Açmak
 
-### 4a. Clone et:
+### 3a. Bilgisayarına clone et:
 ```bash
 git clone https://github.com/mehmetrts/pax-mentis-app.git
 cd pax-mentis-app/artifacts/pax-mentis
 ```
 
-### 4b. Bağımlılıkları kur:
+### 3b. Bağımlılıkları kur:
 ```bash
 npm install -g pnpm
 pnpm install
 ```
 
-### 4c. Android klasörünü oluştur (ilk kez):
+### 3c. Android klasörünü oluştur (ilk kez — prebuild):
 ```bash
 npx expo prebuild --platform android
 ```
 
-### 4d. Android Studio'da aç:
+### 3d. Android Studio'da aç:
 - Android Studio → **Open** → `pax-mentis-app/artifacts/pax-mentis/android` klasörünü seç
 - Gradle sync beklenir (~2-3 dakika)
 
-### 4e. Samsung S23 Ultra'da çalıştır:
+### 3e. Samsung S23 Ultra'da çalıştır:
 - Telefonu USB ile bağla, USB Hata Ayıklama'yı aç
-- Android Studio'da Run ▶ düğmesine bas
+- Android Studio'da **Run ▶** düğmesine bas
 
 ---
 
-## 5. Replit ↔ Android Studio Sync Akışı
+## 4. Replit → GitHub → Android Studio Akışı
 
 ```
-Replit'te kod yaz
-    ↓
+Replit'te kod değişikliği
+        ↓
 bash scripts/github-sync.sh
-    ↓
-Android Studio → Git → Pull  (ya da: git pull origin main)
-    ↓
-Gradle sync otomatik
-    ↓
+        ↓
+Android Studio → Git → Pull
+        ↓
+Gradle sync (otomatik)
+        ↓
 Run ▶
 ```
 
 ---
 
-## 6. Bildirim Sesi Dosyası
+## 5. Bildirim Sesi Dosyası
 
-Özel çan sesi (`pax_chime.wav`) şu konumda:
+Özel çan sesi şu konumda — Android kanalı otomatik bağlı:
 ```
 artifacts/pax-mentis/android/app/src/main/res/raw/pax_chime.wav
 ```
-Android kanalı buna otomatik bağlı — ayrıca bir şey yapman gerekmez.
 
 ---
 
-## 7. Dev Build (Expo Development Client)
+## 6. Dev Build (Expo Development Client)
 
-Android Studio'da dev build oluşturmak için:
 ```bash
 cd artifacts/pax-mentis
 npx expo run:android
 ```
-Ya da Android Studio'da direkt Run ▶.
 
-Metro URL (Replit'te çalışırken):
+Replit Metro URL:
 ```
 exp+pax-mentis://expo-development-client/?url=https://960b56c8-27b0-4519-92ab-ac040d0b40d6-00-3j65motj2ud9z.expo.riker.replit.dev
 ```

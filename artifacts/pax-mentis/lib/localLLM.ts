@@ -395,11 +395,33 @@ export class LocalLLMBridge {
     phase: ConversationPhase = "discovery"
   ): Promise<string> {
     try {
-      // Qwen3: Düşünme modunu kapat — hızlı yanıt için boş think bloğu enjekte et
       const isQwen3 = this.config.modelId?.startsWith("qwen3");
+
+      // Qwen3: sistem mesajına /no_think bayrağı ekle — resmi thinking-off yöntemi.
+      // Pre-fill tekniği llama.rn'de çalışmıyor: tamamlanmış mesaj görülüyor,
+      // model yeni turn başlatıp yeniden düşünüyor.
       const finalMessages = isQwen3
-        ? [...messages, { role: "assistant" as const, content: "<think>\n\n</think>" }]
+        ? messages.map((m) =>
+            m.role === "system"
+              ? { ...m, content: m.content + "\n/no_think" }
+              : m
+          )
         : messages;
+
+      // Qwen3 streaming: <think>...</think> token'ları UI'a ulaşmasın.
+      // Kalan bloklar applyTurkishCorrections'da da temizlenir (çift güvence).
+      let thinkDepth = 0;
+      const filteredOnToken = isQwen3 && onToken
+        ? (data: { token: string }) => {
+            const t = data.token;
+            if (t.includes("<think>")) { thinkDepth++; return; }
+            if (t.includes("</think>")) { thinkDepth = Math.max(0, thinkDepth - 1); return; }
+            if (thinkDepth > 0) return;
+            onToken(t);
+          }
+        : onToken
+          ? (data: { token: string }) => onToken(data.token)
+          : undefined;
 
       const result = await this.llamaContext.completion(
         {
@@ -420,9 +442,7 @@ export class LocalLLMBridge {
             "\n\n\n",
           ],
         },
-        (data: { token: string }) => {
-          onToken?.(data.token);
-        }
+        filteredOnToken
       );
       const raw = (result?.text ?? "").trim();
       return applyTurkishCorrections(raw);

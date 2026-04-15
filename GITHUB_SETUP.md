@@ -76,7 +76,21 @@ artifacts/pax-mentis/android/app/src/main/res/raw/pax_chime.wav
 
 ---
 
-## 6. Dev Build (Expo Development Client)
+## 6. Sorun Giderme
+
+**"GITHUB_TOKEN ortam değişkeni tanımlı değil" hatası:**
+Replit Shell'de şunu çalıştır:
+```bash
+echo $GITHUB_TOKEN
+```
+Boş çıkıyorsa Replit Secrets sekmesinde `GITHUB_TOKEN` değerini kontrol et.
+
+**"remote already exists" hatası:**
+`github-pax` remote zaten ekli — `scripts/github-sync.sh` bunu otomatik yönetir.
+
+---
+
+## 7. Dev Build (Expo Development Client)
 
 ```bash
 cd artifacts/pax-mentis

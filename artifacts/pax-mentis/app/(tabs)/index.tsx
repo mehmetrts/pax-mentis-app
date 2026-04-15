@@ -590,7 +590,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   mentorButtonText: { fontSize: 15, fontFamily: "Inter_600SemiBold" },
-  statsGrid: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 20, gap: 10 },
+  statsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 20,
+    gap: 12,
+    justifyContent: "space-between",
+  },
   sessionCard: {
     borderWidth: 1,
     padding: 16,

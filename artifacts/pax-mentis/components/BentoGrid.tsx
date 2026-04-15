@@ -79,25 +79,70 @@ export function StatCard({ label, value, icon, color, onPress }: StatCardProps) 
   const colors = useColors();
   const toneColor = color || colors.primary;
 
-  return (
-    <BentoCard accent={toneColor} onPress={onPress} style={styles.statCard}>
-      <View style={styles.statHeader}>
-        <View
-          style={[
-            styles.iconWrapper,
-            {
-              backgroundColor: toneColor + "28",
-              borderRadius: colors.shape?.medium ?? 12,
-            },
-          ]}
-        >
-          <Feather name={icon as any} size={16} color={toneColor} />
-        </View>
+  const scale = useSharedValue(1);
+  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  const card = (
+    <Animated.View
+      style={[
+        styles.statCard,
+        {
+          backgroundColor: toneColor + "14",
+          borderRadius: 20,
+          borderWidth: 1,
+          borderColor: toneColor + "30",
+        },
+        animStyle,
+      ]}
+    >
+      {/* Icon — M3 tonal container, top-left */}
+      <View
+        style={[
+          styles.statIconWrap,
+          {
+            backgroundColor: toneColor + "26",
+            borderRadius: 14,
+          },
+        ]}
+      >
+        <Feather name={icon as any} size={18} color={toneColor} />
       </View>
-      <Text style={[styles.statValue, { color: colors.onSurface }]}>{value}</Text>
-      <Text style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>{label}</Text>
-    </BentoCard>
+
+      {/* Value — large, bold */}
+      <Text
+        style={[styles.statValue, { color: colors.onSurface }]}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.7}
+      >
+        {value}
+      </Text>
+
+      {/* Label — always visible */}
+      <Text
+        style={[styles.statLabel, { color: toneColor }]}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.75}
+      >
+        {label}
+      </Text>
+    </Animated.View>
   );
+
+  if (onPress) {
+    return (
+      <Pressable
+        onPressIn={() => { scale.value = withSpring(0.95, M3Spring.spatialFast); }}
+        onPressOut={() => { scale.value = withSpring(1, M3Spring.spatialDefault); }}
+        onPress={onPress}
+        style={styles.statCardOuter}
+      >
+        {card}
+      </Pressable>
+    );
+  }
+  return <View style={styles.statCardOuter}>{card}</View>;
 }
 
 export function SectionHeader({
@@ -130,28 +175,32 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderBottomWidth: 1,
   },
+  /* ── StatCard ── */
+  statCardOuter: {
+    width: "48%",    // 2-column grid, leaves gap in between
+  },
   statCard: {
-    flex: 1,
-    gap: 4,
-    minHeight: 90,
+    padding: 16,
+    gap: 6,
+    minHeight: 110,
   },
-  statHeader: {
-    marginBottom: 4,
-  },
-  iconWrapper: {
-    width: 34,
-    height: 34,
+  statIconWrap: {
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 4,
   },
   statValue: {
-    fontSize: 24,
+    fontSize: 30,
     fontFamily: "Inter_700Bold",
-    letterSpacing: -0.5,
+    letterSpacing: -1,
+    lineHeight: 34,
   },
   statLabel: {
-    fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontSize: 13,
+    fontFamily: "Inter_600SemiBold",
+    letterSpacing: 0.1,
   },
   sectionHeader: {
     flexDirection: "row",

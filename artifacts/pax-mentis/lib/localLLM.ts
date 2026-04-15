@@ -385,7 +385,9 @@ export class LocalLLMBridge {
     if (this.llamaContext) {
       return this._runInference(messages, onToken, phase);
     }
-    return this._mockResponse(phase, onToken, messages);
+
+    // llama.rn yokken → Replit API sunucusundaki Claude fallback
+    return this._cloudResponse(messages, onToken, phase);
   }
 
   // Son kullanıcı mesajının içeriğini al
@@ -467,6 +469,54 @@ export class LocalLLMBridge {
     } catch (e: unknown) {
       this._loadError = e instanceof Error ? e.message : "İnferans hatası";
       return this._fallbackError();
+    }
+  }
+
+  /**
+   * llama.rn olmadığında Replit API sunucusu üzerinden Claude Haiku ile yanıt üretir.
+   * Aynı sistem promptlarını kullanır — gerçek Sokratik mentorluk kalitesinde.
+   * API erişilemezse _mockResponse'a düşer.
+   */
+  private async _cloudResponse(
+    messages: LLMMessage[],
+    onToken?: (token: string) => void,
+    phase: ConversationPhase = "discovery"
+  ): Promise<string> {
+    try {
+      const domain = process.env["EXPO_PUBLIC_DOMAIN"] ?? "";
+      const apiUrl = domain
+        ? `https://${domain}/api/chat`
+        : "";
+
+      if (!apiUrl) {
+        return this._mockResponse(phase, onToken, messages);
+      }
+
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages, phase }),
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = (await res.json()) as { content?: string; error?: string };
+      const text = (data.content ?? "").trim();
+
+      if (!text) return this._mockResponse(phase, onToken, messages);
+
+      // Streaming simülasyonu — kelime kelime yayınla
+      if (onToken) {
+        const words = text.split(" ");
+        for (const word of words) {
+          await new Promise(r => setTimeout(r, 18 + Math.random() * 30));
+          onToken(word + " ");
+        }
+      }
+
+      return text;
+    } catch {
+      return this._mockResponse(phase, onToken, messages);
     }
   }
 

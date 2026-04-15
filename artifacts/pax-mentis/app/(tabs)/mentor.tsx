@@ -57,12 +57,12 @@ function ThinkingBubble() {
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.3, { duration: 700, easing: Easing.inOut(Easing.sine) }),
+      withTiming(0.3, { duration: 700, easing: Easing.inOut(Easing.sin) }),
       -1,
       true
     );
     scale.value = withRepeat(
-      withTiming(1.05, { duration: 900, easing: Easing.inOut(Easing.sine) }),
+      withTiming(1.05, { duration: 900, easing: Easing.inOut(Easing.sin) }),
       -1,
       true
     );
